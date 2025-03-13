@@ -1,19 +1,39 @@
 PShape earth;
 PImage earthDiffuse;
+PShape bigSphere;
+PImage bigSphereDiffuse;
 PMatrix3D rotationMatrix;
 PVector lastArcball;
 float zoomFactor = 0.5;
 
 void setup() {
   fullScreen(P3D);
+  
+  // Load and set up the earth sphere (original size)
   earth = loadShape("Earth.obj");
   earthDiffuse = loadImage("earthDiffuse.png");
   earth.setTexture(earthDiffuse);
+  
+  // Load and set up the big sphere (5x bigger)
+  bigSphere = loadShape("Earth.obj");
+  bigSphereDiffuse = loadImage("SpaceSky.jpg");  
+  bigSphere.setTexture(bigSphereDiffuse);
+  
   rotationMatrix = new PMatrix3D();
 }
 
 void draw() {
   background(0);
+  
+  // Draw the big sphere (5x bigger than earth)
+  pushMatrix();
+  translate(width/2, height/2);
+  applyMatrix(rotationMatrix);
+  scale(zoomFactor * 25);  // 5x scale relative to earth
+  shape(bigSphere);
+  popMatrix();
+  
+  // Draw the earth sphere (original size) on top
   pushMatrix();
   translate(width/2, height/2);
   applyMatrix(rotationMatrix);
@@ -24,22 +44,34 @@ void draw() {
 
 void mousePressed() {
   if (mouseButton == LEFT) {
-    lastArcball = getArcballVector(mouseX, mouseY);
+    // Only set up the arcball vector if not using the control key rotation
+    if (!(keyPressed && keyCode == CONTROL)) {
+      lastArcball = getArcballVector(mouseX, mouseY);
+    }
   }
 }
 
 void mouseDragged() {
   if (mouseButton == LEFT) {
-    PVector current = getArcballVector(mouseX, mouseY);
-    float dotVal = constrain(lastArcball.dot(current), -1, 1);
-    float angle = acos(dotVal);
-    PVector axis = lastArcball.cross(current, null);
-    if (axis.mag() > 0.0001) {
-      axis.normalize();
-      PMatrix3D delta = getRotationMatrix(angle, axis);
+    // If Control is held, rotate only around the y-axis using horizontal movement
+    if (keyPressed && keyCode == CONTROL) {
+      float angle = (mouseX - pmouseX) * 0.01;
+      PMatrix3D delta = new PMatrix3D();
+      delta.rotateY(angle);
       rotationMatrix.preApply(delta);
+    } else {
+      // Regular arcball rotation
+      PVector current = getArcballVector(mouseX, mouseY);
+      float dotVal = constrain(lastArcball.dot(current), -1, 1);
+      float angle = acos(dotVal);
+      PVector axis = lastArcball.cross(current, null);
+      if (axis.mag() > 0.0001) {
+        axis.normalize();
+        PMatrix3D delta = getRotationMatrix(angle, axis);
+        rotationMatrix.preApply(delta);
+      }
+      lastArcball = current;
     }
-    lastArcball = current;
   }
 }
 
