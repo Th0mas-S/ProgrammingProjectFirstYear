@@ -6,6 +6,12 @@ PMatrix3D rotationMatrix;
 PVector lastArcball;
 float zoomFactor = 0.5;
 
+// Inertia globals
+boolean isDragging = false;
+float inertiaAngle = 0;
+PVector inertiaAxis = new PVector(0, 0, 0);
+float friction = 0.95;  // Deceleration factor (0.95 means 5% loss per frame)
+
 void setup() {
   fullScreen(P3D);
   
@@ -23,6 +29,15 @@ void setup() {
 }
 
 void draw() {
+  // If not dragging and inertia is present, apply a rotation delta based on inertia
+  if (!isDragging && abs(inertiaAngle) > 0.0001) {
+    PMatrix3D inertiaDelta = getRotationMatrix(inertiaAngle, inertiaAxis);
+    rotationMatrix.preApply(inertiaDelta);
+    inertiaAngle *= friction;  // apply friction each frame
+  } else if (abs(inertiaAngle) <= 0.0001) {
+    inertiaAngle = 0;
+  }
+  
   background(0);
   
   // Draw the big sphere (5x bigger than earth)
@@ -43,24 +58,31 @@ void draw() {
 }
 
 void mousePressed() {
-  if (mouseButton == LEFT) {
-    // Only set up the arcball vector if not using the control key rotation
-    if (!(keyPressed && keyCode == CONTROL)) {
+  // Check for left or right mouse button presses.
+  if (mouseButton == LEFT || mouseButton == RIGHT) {
+    isDragging = true;
+    cursor(MOVE);  // Change the cursor to a grabbing hand
+    // For left button without CTRL, set up the arcball vector.
+    if (mouseButton == LEFT && !(keyPressed && keyCode == CONTROL)) {
       lastArcball = getArcballVector(mouseX, mouseY);
     }
   }
 }
 
 void mouseDragged() {
-  if (mouseButton == LEFT) {
-    // If Control is held, rotate only around the y-axis using horizontal movement
-    if (keyPressed && keyCode == CONTROL) {
+  // Use left or right mouse button for rotation.
+  if (mouseButton == LEFT || mouseButton == RIGHT) {
+    // If right button OR left button with CTRL: y-axis only rotation.
+    if (mouseButton == RIGHT || (mouseButton == LEFT && keyPressed && keyCode == CONTROL)) {
       float angle = (mouseX - pmouseX) * 0.01;
       PMatrix3D delta = new PMatrix3D();
       delta.rotateY(angle);
       rotationMatrix.preApply(delta);
+      // Set inertia to continue rotation on release
+      inertiaAngle = angle;
+      inertiaAxis = new PVector(0, 1, 0); // Fixed to the Y-axis
     } else {
-      // Regular arcball rotation
+      // Regular arcball rotation.
       PVector current = getArcballVector(mouseX, mouseY);
       float dotVal = constrain(lastArcball.dot(current), -1, 1);
       float angle = acos(dotVal);
@@ -69,10 +91,19 @@ void mouseDragged() {
         axis.normalize();
         PMatrix3D delta = getRotationMatrix(angle, axis);
         rotationMatrix.preApply(delta);
+        // Update inertia values from the current drag delta.
+        inertiaAngle = angle;
+        inertiaAxis = axis.get();
       }
       lastArcball = current;
     }
   }
+}
+
+void mouseReleased() {
+  // Stop dragging, revert the cursor to default.
+  isDragging = false;
+  cursor(ARROW);
 }
 
 PVector getArcballVector(float x, float y) {
