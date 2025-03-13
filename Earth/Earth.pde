@@ -18,8 +18,8 @@ void setup() {
     }
   }
   gradientTexture.updatePixels();
-  //earthDiffuse = loadImage("earthDiffuse.png");
-  earth.setTexture(gradientTexture);
+  earthDiffuse = loadImage("earthDiffuse.png");
+  earth.setTexture(earthDiffuse);
   rotationMatrix = new PMatrix3D();
 }
 
