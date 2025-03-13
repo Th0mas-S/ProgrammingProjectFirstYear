@@ -6,7 +6,7 @@ PVector lastArcball;
 float zoomFactor = 0.5;
 
 void setup() {
-  size(1000, 1000, P3D);
+  fullScreen(P3D);
   earth = loadShape("Earth.obj");
   int texSize = 256;
   gradientTexture = createImage(texSize, texSize, RGB);
