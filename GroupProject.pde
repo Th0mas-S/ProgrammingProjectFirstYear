@@ -11,7 +11,7 @@ Screen screen1, screen2;
 Flight currentFlight;
 
 void setup(){
-  size(1900, 1000);
+  fullScreen();
   String[] lines = loadStrings("flights.csv");
   flData = new ArrayList<Flight>();
   initializeArray(flData, lines);
