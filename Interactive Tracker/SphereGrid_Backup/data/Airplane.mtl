@@ -1,0 +1,13 @@
+# Blender MTL File: 'Boeing_737.blend'
+# Material Count: 1
+
+newmtl 737_color
+Ns 96.078431
+Ka 0.060976 0.060976 0.060976
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 3
+map_Kd texture.png
