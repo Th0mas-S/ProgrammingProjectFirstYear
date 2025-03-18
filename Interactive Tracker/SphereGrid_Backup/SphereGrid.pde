@@ -1,4 +1,4 @@
-/*class SphereGrid {
+class SphereGrid {
   float sphereRadius;
   float latStep;
   float lonStep;
@@ -11,7 +11,7 @@
   
   void display() {
     pushStyle();
-    fill(255, 255, 0, 0);
+    fill(255, 255, 0);
     for (float lat = -80; lat <= 80; lat += latStep) {
       float theta = radians(90 - lat);
       for (float lon = -180; lon <= 180; lon += lonStep) {
@@ -27,4 +27,4 @@
     }
     popStyle();
   }
-}*/
+}

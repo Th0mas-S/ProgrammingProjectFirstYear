@@ -1,14 +1,14 @@
 class ScreenManager {
   int currentScreen;
   Earth earth;
-//  SphereGrid grid;
+  SphereGrid grid;
   Airport airportOrigin;
   Airport airportDest;
   Airplane airplane;
   
-  ScreenManager(Earth earth, /*SphereGrid grid,*/ Airport airportOrigin, Airport airportDest, Airplane airplane) {
+  ScreenManager(Earth earth, SphereGrid grid, Airport airportOrigin, Airport airportDest, Airplane airplane) {
     this.earth = earth;
-   // this.grid = grid;
+    this.grid = grid;
     this.airportOrigin = airportOrigin;
     this.airportDest = airportDest;
     this.airplane = airplane;
@@ -26,7 +26,7 @@ class ScreenManager {
       scale(earth.zoomFactor);
       
       earth.display();
-      //grid.display();
+      grid.display();
       airportOrigin.display();
       airportDest.display();
       

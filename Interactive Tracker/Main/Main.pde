@@ -1,9 +1,12 @@
 ScreenManager screenManager;
+EarthScreen earthScreen;
+
 Earth earth;
 Airport airportOrigin;
 Airport airportDest;
 Airplane airplane;
 FlightInfo flightInfo;
+
 
 Location origin = new Location(-25.5, 9.6); // departure latitude and longitude (loaded from file)        Relative Latitude = -(Actual Latitude) + 0.2617
 Location destination = new Location(-51.2, 90.2); // arrival latitude and longitude (loaded from file)    Relative Longitude = 1.0071(Actual Longitude) + 90.35
@@ -11,7 +14,7 @@ Location destination = new Location(-51.2, 90.2); // arrival latitude and longit
 boolean showFlightInfo = false;
 
 float sphereRadius = 640;
-
+                                                                                                                                                                      
 void setup() {
   fullScreen(P3D);
    
@@ -20,7 +23,9 @@ void setup() {
   airportDest = new Airport(destination, sphereRadius, 5);
   airplane = new Airplane(airportOrigin, airportDest, sphereRadius, "Airplane.obj", "AirplaneTexture.png");
   
-  screenManager = new ScreenManager(earth, airportOrigin, airportDest, airplane);
+  screenManager = new ScreenManager();
+  earthScreen = new EarthScreen(earth, airportOrigin, airportDest, airplane);
+  screenManager.switchScreen(earthScreen);
   noStroke();
   
    flightInfo = new FlightInfo(
@@ -42,59 +47,19 @@ void mousePressed() {
 }
 
 void mouseDragged() {
-  if (screenManager.currentScreen == 0) {
-    if (mouseButton == LEFT || mouseButton == RIGHT) {
-      if (mouseButton == RIGHT || (mouseButton == LEFT && keyPressed && keyCode == CONTROL)) {
-        float angle = (mouseX - pmouseX) * 0.01;
-        PMatrix3D delta = getRotationMatrix(angle, new PVector(0, 1, 0));
-        earth.rotationMatrix.preApply(delta);
-        earth.inertiaAngle = angle;
-        earth.inertiaAxis = new PVector(0, 1, 0);
-      } else {
-        PVector current = getArcballVector(mouseX, mouseY);
-        float dotVal = constrain(earth.lastArcball.dot(current), -1, 1);
-        float angle = acos(dotVal);
-        PVector axis = earth.lastArcball.cross(current, null);
-        if (axis.mag() > 0.0001) {
-          axis.normalize();
-          PMatrix3D delta = getRotationMatrix(angle, axis);
-          earth.rotationMatrix.preApply(delta);
-          earth.inertiaAngle = angle;
-          earth.inertiaAxis = axis.copy();
-        }
-        earth.lastArcball = current;
-      }
-    }
-  }
+  screenManager.handleMouseDragged();
 }
 
 void mouseReleased() {
-  if (screenManager.currentScreen == 0) {
-    earth.isDragging = false;
-    cursor(ARROW);
-  }
+   screenManager.handleMouseReleased();
 }
 
 void mouseWheel(MouseEvent event) {
-  if (screenManager.currentScreen == 0) {
-    float e = event.getCount();
-    earth.zoomFactor -= e * 0.05;
-    earth.zoomFactor = constrain(earth.zoomFactor, 0.1, 1.70);
-  }
+  screenManager.handleMouseWheel(event);
 }
 
 void keyPressed() {
-  if (screenManager.currentScreen == 0) {
-    if (key == ' ') {
-      earth.rotationMatrix = new PMatrix3D();
-      earth.zoomFactor = 0.8;
-    }
-    if (keyCode == ENTER) {
-      airplane.moving = true;
-      airplane.t = 0;
-      airplane.lastUpdateTime = millis();
-    }
-  }
+  screenManager.handleKeyPressed();
 }
 
 //Helper Functions

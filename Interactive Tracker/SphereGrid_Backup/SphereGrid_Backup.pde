@@ -1,6 +1,6 @@
 ScreenManager screenManager;
 Earth earth;
-//SphereGrid grid;
+SphereGrid grid;
 Airport airportOrigin;
 Airport airportDest;
 Airplane airplane;
@@ -19,12 +19,12 @@ void setup() {
   noSmooth();
    
   earth = new Earth("Earth.obj", "earthDiffuse.png");
-  //grid = new SphereGrid(sphereRadius, 6.22, 6.22);
+  grid = new SphereGrid(sphereRadius, 6.22, 6.22);
   airportOrigin = new Airport(origin, sphereRadius, 5);
   airportDest = new Airport(destination, sphereRadius, 5);
   airplane = new Airplane(airportOrigin, airportDest, sphereRadius, "Airplane.obj", "AirplaneTexture.png");
   
-  screenManager = new ScreenManager(earth, /*grid,*/ airportOrigin, airportDest, airplane);
+  screenManager = new ScreenManager(earth, grid, airportOrigin, airportDest, airplane);
   noStroke();
   
    flightInfo = new FlightInfo(
