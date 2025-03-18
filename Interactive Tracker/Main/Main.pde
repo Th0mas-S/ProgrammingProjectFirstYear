@@ -5,8 +5,8 @@ Airport airportDest;
 Airplane airplane;
 FlightInfo flightInfo;
 
-Location origin = new Location(-25.5, 9.6); // departure latitude and longitude (loaded from file)
-Location destination = new Location(-51.2, 90.2); // arrival latitude and longitude (loaded from file)
+Location origin = new Location(-25.5, 9.6); // departure latitude and longitude (loaded from file)        Relative Latitude = -(Actual Latitude) + 0.2617
+Location destination = new Location(-51.2, 90.2); // arrival latitude and longitude (loaded from file)    Relative Longitude = 1.0071(Actual Longitude) + 90.35
 
 boolean showFlightInfo = false;
 
