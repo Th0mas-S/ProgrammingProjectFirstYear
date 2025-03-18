@@ -13,7 +13,7 @@ Location destination = new Location(-51.2, 90.2); // arrival latitude and longit
 
 boolean showFlightInfo = false;
 
-float sphereRadius = 640;
+float sphereRadius = 645;
                                                                                                                                                                       
 void setup() {
   fullScreen(P3D);

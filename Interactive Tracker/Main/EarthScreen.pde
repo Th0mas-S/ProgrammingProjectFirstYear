@@ -1,4 +1,17 @@
 
+ArrayList<Airport> loadAllAirports(String fileName) {
+  ArrayList<Airport> airports = new ArrayList<Airport>(300);
+  
+  String[] readIn = loadStrings(fileName);
+  
+  for(int i=1; i<readIn.length; i++){
+    String[] row = split(readIn[i], ",");
+    airports.add(new Airport(new Location(-parseFloat(row[1])  + 0.2617, 1.0071 * parseFloat(row[2]) + 90.35), sphereRadius, 5)); 
+  }
+  
+  return airports;
+}
+
 class EarthScreen extends Screen {
   
   Earth earth;
@@ -6,11 +19,15 @@ class EarthScreen extends Screen {
   Airport airportDest;
   Airplane airplane;
   
+  ArrayList<Airport> allAirports;
+  
   EarthScreen(Earth earth, Airport airportOrigin, Airport airportDest, Airplane airplane) {
       this.earth = earth;
       this.airportOrigin = airportOrigin;
       this.airportDest = airportDest;
       this.airplane = airplane;
+      
+      allAirports = loadAllAirports("coordinate.csv");
   }
   
   void draw() {
@@ -25,6 +42,11 @@ class EarthScreen extends Screen {
       earth.display();
       airportOrigin.display();
       airportDest.display();
+
+      
+      for(Airport a : allAirports) {
+        a.display();
+      }
       
       airplane.update();
       airplane.displayPath();
