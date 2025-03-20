@@ -1,17 +1,4 @@
 
-ArrayList<Airport> loadAllAirports(String fileName) {
-  ArrayList<Airport> airports = new ArrayList<Airport>(300);
-  
-  String[] readIn = loadStrings(fileName);
-  
-  for(int i=1; i<readIn.length; i++){
-    String[] row = split(readIn[i], ",");
-    airports.add(new Airport(new Location(-parseFloat(row[1])  + 0.2617, 1.0071 * parseFloat(row[2]) + 90.35), sphereRadius, 5)); 
-  }
-  
-  return airports;
-}
-
 class EarthScreen extends Screen {
   
   Earth earth;
@@ -19,45 +6,57 @@ class EarthScreen extends Screen {
   Airport airportDest;
   Airplane airplane;
   
-  ArrayList<Airport> allAirports;
-  
   EarthScreen(Earth earth, Airport airportOrigin, Airport airportDest, Airplane airplane) {
       this.earth = earth;
       this.airportOrigin = airportOrigin;
       this.airportDest = airportDest;
       this.airplane = airplane;
-      
-      allAirports = loadAllAirports("coordinate.csv");
   }
   
-  void draw() {
-      background(0);
-      earth.update();
-      
-      pushMatrix();
-      translate(width/2, height/2);
-      applyMatrix(earth.rotationMatrix);
-      scale(earth.zoomFactor);
-      
-      earth.display();
-      airportOrigin.display();
-      airportDest.display();
-
-      
-      for(Airport a : allAirports) {
-        a.display();
-      }
-      
-      airplane.update();
-      airplane.displayPath();
-      airplane.display();
-      
-      popMatrix();
-      
+ void draw() {
+  background(0);
       if (showFlightInfo) {
-        flightInfo.display();
-      }    
+    flightInfo.display();
   }
+    for (Star star : stars) {
+    star.update(earth);
+    star.display();
+  }
+  for (Star star : moreStars) {
+    star.update(earth);
+    star.display();
+  }
+  for (Star star : evenMoreStars) {
+    star.update(earth);
+    star.display();
+  }
+  for (Star star : evenEvenMoreStars) {
+    star.update(earth);
+    star.display();
+  }
+  earth.update();
+  
+  // Center the screen once and apply global rotation
+  translate(width/2, height/2, 0);
+  applyMatrix(earth.rotationMatrix);
+  
+  // Draw stars in the global coordinate system (they share the same center)
+
+
+  // Draw Earth and its related objects
+  pushMatrix();
+    // Only apply zooming for Earth and its related objects
+    scale(earth.zoomFactor);
+    earth.display();
+    airportOrigin.display();
+    airportDest.display();
+    airplane.update();
+    airplane.displayPath();
+    airplane.display();
+  popMatrix();
+  
+}
+
   
   void mousePressed() {
   if (mouseButton == LEFT) {
@@ -75,6 +74,7 @@ class EarthScreen extends Screen {
       }
       if (mouseButton == LEFT || mouseButton == RIGHT) {
         earth.isDragging = true;
+        earth.inertiaAngle = 0;
         cursor(MOVE);
         if (mouseButton == LEFT && !(keyPressed && keyCode == CONTROL)) {
           earth.lastArcball = getArcballVector(mouseX, mouseY);
