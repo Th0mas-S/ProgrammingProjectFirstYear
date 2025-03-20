@@ -1,3 +1,6 @@
+//download flights.csv and place in folder
+//link -> https://figshare.com/articles/dataset/flights_csv/9820139?file=17614757
+
 Screen screen1;
 ArrayList<Flight> flights;
 ArrayList<Integer> arrayIndex;
