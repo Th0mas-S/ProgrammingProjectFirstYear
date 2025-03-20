@@ -1,3 +1,4 @@
+
 ScreenManager screenManager;
 EarthScreen earthScreen;
 
@@ -13,12 +14,33 @@ Location destination = new Location(-51.2, 90.2); // arrival latitude and longit
 
 boolean showFlightInfo = false;
 
-float sphereRadius = 645;
+float sphereRadius = 640;
                                                                                                                                                                       
 void setup() {
   fullScreen(P3D);
+  
+  // Initialize near stars (300 - 500 units away)
+    // Initialize stars (300 - 500 units away)
+  for (int i = 0; i < numStars; i++) {
+    stars[i] = new Star(1000, 2500);
+  }
+  
+  //// Initialize moreStars (500 - 800 units away)
+  for (int i = 0; i < numMoreStars; i++) {
+    moreStars[i] = new Star(1500, 3000);
+  }
+  
+  // Initialize evenMoreStars (800 - 1200 units away)
+  for (int i = 0; i < numEvenMoreStars; i++) {
+    evenMoreStars[i] = new Star(2000, 3500);
+  }
+  
+  // Initialize evenEvenMoreStars (1200 - 2000 units away)
+  for (int i = 0; i < numEvenEvenMoreStars; i++) {
+    evenEvenMoreStars[i] = new Star(3000, 4000);
+  }
    
-  earth = new Earth("Earth.obj", "Surface4k.png"); //Change to "Surface16k.png" or "Surface2k.png" Download "Surface16k.png" from https://drive.google.com/drive/folders/1csCDLNxFFXlvlKpspokz1EXBzWIePThU?usp=sharing
+  earth = new Earth("Earth.obj", "Surface2k.png"); //Change to "Surface16k.png" or "Surface2k.png" Download "Surface16k.png" from https://drive.google.com/drive/folders/1csCDLNxFFXlvlKpspokz1EXBzWIePThU?usp=sharing
   airportOrigin = new Airport(origin, sphereRadius, 5);
   airportDest = new Airport(destination, sphereRadius, 5);
   airplane = new Airplane(airportOrigin, airportDest, sphereRadius, "Airplane.obj", "AirplaneTexture.png");
@@ -41,7 +63,6 @@ void setup() {
 void draw() {
   screenManager.drawScreen();
 }
-
 void mousePressed() {
   screenManager.handleMousePressed();
 }
@@ -88,4 +109,12 @@ PVector getArcballVector(float x, float y) {
     v.z = sqrt(1.0 - mag * mag);
   }
   return v;
+}
+
+void multiplyP3DMatrixScalar(PMatrix3D mat, float s) {
+  mat.m00 *= s;  mat.m01 *= s;  mat.m02 *= s;  mat.m03 *= s;
+  mat.m10 *= s;  mat.m11 *= s;  mat.m12 *= s;  mat.m13 *= s;
+  mat.m20 *= s;  mat.m21 *= s;  mat.m22 *= s;  mat.m23 *= s;
+  mat.m30 *= s;  mat.m31 *= s;  mat.m32 *= s;  mat.m33 *= s;
+  
 }

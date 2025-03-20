@@ -1,18 +1,22 @@
 class Airplane {
   PShape shape;
   PImage texture;
-  
   PVector start;
   PVector end;
+  PVector startNorm;
+  PVector endNorm;
   PVector currentPos;
-  PVector lastScreenPos;
-  
-  boolean moving = false;
-    
   float t = 0;
   float sphereRadius;
   float lastUpdateTime;
-
+  boolean moving = false;
+  PVector lastScreenPos;  // for hover detection
+  
+  // Temporary vectors for optimized slerp computations.
+  PVector temp1 = new PVector();
+  PVector temp2 = new PVector();
+  PVector slerpResult = new PVector();
+  
   Airplane(Airport origin, Airport destination, float sphereRadius, String shapeFile, String textureFile) {
     shape = loadShape(shapeFile);
     texture = loadImage(textureFile);
@@ -20,21 +24,30 @@ class Airplane {
     this.sphereRadius = sphereRadius;
     start = origin.getPosition();
     end = destination.getPosition();
+    // Precompute normalized versions (they remain constant after construction).
+    startNorm = start.copy().normalize();
+    endNorm = end.copy().normalize();
+    
     currentPos = start.copy();
     lastUpdateTime = millis();
     lastScreenPos = new PVector();
   }
   
-  PVector slerp(PVector v0, PVector v1, float t) {
-    PVector v0n = v0.copy().normalize();
-    PVector v1n = v1.copy().normalize();
-    float dotVal = constrain(v0n.dot(v1n), -1, 1);
+  // Optimized slerp using precomputed startNorm and endNorm.
+  PVector slerpOptimized(float t, PVector temp1, PVector temp2, PVector result) {
+    // Use precomputed normalized vectors.
+    float dotVal = constrain(startNorm.dot(endNorm), -1, 1);
     float theta = acos(dotVal);
-    if (theta == 0) return v0n.copy();
+    if (theta == 0) {
+      result.set(startNorm);
+      return result;
+    }
     float sinTheta = sin(theta);
     float factor0 = sin((1 - t) * theta) / sinTheta;
     float factor1 = sin(t * theta) / sinTheta;
-    PVector result = PVector.add(PVector.mult(v0n, factor0), PVector.mult(v1n, factor1));
+    temp1.set(PVector.mult(startNorm, factor0));
+    temp2.set(PVector.mult(endNorm, factor1));
+    result.set(PVector.add(temp1, temp2));
     result.mult(sphereRadius);
     return result;
   }
@@ -46,11 +59,12 @@ class Airplane {
     lastUpdateTime = now;
     t += dt / 21.0;
     if (t > 1) t = 0;
-    PVector pt = slerp(start, end, t);
-    pt.normalize();
+    
+    slerpOptimized(t, temp1, temp2, slerpResult);
+    slerpResult.normalize();
     float offset = 20 * sin(PI * t);
-    pt.mult(sphereRadius + offset);
-    currentPos = pt;
+    slerpResult.mult(sphereRadius + offset);
+    currentPos.set(slerpResult);
   }
   
   void displayPath() {
@@ -62,11 +76,11 @@ class Airplane {
     beginShape();
     for (int i = 0; i <= segments; i++) {
       float tt = i / float(segments);
-      PVector pt = slerp(start, end, tt);
-      pt.normalize();
+      slerpOptimized(tt, temp1, temp2, slerpResult);
+      slerpResult.normalize();
       float offset = 20 * sin(PI * tt);
-      pt.mult(sphereRadius + offset);
-      vertex(pt.x, pt.y, pt.z);
+      slerpResult.mult(sphereRadius + offset);
+      vertex(slerpResult.x, slerpResult.y, slerpResult.z);
     }
     endShape();
     popStyle();
@@ -75,14 +89,15 @@ class Airplane {
   void display() {
     pushMatrix();
     translate(currentPos.x, currentPos.y, currentPos.z);
-  
+    
     float dtLocal = 0.001;
     float tFuture = constrain(t + dtLocal, 0, 1);
-    PVector futurePos = slerp(start, end, tFuture);
-    futurePos.normalize();
+    slerpOptimized(tFuture, temp1, temp2, slerpResult);
+    slerpResult.normalize();
     float offsetFuture = 20 * sin(PI * tFuture);
-    futurePos.mult(sphereRadius + offsetFuture);
-  
+    slerpResult.mult(sphereRadius + offsetFuture);
+    PVector futurePos = slerpResult.copy();
+    
     PVector tangent = PVector.sub(futurePos, currentPos);
     PVector up = currentPos.copy().normalize();
     PVector forward = tangent.copy();
@@ -91,7 +106,7 @@ class Airplane {
     if (forward.mag() < 0.0001) forward = new PVector(0, 0, 1);
     else forward.normalize();
     PVector right = up.cross(forward, null).normalize();
-  
+    
     PMatrix3D m = new PMatrix3D(
       right.x, up.x, forward.x, 0,
       right.y, up.y, forward.y, 0,
@@ -99,12 +114,12 @@ class Airplane {
       0,       0,    0,         1
     );
     applyMatrix(m);
-  
+    
     float sx = screenX(0, 0, 0);
     float sy = screenY(0, 0, 0);
     lastScreenPos.set(sx, sy, 0);
     boolean isHovered = (dist(mouseX, mouseY, sx, sy) < 50);
-  
+    
     if (isHovered) {
       tint(255, 255, 0);
       scale(18);
