@@ -18,8 +18,8 @@ class Screen{
   
   void printArray(){
     int counter=0;
-    for(int i=int((flights.size()*getPercent())); (i<flights.size() && counter<25); i++){
-      String info = flights.get(i).toString();
+    for(int i=int((arrayIndex.size()*getPercent())); (i<arrayIndex.size() && counter<25); i++){
+      String info = flights.get(arrayIndex.get(i)).toString();
       text(info, 80, 320+((textSize+3)*counter));
       counter++;
     }
@@ -33,7 +33,7 @@ class Screen{
       textSize(60);
       fill(240);
       text("Flight", 80, 100);
-      fill(#00ACFF);
+      fill(#FCBA00);
       rect(230, 50, 122, 65);
       fill(0);
       text("hub", 240, 100);

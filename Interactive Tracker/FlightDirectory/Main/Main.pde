@@ -1,5 +1,6 @@
 Screen screen1;
 ArrayList<Flight> flights;
+ArrayList<Integer> arrayIndex;
 Table flightsTable;
 boolean loaded, initialized;
 
@@ -12,6 +13,7 @@ void setup(){
   text("loading...", width/2, height/2);
   screen1 = new Screen(1);
   flights = new ArrayList<Flight>();
+  arrayIndex = new ArrayList<Integer>();
 }
 
 void initializeFlights(){                                          //initializes an array of fight objects which each
@@ -60,6 +62,16 @@ void mouseWheel(MouseEvent event) {
   if(screen1.scrollPercent<0) screen1.scrollPercent=0;
 }
 
+void keyPressed(){
+  if(key=='c') clearIndex();
+  else if(key=='v'){
+    arrayIndex=new ArrayList<Integer>();
+    for(int i=0; i<10; i++){
+      arrayIndex.add(i*2);
+    }
+  }
+}
+
 void drawLoading(){
   background(0);
   textSize(80);
@@ -71,9 +83,17 @@ void mousePressed(){
   println("x: "+mouseX+"  y: "+mouseY);
 }
 
+void clearIndex(){
+  arrayIndex=new ArrayList<Integer>();
+  for(int i=0; i<flights.size(); i++){
+    arrayIndex.add(i);
+  }
+}
+
 void draw(){
   if(!loaded){ 
       initializeFlights();
+      clearIndex();
       loaded=true;
   }
   if(initialized){
