@@ -65,10 +65,7 @@ void mouseWheel(MouseEvent event) {
 void keyPressed(){
   if(key=='c') clearIndex();
   else if(key=='v'){
-    arrayIndex=new ArrayList<Integer>();
-    for(int i=0; i<10; i++){
-      arrayIndex.add(i*2);
-    }
+    screen1.search("LAX");
   }
 }
 

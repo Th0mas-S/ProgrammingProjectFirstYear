@@ -25,6 +25,17 @@ class Screen{
     }
     //println(getPercent());
   } 
+  
+  void search(String query){
+    arrayIndex = new ArrayList<Integer>();
+    for(int i=0; i<flights.size(); i++){
+      //println(flights.get(i).origin+" "+query);
+      if(flights.get(i).airlineCode.equals(query) || flights.get(i).flightNumber.equals(query) || flights.get(i).origin.equals(query) || flights.get(i).destination.equals(query)){ 
+        arrayIndex.add(i);
+      }
+    }
+    println("sorted");
+  }
 
   void draw(){
     if(screenNum==1){
