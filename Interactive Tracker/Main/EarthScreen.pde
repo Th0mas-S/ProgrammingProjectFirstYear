@@ -30,10 +30,7 @@ class EarthScreen extends Screen {
     star.update(earth);
     star.display();
   }
-  for (Star star : evenEvenMoreStars) {
-    star.update(earth);
-    star.display();
-  }
+
   earth.update();
   
   // Center the screen once and apply global rotation

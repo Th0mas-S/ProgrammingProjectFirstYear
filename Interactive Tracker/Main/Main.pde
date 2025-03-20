@@ -34,11 +34,7 @@ void setup() {
   for (int i = 0; i < numEvenMoreStars; i++) {
     evenMoreStars[i] = new Star(2000, 3500);
   }
-  
-  // Initialize evenEvenMoreStars (1200 - 2000 units away)
-  for (int i = 0; i < numEvenEvenMoreStars; i++) {
-    evenEvenMoreStars[i] = new Star(3000, 4000);
-  }
+
    
   earth = new Earth("Earth.obj", "Surface2k.png"); //Change to "Surface16k.png" or "Surface2k.png" Download "Surface16k.png" from https://drive.google.com/drive/folders/1csCDLNxFFXlvlKpspokz1EXBzWIePThU?usp=sharing
   airportOrigin = new Airport(origin, sphereRadius, 5);
