@@ -1,5 +1,5 @@
 class Flight{
-  String date;
+  String date;                          //list of all data points stored for each flight
   String airlineCode;
   String flightNumber;
   String origin;
@@ -23,7 +23,7 @@ class Flight{
   
   Flight(String date, String airlineCode, String flightNumber, String origin, String destination, String scheduledDeparture, String actualDeparture, int departureDelay, int taxiOut, String wheelsOff, int scheduledFlightTime, int elapsedTime, int airTime, float flightDistance, String wheelsOn, int taxiIn, String scheduledArrival, String actualArrival, int arrivalDelay, boolean diverted, boolean cancelled) {
     this.date = date;
-    this.airlineCode = airlineCode;
+    this.airlineCode = airlineCode;                            //setup...
     this.flightNumber = flightNumber;
     this.origin = origin;
     this.destination = destination;

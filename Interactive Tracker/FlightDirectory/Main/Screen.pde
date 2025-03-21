@@ -1,59 +1,51 @@
 class Screen{
   int screenNum;
-  int textSize;
+  int textSize, sliderLength;
   float scrollPercent;
+  PImage logo;
+  Slider slider;
 
   Screen(int mode){
     screenNum = mode;
-    textSize=24;
+    textSize=int((width-110)*0.014);
     scrollPercent = 0;
+    if(mode==1) logo = loadImage("logoB.png");
+    sliderLength=height-335-55-40;
+    slider = new Slider(width-28, height-55-(sliderLength/2)-(height-335)/2, sliderLength);
   }
   
-  float getPercent(){
-    float percent = scrollPercent*0.001/4;
-    if(percent>0.9999) return(0.9999);
-    else if(percent<0) return(0);
-    return(percent);
-   }
   
-  void printArray(){
+  void printArray(){                                //prints all the Flight data from each Flight in flights array that is selected by index array
     int counter=0;
-    for(int i=int((arrayIndex.size()*getPercent())); (i<arrayIndex.size() && counter<25); i++){
+    for(int i=int((arrayIndex.size()*(slider.getPercent()))); (i<arrayIndex.size() && counter<(height-335-55)/(textSize+3)); i++){
       String info = flights.get(arrayIndex.get(i)).toString();
       text(info, 80, 320+((textSize+3)*counter));
       counter++;
     }
-    //println(getPercent());
   } 
   
-  void search(String query){
-    arrayIndex = new ArrayList<Integer>();
+  void search(String query){                        //once called it sets index array to all Flight locations whose airline/flight number/origin or destination
+    arrayIndex = new ArrayList<Integer>();          //match the query (search parameter) passed into the function
     for(int i=0; i<flights.size(); i++){
-      //println(flights.get(i).origin+" "+query);
       if(flights.get(i).airlineCode.equals(query) || flights.get(i).flightNumber.equals(query) || flights.get(i).origin.equals(query) || flights.get(i).destination.equals(query)){ 
         arrayIndex.add(i);
       }
-    }
-    println("sorted");
+    }                                               //needs support for location names/airline names and not be case sensitive
+    println("sorted");                              //e.g. can only take "LAX" not "los angeles" or "lax"
   }
 
   void draw(){
     if(screenNum==1){
       background(20);
+      image(logo, 60, 60);
       
-      textSize(60);
-      fill(240);
-      text("Flight", 80, 100);
-      fill(#FCBA00);
-      rect(230, 50, 122, 65);
-      fill(0);
-      text("hub", 240, 100);
-      
-      rect(55, 280, 1740, 710);
-      
+      stroke(0);
+      fill(0);      
+      rect(55, 280, width-110, height-335, 15); 
       textSize(textSize);
       fill(0, 240, 0);
       printArray();
+      slider.draw();
     }
     
   }
