@@ -8,7 +8,7 @@ boolean loaded, initialized;              //for loading screen
 
 void setup(){
   size(1920, 1080);
-  fullScreen();
+  //fullScreen();
   background(0);
   fill(0, 200, 0);
   textSize(60);
@@ -49,7 +49,7 @@ void initializeFlights(){                                          //initializes
 
     flights.add( new Flight(date, airlineCode, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, taxiOut, wheelsOff, scheduledFlightTime, elapsedTime, airTime, flightDistance, wheelsOn, taxiIn, scheduledArrival, actualArrival, arrivalDelay, diverted, cancelled));
   }
-  println("flights loaded");
+  println("flights loaded ("+flights.size()+")");
   initialized=true;                    //stop loading screen when done and print screen1
 }
 

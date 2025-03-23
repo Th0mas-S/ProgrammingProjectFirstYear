@@ -31,7 +31,7 @@ class Screen{
         arrayIndex.add(i);
       }
     }                                               //needs support for location names/airline names and not be case sensitive
-    println("sorted");                              //e.g. can only take "LAX" not "los angeles" or "lax"
+    println("sorted: "+query);                              //e.g. can only take "LAX" not "los angeles" or "lax"
   }
 
   void draw(){
