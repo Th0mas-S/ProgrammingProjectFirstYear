@@ -7,21 +7,13 @@ class Flight{
   String scheduledDeparture;
   String actualDeparture;
   int departureDelay;
-  int taxiOut;
-  String wheelsOff;
-  int scheduledFlightTime;
-  int elapsedTime;
-  int airTime;
   float flightDistance;
-  String wheelsOn;
-  int taxiIn;
   String scheduledArrival;
   String actualArrival;
-  int arrivalDelay;
   boolean diverted;
   boolean cancelled;
   
-  Flight(String date, String airlineCode, String flightNumber, String origin, String destination, String scheduledDeparture, String actualDeparture, int departureDelay, int taxiOut, String wheelsOff, int scheduledFlightTime, int elapsedTime, int airTime, float flightDistance, String wheelsOn, int taxiIn, String scheduledArrival, String actualArrival, int arrivalDelay, boolean diverted, boolean cancelled) {
+  Flight(String date, String airlineCode, String flightNumber, String origin, String destination, String scheduledDeparture, String actualDeparture, int departureDelay, float flightDistance, String scheduledArrival, String actualArrival, boolean diverted, boolean cancelled) {
     this.date = date;
     this.airlineCode = airlineCode;                            //setup...
     this.flightNumber = flightNumber;
@@ -30,26 +22,25 @@ class Flight{
     this.scheduledDeparture = scheduledDeparture;
     this.actualDeparture = actualDeparture;
     this.departureDelay = departureDelay;
-    this.taxiOut = taxiOut;
-    this.wheelsOff = wheelsOff;
-    this.scheduledFlightTime = scheduledFlightTime;
-    this.elapsedTime = elapsedTime;
-    this.airTime = airTime;
     this.flightDistance = flightDistance;
-    this.wheelsOn = wheelsOn;
-    this.taxiIn = taxiIn;
     this.scheduledArrival = scheduledArrival;
     this.actualArrival = actualArrival;
-    this.arrivalDelay = arrivalDelay;
     this.diverted = diverted;
     this.cancelled = cancelled;
   }
 
-  public String toString() {
-    return date + " | " + airlineCode + flightNumber + " | " + origin + " -> " + destination + 
-           " | Scheduled: " + scheduledDeparture + " - " + scheduledArrival + 
-           " | Actual: " + actualDeparture + " - " + actualArrival + 
-           " | Delay: " + departureDelay + " min | Flight time: " + elapsedTime + " min | Diverted: " + diverted + " | Cancelled: " + cancelled + " | Distance: " + flightDistance + " km";
-  }
+  void drawData(int x, int y, int textSize){
+      text(date, x, y);
+      text(" | " + airlineCode + flightNumber, x+(textSize*4.791), y);
+      text(" | " + origin + " -> " + destination, x+(textSize*8.958), y);
+      text(" | Scheduled: " + scheduledDeparture + " - " + scheduledArrival, x+(textSize*15), y);
+      text(" | Actual: " + actualDeparture + " - " + actualArrival, x+(textSize*26.25), y);
+      text(" | Delay: " + departureDelay + " min ", x+(textSize*35.833), y);
+      text(" | Diverted: " + diverted, x+(textSize*43.333), y);
+      text(" | Cancelled: " + cancelled, x+(textSize*50.833), y);
+      text(" | Distance: " + flightDistance + " km", x+(textSize*58.75), y);
+    
+    }
+
 
 }

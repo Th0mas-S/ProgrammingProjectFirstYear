@@ -8,7 +8,7 @@ boolean loaded, initialized;              //for loading screen
 
 void setup(){
   size(1920, 1080);
-  //fullScreen();
+  fullScreen();
   background(0);
   fill(0, 200, 0);
   textSize(60);
@@ -20,43 +20,39 @@ void setup(){
 }
 
 void initializeFlights(){                                          //initializes an array of fight objects which each
-  String[] rows = loadStrings("flights.csv");                      //contain all the data for an individual flight
+  String[] rows = loadStrings("flight_data_january.csv");                      //contain all the data for an individual flight
   
   for(int i=1; i<rows.length; i++){
     String[] data = split(rows[i], ',');
-    
-    String date = convertToDate(data[3], data[1], data[0]);
-    String airlineCode = data[4];
-    String flightNumber = data[5];
-    String origin = data[7];
-    String destination = data[8];
-    String scheduledDeparture = data[9];
-    String actualDeparture = data[10];
-    int departureDelay = int(data[11]);
-    int taxiOut = int(data[12]);
-    String wheelsOff = data[13];
-    int scheduledFlightTime = int(data[14]);
-    int elapsedTime = int(data[15]);
-    int airTime = int(data[16]);
-    float flightDistance = float(data[17]);
-    String wheelsOn = data[18];
-    int taxiIn = int(data[19]);
-    String scheduledArrival = data[20];
-    String actualArrival = data[21];
-    int arrivalDelay = int(data[22]);
-    boolean diverted = (int(data[23])==1);
-    boolean cancelled = (int(data[24])==1);
+   
+    String date = convertDate(data[0]);
+    String airlineCode = data[1];
+    String flightNumber = data[2];
+    String origin = data[3];
+    String destination = data[4];
+    String scheduledDeparture = cropData(data[5]);
+    String actualDeparture = cropData(data[7]);
+    int departureDelay = int(data[9]);
+    float flightDistance = float(data[10]);
+    String scheduledArrival = cropData(data[6]);
+    String actualArrival = cropData(data[8]);
+    boolean diverted = (int(data[12])==1);
+    boolean cancelled = (int(data[11])==1);
 
-    flights.add( new Flight(date, airlineCode, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, taxiOut, wheelsOff, scheduledFlightTime, elapsedTime, airTime, flightDistance, wheelsOn, taxiIn, scheduledArrival, actualArrival, arrivalDelay, diverted, cancelled));
+    flights.add( new Flight(date, airlineCode, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, flightDistance, scheduledArrival, actualArrival, diverted, cancelled));
   }
   println("flights loaded ("+flights.size()+")");
   initialized=true;                    //stop loading screen when done and print screen1
 }
 
-String convertToDate(String day, String month, String year){          //used to format dd/mm/yyyy for all flights
-  if(day.length()==1) day="0"+day;                                    //not used outside of initializeFlights()
-  if(month.length()==1) month="0"+month;
-  return(day+"/"+month+"/"+year);
+String convertDate(String dateIn){
+  String[] mess = split(dateIn, '-');
+  return(mess[2]+"/"+mess[1]+"/"+mess[0]);
+}
+
+String cropData(String dataIn){
+  String[] mess = split(dataIn, ' ');
+  return(mess[1]);
 }
 
 void mouseWheel(MouseEvent event) {                                    
@@ -67,7 +63,7 @@ void mouseWheel(MouseEvent event) {
 void keyPressed(){                          //!for testing!
   if(key=='c') clearIndex();
   else if(key=='v'){
-    screen1.search("LAX");
+    screen1.search("LHR");
   }
 }
 

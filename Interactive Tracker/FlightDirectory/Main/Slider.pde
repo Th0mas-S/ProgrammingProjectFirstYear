@@ -37,7 +37,7 @@ class Slider{
     }
     
     float getPercent(){
-      float percent = number*0.0001/(sliderLength/100);
+      float percent = number*0.001/(sliderLength/100);
       if(percent>0.9999) return(0.9999);
       return(percent);
     }

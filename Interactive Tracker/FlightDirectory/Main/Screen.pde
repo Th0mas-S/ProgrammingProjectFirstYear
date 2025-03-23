@@ -18,8 +18,7 @@ class Screen{
   void printArray(){                                //prints all the Flight data from each Flight in flights array that is selected by index array
     int counter=0;
     for(int i=int((arrayIndex.size()*(slider.getPercent()))); (i<arrayIndex.size() && counter<(height-335-55)/(textSize+3)); i++){
-      String info = flights.get(arrayIndex.get(i)).toString();
-      text(info, 80, 320+((textSize+3)*counter));
+      flights.get(arrayIndex.get(i)).drawData(85, 325+((textSize+3)*counter), textSize);
       counter++;
     }
   } 
