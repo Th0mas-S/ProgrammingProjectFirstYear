@@ -36,6 +36,9 @@ class Widget{
       if(mode==4){
         currentScreen=3;
       }
+      if(mode==5){
+        exit();
+      }
     }
   }
   
@@ -43,29 +46,40 @@ class Widget{
     if(mouseOver()) stroke(255);
     else stroke(0);
     fill(colour);
-    if(mode==3 || mode==4) strokeWeight(5);
-    else strokeWeight(1);
+    if(mode==3 || mode==4 || mode==5) strokeWeight(5);
+    else strokeWeight(2);
     rect(x, y, w, h, 8);
     textSize(24);
     if(mode==1){
-      fill(0);
+      fill(240);
       text("Clear", x+22, y+33);
     }
     else if(mode==2){
-      fill(0);
-      text("Back", x+22, y+33);
+      fill(240);
+      text("Back", x+26, y+33);
     }
     else if(mode==3){
       fill(0);
       textSize(100);
-      text("Directory", x+100, y+130);
+      textAlign(CENTER);
+      text("Directory", x+(w/2), y+(h/2)+(100/3));
+      textAlign(LEFT);
       strokeWeight(1);
     }
-    
      else if(mode==4){
       fill(0);
       textSize(100);
-      text("Graphs", x+100, y+130);
+      textAlign(CENTER);
+      text("Graphs", x+(w/2), y+(h/2)+(100/3));
+      textAlign(LEFT);
+      strokeWeight(1);
+    }
+    else if(mode==5){
+      fill(0);
+      textSize(100);
+      textAlign(CENTER);
+      text("Exit", x+(w/2), y+(h/2)+(100/3));
+      textAlign(LEFT);
       strokeWeight(1);
     }
   }

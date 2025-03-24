@@ -3,7 +3,7 @@
 WEEK9
 
   Jason Conboy
-  -Created a reader for the new global flight data set
+  -Added a reader for the new global flight data set
   -Added feature to print a sample of the data on screen
   -Added scoll support for browsing the entire dataset
   
@@ -14,8 +14,9 @@ WEEK10
   -Added fullscreen compatibility
   -Added a slider for easy access to the whole dataset 
   -Added a search feature for finding origin, destination, carrier or flight number
-  -Added a screen for displayed an individual flights information when clicked
+  -Added a screen for displaying individual flights information when clicked
   -Added a start menu
+  -Added dictionaries to reference airline and airport codes
   
 BUGS
 
@@ -23,9 +24,15 @@ BUGS
     -> link scroll sensitivity to indexArray size
 
 
-DOCUMENTATION
+TO-DO
 
-  -For adding new screen: 
-
-
+  Jason Conboy
+  -Add filter by date feature
+  -Add sort by category feature
+    ->Lateness (mandatory)
+    ->Date
+    ->Airline code
+    ->Distance
+  
+  
 */
