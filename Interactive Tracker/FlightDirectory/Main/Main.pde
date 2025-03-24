@@ -82,13 +82,19 @@ void keyPressed() {                                      //addes user inputted t
   }
 }
 
-void mousePressed(){  
-  startScreen.directory.widgetPressed();
-  screen1.slider.sliderPressed();
-  screen1.searchbar.searchPressed();
-  screen1.clear.widgetPressed();
-  screen2.back.widgetPressed();
-  screen1.checkFlights();
+void mousePressed(){ 
+  if(currentScreen==0){
+    startScreen.directory.widgetPressed();
+  }
+  else if(currentScreen==1){
+    screen1.slider.sliderPressed();
+    screen1.searchbar.searchPressed();
+    screen1.clear.widgetPressed();
+    screen1.checkFlights();
+  }
+  else if(currentScreen==2){
+    screen2.back.widgetPressed();
+  }
   println("x: "+mouseX+"  y: "+mouseY);     //!for testing!
 }
 
@@ -97,8 +103,10 @@ void mouseReleased(){
 }
 
 void mouseMoved(){
-  if(screen1.slider.mouseOver()) screen1.slider.hover=true;
-  else if(!screen1.slider.mouseOver()) screen1.slider.hover=false;
+  if(currentScreen==1){
+    if(screen1.slider.mouseOver()) screen1.slider.hover=true;
+    else if(!screen1.slider.mouseOver()) screen1.slider.hover=false;
+  }
 }
 
 void clearIndex(){                          //sets index array to all ints 0-(max number of flights)
