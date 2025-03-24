@@ -9,9 +9,10 @@ String inputText;
 boolean entered, lowHigh;
 Screen screen1, screen2;
 Flight currentFlight;
+Graphs newGraph;
 
 void setup(){
-  fullScreen();
+  size(1280, 720);
   String[] lines = loadStrings("flights.csv");
   flData = new ArrayList<Flight>();
   initializeArray(flData, lines);
@@ -22,6 +23,8 @@ void setup(){
   screen2 = new Screen(2);
   currentScreen = 1;
   initializeDictionary();
+  
+  newGraph = new Graphs(); 
 }
 
 void initializeDictionary(){
@@ -214,4 +217,11 @@ ArrayList<Integer> reverseArray(ArrayList<Integer> array){
 void draw(){
   if(currentScreen==1) screen1.draw();
   else if(currentScreen==2) screen2.draw();
+  
+  newGraph.drawButton(); 
+  if (newGraph.screen2)
+  {
+   newGraph.graphScreen(); 
+  }
+  newGraph.checkButtonPressed(mouseX, mouseY);
 }

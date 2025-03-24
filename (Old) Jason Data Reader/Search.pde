@@ -97,8 +97,6 @@ class Search{
         }
         if(animation>70) animation=0;
       }
-    }
-    
+    }   
    }
-
 }

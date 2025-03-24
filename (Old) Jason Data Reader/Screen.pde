@@ -18,6 +18,9 @@ class Screen{
       widgets.add(new Widget(200, 50, "Clear", 2));
       widgets.add(new Widget(440, 50, "Sort", 5));
       widgets.add(new Widget(560, 50, "Dates", 9));
+      
+      widgets.add(new Widget(560, 50, "Graphs", 9));
+      
       search = new Search(1);
       search1 = new Search(2);
       arrayMode=1;
@@ -321,7 +324,4 @@ class Screen{
     rect(1675, 200, 125, 700);  //Slider
   
   }
-
-
-
 }

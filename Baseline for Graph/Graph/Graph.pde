@@ -9,7 +9,7 @@ int totalFlights, departedOnTime, delayedFlights, canceledFlights;
 void setup() {
   size(800, 600);
   background(255);
-  textFont(createFont("Arial", 16));
+  textFont(createFont("Comic Sans MS", 20));
   drawButtons();
 }
 
@@ -27,7 +27,7 @@ void drawButtons() {
   text("Select an Airport", width/2, 50);
 
   for (int i = 0; i < airportCodes.length; i++) {
-    int x = 100 + (i * (buttonWidth + 20)); 
+    int x = 60 + (i * (buttonWidth + 20)); 
     int y = 100;
     
     fill(100, 150, 255);
@@ -40,12 +40,15 @@ void drawButtons() {
 }
 
 void drawPieChart() {
+  float chartX = width/2;    // Keep horizontal center
+  float chartY = height/2 + 100;  // Move down by 100 pixels
+  int chartSize = 300;       // Diameter of the pie chart
   background(255);
   drawButtons(); 
 
   if (totalFlights == 0) {
     fill(255, 0, 0);
-    text("No flight data found for " + selectedAirport, width/2, height/2);
+    text("No flight data found for " + selectedAirport, chartX, chartY);
     return;
   }
 
@@ -62,12 +65,12 @@ void drawPieChart() {
 
   for (int i = 0; i < 3; i++) {
     fill(sliceColors[i]);
-    arc(width/2, height/2, 300, 300, lastAngle, lastAngle + angles[i], PIE);
+  arc(chartX, chartY, chartSize, chartSize, lastAngle, lastAngle + angles[i], PIE);
 
     float midAngle = lastAngle + angles[i] / 2;
     float labelRadius = 150;
-    float x = width/2 + labelRadius * cos(midAngle);
-    float y = height/2 + labelRadius * sin(midAngle);
+    float x = chartX + labelRadius * cos(midAngle);
+    float y = chartY + labelRadius * sin(midAngle);
 
     fill(0);
     textAlign(CENTER, CENTER);
@@ -135,6 +138,10 @@ void processFlightData() {
         println("Skipping invalid data in row", i);
       }
     }
+  }  String[] fontList = PFont.list();
+  println("Available Fonts:");
+  for (String f : fontList) {
+    println(f);
   }
   
   println("Processed data for", selectedAirport);
@@ -143,5 +150,3 @@ void processFlightData() {
   println("Delayed:", delayedFlights);
   println("Canceled:", canceledFlights);
 }
-
-//This is the backbones for the graph given the large amount of flight data. I will soon merge this with my group members code for more effecietly
