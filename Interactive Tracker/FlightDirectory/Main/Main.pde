@@ -1,10 +1,11 @@
-//download flights.csv and place in folder
-//link -> https://figshare.com/articles/dataset/flights_csv/9820139?file=17614757
 
-Screen screen1;
+Screen screen1, screen2, startScreen;
 ArrayList<Flight> flights;                //array of Flight classes - final once initialized
 ArrayList<Integer> arrayIndex;            //array of indexes for flights array - changes throughout program
 boolean loaded, initialized;              //for loading screen
+String inputText;
+boolean entered;
+int currentScreen;                        //determines the screen to display
 
 void setup(){
   size(1920, 1080);
@@ -14,13 +15,16 @@ void setup(){
   textSize(60);
   textAlign(CENTER);
   text("loading...", width/2, height/2);                          //shows loading screen until arrays are initialized
+  startScreen = new Screen(3);
   screen1 = new Screen(1);                                        //screen1 is the main directory screen
+  screen2 = new Screen(2);
   flights = new ArrayList<Flight>();
   arrayIndex = new ArrayList<Integer>();
+  currentScreen=0;                                                //default to start screen
 }
 
 void initializeFlights(){                                          //initializes an array of fight objects which each
-  String[] rows = loadStrings("flight_data_january.csv");                      //contain all the data for an individual flight
+  String[] rows = loadStrings("flight_data_january.csv");          //contain all the data for an individual flight
   
   for(int i=1; i<rows.length; i++){
     String[] data = split(rows[i], ',');
@@ -42,15 +46,15 @@ void initializeFlights(){                                          //initializes
     flights.add( new Flight(date, airlineCode, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, flightDistance, scheduledArrival, actualArrival, diverted, cancelled));
   }
   println("flights loaded ("+flights.size()+")");
-  initialized=true;                    //stop loading screen when done and print screen1
+  initialized=true;                    //stop loading screen when done and print screen0
 }
 
-String convertDate(String dateIn){
+String convertDate(String dateIn){              //used for initializing flights
   String[] mess = split(dateIn, '-');
   return(mess[2]+"/"+mess[1]+"/"+mess[0]);
 }
 
-String cropData(String dataIn){
+String cropData(String dataIn){                 //used for initializing flights
   String[] mess = split(dataIn, ' ');
   return(mess[1]);
 }
@@ -60,15 +64,31 @@ void mouseWheel(MouseEvent event) {
   screen1.slider.scroll(e);                               //scrolls list               
 }
 
-void keyPressed(){                          //!for testing!
-  if(key=='c') clearIndex();
-  else if(key=='v'){
-    screen1.search("LHR");
+void clearInput(){                                      //clears user input line
+  inputText="";
+}
+
+void keyPressed() {                                      //addes user inputted text to variable inputText
+  entered=false;                                         //must be manually cleared with clearInput()
+  if(key == ENTER || key == RETURN) {
+    println("Final input: " + inputText);
+    entered=true;
+  } 
+  else if(key == BACKSPACE && inputText.length() > 0) {
+    inputText = inputText.substring(0, inputText.length()-1);
+  } 
+  else if(keyCode != SHIFT){
+    inputText += key;
   }
 }
 
-void mousePressed(){     
+void mousePressed(){  
+  startScreen.directory.widgetPressed();
   screen1.slider.sliderPressed();
+  screen1.searchbar.searchPressed();
+  screen1.clear.widgetPressed();
+  screen2.back.widgetPressed();
+  screen1.checkFlights();
   println("x: "+mouseX+"  y: "+mouseY);     //!for testing!
 }
 
@@ -88,6 +108,12 @@ void clearIndex(){                          //sets index array to all ints 0-(ma
   }
 }
 
+void showFlight(Flight currentFlight){        //tells screen2 what sppecific flight to display
+  println(currentFlight.date);
+  screen2.showData(currentFlight);
+  currentScreen=2;                            //sets currentScreen to 2 to show screen2
+}
+
 void draw(){
   if(!loaded){                     //runs once on startup to initialize all arrays
       initializeFlights();
@@ -95,7 +121,15 @@ void draw(){
       loaded=true;
   }
   if(initialized){                 //main draw area...
-    textAlign(LEFT);
-    screen1.draw();
+    if(currentScreen==0){
+      startScreen.draw();
+    }
+    else if(currentScreen==1){
+      textAlign(LEFT);
+      screen1.draw();
+    }
+    else if(currentScreen==2){
+      screen2.draw();
+    }
   }
 }

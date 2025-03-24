@@ -12,6 +12,8 @@ class Flight{
   String actualArrival;
   boolean diverted;
   boolean cancelled;
+  boolean mouseOver;
+  
   
   Flight(String date, String airlineCode, String flightNumber, String origin, String destination, String scheduledDeparture, String actualDeparture, int departureDelay, float flightDistance, String scheduledArrival, String actualArrival, boolean diverted, boolean cancelled) {
     this.date = date;
@@ -28,6 +30,7 @@ class Flight{
     this.diverted = diverted;
     this.cancelled = cancelled;
   }
+  
 
   void drawData(int x, int y, int textSize){
       text(date, x, y);
@@ -40,7 +43,12 @@ class Flight{
       text(" | Cancelled: " + cancelled, x+(textSize*50.833), y);
       text(" | Distance: " + flightDistance + " km", x+(textSize*58.75), y);
     
-    }
+    
+      if(mouseX>x && mouseX<x+width-150 && mouseY>y-textSize && mouseY<y){
+        mouseOver = true;
+      }
+      else mouseOver = false;
+  }
 
 
 }
