@@ -33,6 +33,9 @@ class Widget{
       if(mode==3){
         currentScreen=1;
       }
+      if(mode==4){
+        currentScreen=3;
+      }
     }
   }
   
@@ -40,7 +43,7 @@ class Widget{
     if(mouseOver()) stroke(255);
     else stroke(0);
     fill(colour);
-    if(mode==3) strokeWeight(5);
+    if(mode==3 || mode==4) strokeWeight(5);
     else strokeWeight(1);
     rect(x, y, w, h, 8);
     textSize(24);
@@ -58,7 +61,13 @@ class Widget{
       text("Directory", x+100, y+130);
       strokeWeight(1);
     }
+    
+     else if(mode==4){
+      fill(0);
+      textSize(100);
+      text("Graphs", x+100, y+130);
+      strokeWeight(1);
+    }
   }
-
 
 }

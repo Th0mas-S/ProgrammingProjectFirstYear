@@ -7,7 +7,9 @@ class Screen{
   Search searchbar;
   Widget clear, back;
   Widget directory;
+  Widget graphs;
   Flight flight;
+  Graphs newGraph;
 
   Screen(int mode){
     screenNum = mode;
@@ -24,7 +26,11 @@ class Screen{
       back = new Widget(width-160, 160, 2, 100, 50, #B4B1B1);
     }
     else if(mode==3){                                                //start screen...
-      directory = new Widget((width/2)-300, 500, 3, 600, 200, #B79746);
+      directory = new Widget((width/2)-300, 300, 3, 600, 200, #B79746);
+      graphs = new Widget((width/2)-300, 600, 4, 600, 200, #B79746);
+    }
+    else if(mode==4){                                                //start screen...
+    newGraph = new Graphs();
     }
   }
   
@@ -93,6 +99,13 @@ class Screen{
       image(logo, (width/2)-170, 60);
       textAlign(LEFT);
       directory.draw();
+      graphs.draw();
+    }
+    
+     else if(screenNum==4){                               //start menu screen
+     newGraph.draw();
+     newGraph.drawButtons();
+     newGraph.drawPieChart();
     }
     
   }

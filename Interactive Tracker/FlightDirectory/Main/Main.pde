@@ -1,5 +1,5 @@
-
-Screen screen1, screen2, startScreen;
+import java.util.HashMap;
+Screen screen1, screen2, screen3, startScreen;
 ArrayList<Flight> flights;                //array of Flight classes - final once initialized
 ArrayList<Integer> arrayIndex;            //array of indexes for flights array - changes throughout program
 boolean loaded, initialized;              //for loading screen
@@ -18,6 +18,7 @@ void setup(){
   startScreen = new Screen(3);
   screen1 = new Screen(1);                                        //screen1 is the main directory screen
   screen2 = new Screen(2);
+  screen3 = new Screen(4);
   flights = new ArrayList<Flight>();
   arrayIndex = new ArrayList<Integer>();
   currentScreen=0;                                                //default to start screen
@@ -85,6 +86,7 @@ void keyPressed() {                                      //addes user inputted t
 void mousePressed(){ 
   if(currentScreen==0){
     startScreen.directory.widgetPressed();
+    startScreen.graphs.widgetPressed();
   }
   else if(currentScreen==1){
     screen1.slider.sliderPressed();
@@ -94,6 +96,9 @@ void mousePressed(){
   }
   else if(currentScreen==2){
     screen2.back.widgetPressed();
+  }
+   else if(currentScreen==3){
+    screen3.newGraph.graphPressed();
   }
   println("x: "+mouseX+"  y: "+mouseY);     //!for testing!
 }
@@ -138,6 +143,9 @@ void draw(){
     }
     else if(currentScreen==2){
       screen2.draw();
+    }
+    else if(currentScreen==3){
+     screen3.draw();
     }
   }
 }
