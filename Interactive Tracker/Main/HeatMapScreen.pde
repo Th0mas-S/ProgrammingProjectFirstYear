@@ -135,7 +135,7 @@ class HeatMapScreen extends Screen {
   
   HeatMapScreen() {
     earthImage = loadImage("worldmap.png");
-    loadData(400000);
+    loadData(20000);
     this.airportLocations = loadAirportCoordinates("coordinate.csv");
     heatMap = new int[heatMapWidth][heatMapHeight];
     generateHeatMap();
@@ -158,6 +158,13 @@ class HeatMapScreen extends Screen {
     
     if(heatMap[zoomedMouseX][zoomedMouseY] != 0)
       drawIntensityTab(heatMap[zoomedMouseX][zoomedMouseY]);
+      
+     float zoomedWidth = width * scaleFactor;
+     float zoomedHeight = height * scaleFactor;
+    
+     // Clamp offsetX and offsetY so edges stay within the canvas
+     offsetX = constrain(offsetX, width - zoomedWidth, 0);
+     offsetY = constrain(offsetY, height - zoomedHeight, 0);
   }
   
   void drawIntensityTab(int intensity) {
@@ -180,28 +187,54 @@ class HeatMapScreen extends Screen {
     }
     
     for(Flight f : flights) {
+       //Location src = this.airportLocations.get(f.origin);
+       //Location des = this.airportLocations.get(f.destination);
+       
+       //int srcMapX = (int)mapX(src.lon);
+       //int srcMapY = (int)mapY(src.lat);
+       //int desMapX = (int)mapX(des.lon);
+       //int desMapY = (int)mapY(des.lat);
+       
+       //int distance = (int)dist(srcMapX, srcMapY, desMapX, desMapY);
+       
+       //// Define a control point: midpoint, raised upwards to curve
+       //float controlX = (srcMapX + desMapX) / 2;
+       //float controlY = (srcMapY + desMapY) / 2 - distance / 4;
+       
+       //for(int i = 0; i < distance; i++) { // this loop breaks up the line between src and des into 10 parts and adds it
+       //  float t = map(i, 0, distance, 0, 1); // says which part we are on, range between 0 and 1 for lerp
+    
+         
+       //  int posX = (int)(bezierPoint(srcMapX, controlX, controlX, desMapX, t) / SCALE);
+       //  int posY = (int)(bezierPoint(srcMapY, controlY, controlY, desMapY, t) / SCALE);
+         
+       //  heatMap[posX][posY] += 1;
+         
+       //}
+       
        Location src = this.airportLocations.get(f.origin);
        Location des = this.airportLocations.get(f.destination);
        
-       int srcMapX = (int)mapX(src.lon);
-       int srcMapY = (int)mapY(src.lat);
-       int desMapX = (int)mapX(des.lon);
-       int desMapY = (int)mapY(des.lat);
+       PVector pointA = LocationTo3D(src.toRadians());       
+       PVector pointB = LocationTo3D(des.toRadians());
        
-       int distance = (int)dist(srcMapX, srcMapY, desMapX, desMapY);
+       float angle = acos(pointA.dot(pointB));
        
-       // Define a control point: midpoint, raised upwards to curve
-       float controlX = (srcMapX + desMapX) / 2;
-       float controlY = (srcMapY + desMapY) / 2 - distance / 4;
-       
-       for(int i = 0; i < distance; i++) { // this loop breaks up the line between src and des into 10 parts and adds it
-         float t = map(i, 0, distance, 0, 1); // says which part we are on, range between 0 and 1 for lerp
-         
-         int posX = (int)(bezierPoint(srcMapX, controlX, controlX, desMapX, t) / SCALE);
-         int posY = (int)(bezierPoint(srcMapY, controlY, controlY, desMapY, t) / SCALE);
-         
-         heatMap[posX][posY] += 1;
-         
+       for (float t = 0; t <= 1; t += 0.01) {
+         PVector intermediate = PVector.add(
+         PVector.mult(pointA, sin((1 - t) * angle)),
+         PVector.mult(pointB, sin(t * angle))
+         ).div(sin(angle));
+
+        // Convert back to 2D projection (equirectangular)
+        float lon = atan2(intermediate.y, intermediate.x);
+        float lat = asin(intermediate.z);
+    
+        // Map to screen coordinates
+        int x = (int)(mapX(degrees(lon)) / SCALE);
+        int y = (int)(mapY(degrees(lat)) / SCALE);
+        
+        heatMap[x][y]++;
        }
     }
     
@@ -220,11 +253,12 @@ class HeatMapScreen extends Screen {
        medianIntensity = tempList.get(tempList.size() / 2);
      else
        medianIntensity = tempList.get((tempList.size() + 1) / 2);
-     
-     println(medianIntensity);
   }
   
   void drawHeatMap() {
+    
+    
+    
     for(int x = 0; x < heatMapWidth; x++) {
       for (int y = 0; y < heatMapHeight; y++) {
         int intesity = heatMap[x][y];
@@ -232,12 +266,21 @@ class HeatMapScreen extends Screen {
         if (intesity > 0) {
           
           color intesityColor = getIntensityColor(intesity);
-          
           fill(intesityColor);
           rect(x * SCALE, y * SCALE, SCALE, SCALE);
+         
         }
       }
     }
+    
+  }
+  
+  PVector LocationTo3D(Location loc) {
+    return new PVector(
+      cos(loc.lat) * cos(loc.lon),
+      cos(loc.lat) * sin(loc.lon),
+      sin(loc.lat)
+    );
   }
   
   color getIntensityColor(float intensity) {
@@ -268,7 +311,7 @@ class HeatMapScreen extends Screen {
   }
   
   void mouseWheel(MouseEvent event) {
-    float zoomFactor = 1.05;
+    float zoomFactor = 1.25;
     float e = event.getCount();
   
     // Calculate zoom towards the mouse position
