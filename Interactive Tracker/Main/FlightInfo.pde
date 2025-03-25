@@ -1,3 +1,4 @@
+
 class FlightInfo {
   String departureLocation, arrivalLocation, departureTime, arrivalTime, airline, flightNumber;
   

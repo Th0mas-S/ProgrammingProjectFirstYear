@@ -1,6 +1,11 @@
+import java.util.HashSet;
 
-ScreenManager screenManager;
-EarthScreen earthScreen;
+CalendarDisplay calendar;
+TimeSlider timeSlider;
+
+ScreenManager  screenManager;
+//EarthScreenDirectory  earthScreenDirectory;
+EarthScreenTracker  earthScreenTracker; 
 
 Earth earth;
 Airport airportOrigin;
@@ -14,10 +19,22 @@ Location destination = new Location(-51.2, 90.2); // arrival latitude and longit
 
 boolean showFlightInfo = false;
 
-float sphereRadius = 640;
+float sphereRadius = 650;
+
+ArrayList<Airport> airports = new ArrayList<Airport>();
+HashMap<String, Airport> airportMap = new HashMap<String, Airport>();
+ArrayList<FlightData> allFlights = new ArrayList<FlightData>();
+ArrayList<FlightData> todaysFlights = new ArrayList<FlightData>();
+ArrayList<Airplane> activePlanes = new ArrayList<Airplane>();
+PImage airplaneImg;
+PShape airplaneModel;
+HashSet<String> spawnedFlights = new HashSet<String>();
+
+String lastCheckedDate = "";
+
                                                                                                                                                                       
 void setup() {
-  fullScreen(P3D);
+  size(1920, 1080, P3D);
   
   // Initialize near stars (300 - 500 units away)
     // Initialize stars (300 - 500 units away)
@@ -39,11 +56,22 @@ void setup() {
   earth = new Earth("Earth.obj", "Surface2k.png"); //Change to "Surface16k.png" or "Surface2k.png" Download "Surface16k.png" from https://drive.google.com/drive/folders/1csCDLNxFFXlvlKpspokz1EXBzWIePThU?usp=sharing
   airportOrigin = new Airport(origin, sphereRadius, 5);
   airportDest = new Airport(destination, sphereRadius, 5);
-  airplane = new Airplane(airportOrigin, airportDest, sphereRadius, "Airplane.obj", "AirplaneTexture.png");
+  //airplane = new Airplane(airportOrigin, airportDest, sphereRadius, "Airplane.obj", "AirplaneTexture.png");
+  //airplane = new Airplane(airportOrigin, airportDest, sphereRadius, "Airplane.png");
+  loadAirportsFromCSV();
+  loadFlightsFromCSV(); 
+  
+  calendar = new CalendarDisplay();
+  airplaneImg = loadImage("Airplane.png");
+  airplaneModel = loadShape("Airplane.obj");
+  timeSlider = new TimeSlider(width / 4, 60, width / 2, 30);
+  timeSlider.value = 0;
   
   screenManager = new ScreenManager();
-  earthScreen = new EarthScreen(earth, airportOrigin, airportDest, airplane);
-  screenManager.switchScreen(earthScreen);
+  //earthScreenDirectory = new EarthScreenDirectory(earth, airportOrigin, airportDest, airplane);
+  earthScreenTracker = new EarthScreenTracker(earth);
+  //screenManager.switchScreen(earthScreenDirectory);
+  screenManager.switchScreen(earthScreenTracker);
   noStroke();
   
    flightInfo = new FlightInfo(
@@ -113,4 +141,63 @@ void multiplyP3DMatrixScalar(PMatrix3D mat, float s) {
   mat.m20 *= s;  mat.m21 *= s;  mat.m22 *= s;  mat.m23 *= s;
   mat.m30 *= s;  mat.m31 *= s;  mat.m32 *= s;  mat.m33 *= s;
   
+}
+
+void loadAirportsFromCSV() {
+  // Step 1: Collect all relevant IATA codes from flights
+  HashSet<String> usedCodes = new HashSet<String>();
+  Table flightTable = loadTable("flight_2024.csv", "header");
+
+  for (TableRow row : flightTable.rows()) {
+    String origin = row.getString("Origin");
+    String dest = row.getString("Destination");
+    if (origin != null) usedCodes.add(origin.trim());
+    if (dest != null) usedCodes.add(dest.trim());
+  }
+
+  // Step 2: Load only matching airports from coordinate.csv
+  Table coordTable = loadTable("coordinate.csv", "header");
+
+  for (TableRow row : coordTable.rows()) {
+    String code = row.getString("iata").trim();
+    if (!usedCodes.contains(code)) continue;
+
+    float lat = row.getFloat("latitude");
+    float lon = row.getFloat("longitude");
+    float relLat = -lat + 0.2617;
+    float relLon = 1.0071 * lon + 90.35;
+    Location loc = new Location(relLat, relLon);
+    Airport airport = new Airport(loc, sphereRadius, 5);
+    airports.add(airport);
+    airportMap.put(code, airport);
+  }
+}
+
+void loadFlightsFromCSV() {
+  Table table = loadTable("flight_2024.csv", "header");
+
+  for (TableRow row : table.rows()) {
+    String origin = row.getString("Origin");
+    String dest = row.getString("Destination");
+    String dateStr = row.getString("Date");
+
+    String depStr = row.getString("Actual Departure");
+    String arrStr = row.getString("Actual Arrival");
+
+    if (depStr == null || arrStr == null) continue;
+
+    String[] depParts = split(depStr, " ");
+    String[] arrParts = split(arrStr, " ");
+
+    if (depParts.length < 2 || arrParts.length < 2) continue;
+
+    String[] depTime = split(depParts[1], ":");
+    String[] arrTime = split(arrParts[1], ":");
+    if (depTime.length < 2 || arrTime.length < 2) continue;
+
+    int depMin = int(depTime[0]) * 60 + int(depTime[1]);
+    int arrMin = int(arrTime[0]) * 60 + int(arrTime[1]);
+
+    allFlights.add(new FlightData(origin, dest, dateStr, depMin, arrMin));
+  }
 }

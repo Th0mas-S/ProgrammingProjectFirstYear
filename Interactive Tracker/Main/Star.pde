@@ -1,3 +1,4 @@
+
 int numStars = 300;
 int numMoreStars = 200;
 int numEvenMoreStars = 1000;
