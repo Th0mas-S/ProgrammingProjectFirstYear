@@ -98,6 +98,9 @@ void loadData(int amountOfRows) { // amount of rows tells me how much data to lo
 }
 ///////////////////////// JASON CODE END /////////////////////////////////////////////////////
 
+import java.util.Collections;
+
+
 HashMap<String, Location> loadAirportCoordinates(String filepath) {
   String[] rows = loadStrings(filepath);
   HashMap<String, Location> airportLocations = new HashMap<String, Location>();
@@ -115,18 +118,24 @@ class HeatMapScreen extends Screen {
   PImage earthImage;
   HashMap<String, Location> airportLocations;     // probably should make this global seems useful for EarthScreen
   
-  final float SCALE = 5; // idk what to call this, this is how big the sqaures are
-  final int heatMapOpacity = 130;
+  final float SCALE = 1; // idk what to call this, this is how big the sqaures are EDIT: sqaure size seems like a good name
+  final int heatMapOpacity = 100;
   final int heatMapWidth = (int)(width / SCALE);
   final int heatMapHeight = (int)(height / SCALE);
   int[][] heatMap;
+    
+  int medianIntensity = 0;
   
-  float zoom = 1.0;
+  float scaleFactor = 1.0;
+  float offsetX = 0;
+  float offsetY = 0;
+  float startX, startY;
+  boolean isDragging = false;
 
   
   HeatMapScreen() {
     earthImage = loadImage("worldmap.png");
-    loadData(4000000);
+    loadData(400000);
     this.airportLocations = loadAirportCoordinates("coordinate.csv");
     heatMap = new int[heatMapWidth][heatMapHeight];
     generateHeatMap();
@@ -137,12 +146,30 @@ class HeatMapScreen extends Screen {
     background(0);
 
     pushMatrix();
-    translate(mouseX, mouseY);
-    scale(zoom);
-    translate(-mouseX, -mouseY);
+    translate(offsetX, offsetY);
+    scale(scaleFactor);
+
     image(earthImage, 0, 0, width, height);
     drawHeatMap();
     popMatrix();
+    
+    int zoomedMouseX = (int)((mouseX - offsetX) / scaleFactor);
+    int zoomedMouseY = (int)((mouseY - offsetY) / scaleFactor);
+    
+    if(heatMap[zoomedMouseX][zoomedMouseY] != 0)
+      drawIntensityTab(heatMap[zoomedMouseX][zoomedMouseY]);
+  }
+  
+  void drawIntensityTab(int intensity) {
+    stroke(0);
+    strokeWeight(5);
+    fill(255);
+    rect(10, 10, 200, 50);
+    noStroke();
+    
+    fill(0);
+    textSize(20);
+    text("Flights This Area: " + intensity, 15, 35);
   }
   
   void generateHeatMap() { // call when user wants to see a different heatmap?
@@ -177,6 +204,24 @@ class HeatMapScreen extends Screen {
          
        }
     }
+    
+    medianIntensity = 0;
+    ArrayList<Integer> tempList = new ArrayList<Integer>();
+    
+    for(int x = 0; x < heatMapWidth; x++)
+      for(int y = 0; y < heatMapHeight; y++)
+        if(heatMap[x][y] != 0)
+          tempList.add(heatMap[x][y]);
+  
+      
+     Collections.sort(tempList);
+         
+     if(tempList.size() % 2 == 0)
+       medianIntensity = tempList.get(tempList.size() / 2);
+     else
+       medianIntensity = tempList.get((tempList.size() + 1) / 2);
+     
+     println(medianIntensity);
   }
   
   void drawHeatMap() {
@@ -186,10 +231,9 @@ class HeatMapScreen extends Screen {
         
         if (intesity > 0) {
           
-          color intesityColor = getIntensityColor(map(intesity, 1, 500, 0, 1));
+          color intesityColor = getIntensityColor(intesity);
           
           fill(intesityColor);
-          
           rect(x * SCALE, y * SCALE, SCALE, SCALE);
         }
       }
@@ -197,12 +241,24 @@ class HeatMapScreen extends Screen {
   }
   
   color getIntensityColor(float intensity) {
-    if(intensity < 0.5)
-      return lerpColor(color(0, 0, 255, heatMapOpacity), color(255, 255, 0, heatMapOpacity), intensity);
+    if(intensity < medianIntensity)
+      return lerpColor(color(0, 0, 255, heatMapOpacity), color(255, 255, 0, heatMapOpacity), map(intensity, 1, medianIntensity, 0, 1));
     else
-      return lerpColor(color(255, 255, 0, heatMapOpacity), color(255, 0, 0, heatMapOpacity), intensity);
+      return lerpColor(color(255, 255, 0, heatMapOpacity), color(255, 0, 0, heatMapOpacity), map(intensity, medianIntensity, medianIntensity * 4, 0, 1));
 
   }
+  
+  //color getIntensityColor(float intensity) { // n0thing -> blue (quartar median) -> yellow (half median) -> orange (median) -> red (double median)
+  //  if(intensity < medianIntensity / 4)
+  //    return lerpColor(color(0, 0, 0, 0), color(0, 0, 255, heatMapOpacity), map(intensity, 1, medianIntensity / 4, 0, 1));
+  //  else if (intensity < medianIntensity / 2)
+  //    return lerpColor(color(0, 0, 255, heatMapOpacity), color(255, 255, 0, heatMapOpacity), map(intensity, medianIntensity / 4, medianIntensity / 2, 0, 1));
+  //  else if (intensity < medianIntensity)
+  //    return lerpColor(color(255, 255, 0, heatMapOpacity), color(255, 110, 0, heatMapOpacity), map(intensity, medianIntensity / 2, medianIntensity, 0, 1));
+  //  else
+  //    return lerpColor(color(255, 110, 0, heatMapOpacity), color(255, 0, 0, heatMapOpacity), map(intensity, medianIntensity, medianIntensity * 5, 0, 1));
+
+  //}
   float mapX(float lon) {
     return map(lon, -180, 180, 0, width);
   }
@@ -212,8 +268,49 @@ class HeatMapScreen extends Screen {
   }
   
   void mouseWheel(MouseEvent event) {
+    float zoomFactor = 1.05;
     float e = event.getCount();
-    zoom -= e * 0.5;
-    zoom = constrain(zoom, 1, 10);
+  
+    // Calculate zoom towards the mouse position
+    float newScale = (e < 0) ? scaleFactor * zoomFactor : scaleFactor / zoomFactor;
+    if(newScale >= 1) {
+      float dx = mouseX - offsetX;
+      float dy = mouseY - offsetY;
+    
+      // Adjust offset to keep the zoom centered on the mouse
+      offsetX -= (newScale - scaleFactor) * dx / scaleFactor;
+      offsetY -= (newScale - scaleFactor) * dy / scaleFactor;
+    
+      scaleFactor = newScale;
+    }
+    
   }
+  
+  // Handle mouse drag for panning
+  void mousePressed() {
+    startX = mouseX - offsetX;
+    startY = mouseY - offsetY;
+    isDragging = true;
+  }
+  
+  void mouseDragged() {
+    if (isDragging) {
+      float newoffsetX = mouseX - startX;
+      float newoffsetY = mouseY - startY;
+       
+            
+      float zoomedWidth = width * scaleFactor;
+      float zoomedHeight = height * scaleFactor;
+    
+      // Clamp offsetX and offsetY so edges stay within the canvas
+      offsetX = constrain(newoffsetX, width - zoomedWidth, 0);
+      offsetY = constrain(newoffsetY, height - zoomedHeight, 0);
+
+    }
+  }
+  
+  void mouseReleased() {
+    isDragging = false;
+  }
+  
 }
