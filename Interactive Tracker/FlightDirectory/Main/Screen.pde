@@ -3,9 +3,11 @@ class Screen{
   int textSize, sliderLength;
   float scrollPercent;
   PImage logo;
+  boolean sortQuery, dateQuery;
+  Query sortMenu, dateMenu;
   Slider slider;
   Search searchbar;
-  Widget clear, back;
+  Widget clear, back, sort;
   Widget directory, graphs, exitButton;
   Flight flight;
   Graphs newGraph;
@@ -18,8 +20,11 @@ class Screen{
       scrollPercent = 0;
       sliderLength=height-335-55-40;
       slider = new Slider(width-28, height-55-(sliderLength/2)-(height-335)/2, sliderLength);
-      searchbar = new Search(width-340, 160, textSize);
+      searchbar = new Search(width-340, 160, textSize, 1);
       clear = new Widget(width-480, 160, 1, 100, 50, #F96635);
+      sort = new Widget(width-610, 160, 6, 100, 50, #028391);                        //current widget = 9
+      sortMenu = new Query(#93D3AE, 1);
+      dateMenu = new Query(#FAECB6, 2);
     }
     else if(mode==2){                                                //screen2...
       back = new Widget(width-160, 160, 2, 100, 50, #DD5341);
@@ -54,13 +59,37 @@ class Screen{
     println("sorted: "+query);                              //e.g. can only take "LAX" not "los angeles" or "lax"
   }
   
-  void checkFlights(){                              //checks if a user has clicked on a specific line of flight data and takes them to that data page
-    int counter=0;
-    for(int i=int((arrayIndex.size()*(slider.getPercent()))); (i<arrayIndex.size() && counter<(height-335-55)/(textSize+3)); i++){
-      if(flights.get(arrayIndex.get(i)).mouseOver) showFlight(flights.get(arrayIndex.get(i)));
-      counter++;
+  void sortByDate(String date1In, String date2In) {
+    arrayIndex = new ArrayList<>();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    LocalDate startDate = LocalDate.parse(date1In, formatter);
+    LocalDate endDate = LocalDate.parse(date2In, formatter);
+    for (int i = 0; i < flights.size(); i++) {
+        LocalDate flightDate = LocalDate.parse(flights.get(i).date, formatter);
+        if (!flightDate.isBefore(startDate) && !flightDate.isAfter(endDate)) {
+            arrayIndex.add(i);
+        }
     }
-
+  }
+  
+  void sortByLateness(){
+    clearIndex();
+    arrayIndex.sort((i, j) -> Integer.compare(flights.get(j).departureDelay, flights.get(i).departureDelay));
+  }
+  
+  void sortByDistance(){
+    clearIndex();
+    arrayIndex.sort((i, j) -> Integer.compare(int(flights.get(j).flightDistance), int(flights.get(i).flightDistance)));
+  }
+  
+  void checkFlights(){                              //checks if a user has clicked on a specific line of flight data and takes them to that data page
+    if(mouseX>55 && mouseY>280){
+      int counter=0;
+      for(int i=int((arrayIndex.size()*(slider.getPercent()))); (i<arrayIndex.size() && counter<(height-335-55)/(textSize+3)); i++){
+        if(flights.get(arrayIndex.get(i)).mouseOver) showFlight(flights.get(arrayIndex.get(i)));
+        counter++;
+      }
+    }
   }
   
   void showData(Flight currentFlight){
@@ -76,6 +105,17 @@ class Screen{
       strokeWeight(5);
       fill(160);      
       rect(55, 280, width-110, height-335, 15);
+      
+      //stroke(120);
+      line(90+(textSize*4.791), 280, 90+(textSize*4.791), height-55);
+      line(90+(textSize*8.958), 280, 90+(textSize*8.958), height-55);
+      line(90+(textSize*15), 280, 90+(textSize*15), height-55);
+      line(90+(textSize*26.25), 280, 90+(textSize*26.25), height-55);
+      line(90+(textSize*35.833), 280, 90+(textSize*35.833), height-55);
+      line(90+(textSize*43.333), 280, 90+(textSize*43.333), height-55);
+      line(90+(textSize*50.833), 280, 90+(textSize*50.833), height-55);
+      line(90+(textSize*58.75), 280, 90+(textSize*58.75), height-55);
+      
       strokeWeight(1);
       stroke(0);
       textSize(textSize);
@@ -84,6 +124,9 @@ class Screen{
       slider.draw();
       searchbar.draw();
       clear.draw();
+      sort.draw();
+      if(sortQuery) sortMenu.draw();
+      if(dateQuery) dateMenu.draw();
     }
     else if(screenNum==2){                               //individual flight data page
       background(#FAA968);

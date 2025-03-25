@@ -39,6 +39,24 @@ class Widget{
       if(mode==5){
         exit();
       }
+      if(mode==6){
+        screen1.sortQuery=true;
+      }
+      if(mode==7){
+        screen1.sortByLateness();
+        screen1.sortQuery=false;
+      }
+      if(mode==8){
+        screen1.sortByDistance();
+        screen1.sortQuery=false;
+      }
+      if(mode==9){
+        screen1.sortQuery=false;
+        screen1.dateQuery=true;
+      }if(mode==10){
+        screen1.sortByDate(screen1.dateMenu.selector.date1, screen1.dateMenu.selector.date2);
+        screen1.dateQuery=false;
+      }
     }
   }
   
@@ -81,6 +99,29 @@ class Widget{
       text("Exit", x+(w/2), y+(h/2)+(100/3));
       textAlign(LEFT);
       strokeWeight(1);
+    }
+    else if(mode==6){
+      fill(240);
+      text("Sort", x+28, y+33);
+    }
+    else if(mode==7){
+      fill(240);
+      textSize(40);
+      text("Lateness", x+30, y+60);
+    }
+    else if(mode==8){
+      fill(240);
+      textSize(40);
+      text("Distance", x+30, y+60);
+    }
+    else if(mode==9){
+      fill(240);
+      textSize(40);
+      text("Date", x+60, y+60);
+    }
+    else if(mode==10){
+      fill(240);
+      text("Done", x+27, y+33);
     }
   }
 

@@ -1,4 +1,6 @@
 import java.util.HashMap;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 Screen screen1, screen2, screen3, startScreen;
 ArrayList<Flight> flights;                                                      //array of Flight classes - final once initialized
 ArrayList<Integer> arrayIndex;                                                  //array of indexes for flights array - changes throughout program
@@ -136,11 +138,22 @@ void mousePressed(){
     startScreen.exitButton.widgetPressed();
   }
   else if(currentScreen==1){
-    screen1.slider.sliderPressed();
-    screen1.searchbar.searchPressed();
-    screen1.clear.widgetPressed();
-    screen1.checkFlights();
-    menu.returnPressed();
+    if(!screen1.sortQuery && !screen1.dateQuery){
+      screen1.slider.sliderPressed();
+      screen1.searchbar.searchPressed();
+      screen1.clear.widgetPressed();
+      screen1.checkFlights();
+      menu.returnPressed();
+      screen1.sort.widgetPressed();
+    }
+    else{
+      screen1.sortMenu.lateness.widgetPressed();
+      screen1.sortMenu.distance.widgetPressed();
+      screen1.sortMenu.date.widgetPressed();
+      screen1.dateMenu.selector.search1.searchPressed();
+      screen1.dateMenu.selector.search2.searchPressed();
+      screen1.dateMenu.selector.done.widgetPressed();
+    }
   }
   else if(currentScreen==2){
     screen2.back.widgetPressed();

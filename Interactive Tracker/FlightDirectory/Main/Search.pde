@@ -1,12 +1,13 @@
 class Search{
   int x, y, textSize, sHeight, sWidth;
-  int animation;
+  int animation, mode;
   boolean search;
   
-  Search(int x, int y, int textSize){
+  Search(int x, int y, int textSize, int mode){
     this.x=x;
     this.y=y;
     this.textSize=textSize;
+    this.mode=mode;
     sHeight=50;
     sWidth=280;
     animation=0;
@@ -35,36 +36,108 @@ class Search{
     rect(x, y, sWidth, sHeight, 8);
     fill(0);
     textSize(25);
-    if(!search){                                          //code for showing either "search" or the users currently typed in characters
-      text("Search", x+20, y+33);
-    }
-    else{
-      if(inputText.equals("")){
-        if(animation>35){
-          text("Search_", x+20, y+33);
-          animation++;
-        }
-        else{
-          text("Search", x+20, y+33);
-          animation++;
-        }
-        if(animation>70) animation=0;
+    if(mode==1){
+      if(!search){                                          //code for showing either "search" or the users currently typed in characters
+        text("Search", x+20, y+33);
       }
       else{
-        if(animation>35){
-          text(inputText+"_", x+20, y+33);
-          animation++;
+        if(inputText.equals("")){
+          if(animation>35){
+            text("Search_", x+20, y+33);
+            animation++;
+          }
+          else{
+            text("Search", x+20, y+33);
+            animation++;
+          }
+          if(animation>70) animation=0;
         }
         else{
-          text(inputText, x+20, y+33);
-          animation++;
+          if(animation>35){
+            text(inputText+"_", x+20, y+33);
+            animation++;
+          }
+          else{
+            text(inputText, x+20, y+33);
+            animation++;
+          }
+          if(animation>70) animation=0;
         }
-        if(animation>70) animation=0;
+      }
+    }
+    else if(mode==2){
+      if(!search){                                          
+        text(screen1.dateMenu.selector.date1, x+20, y+33);
+      }
+      else{
+        if(inputText.equals("")){
+          if(animation>35){
+            text(screen1.dateMenu.selector.date1+"_", x+20, y+33);
+            animation++;
+          }
+          else{
+            text(screen1.dateMenu.selector.date1, x+20, y+33);
+            animation++;
+          }
+          if(animation>70) animation=0;
+        }
+        else{
+          if(animation>35){
+            text(inputText+"_", x+20, y+33);
+            animation++;
+          }
+          else{
+            text(inputText, x+20, y+33);
+            animation++;
+          }
+          if(animation>70) animation=0;
+        }
+      }
+    }
+    else if(mode==3){
+      if(!search){                                          
+        text(screen1.dateMenu.selector.date2, x+20, y+33);
+      }
+      else{
+        if(inputText.equals("")){
+          if(animation>35){
+            text(screen1.dateMenu.selector.date2+"_", x+20, y+33);
+            animation++;
+          }
+          else{
+            text(screen1.dateMenu.selector.date2, x+20, y+33);
+            animation++;
+          }
+          if(animation>70) animation=0;
+        }
+        else{
+          if(animation>35){
+            text(inputText+"_", x+20, y+33);
+            animation++;
+          }
+          else{
+            text(inputText, x+20, y+33);
+            animation++;
+          }
+          if(animation>70) animation=0;
+        }
       }
     }
     
-    if(entered){                                      //when the user enters (from keyPressed() in main) it calls the search method
+    
+    
+    if(entered && mode==1 && search){                                      //when the user enters (from keyPressed() in main) it calls the search method
       screen1.search(inputText);                      //with the user input and resets the search bar
+      entered=false;
+      search=false;
+    }
+    if(entered && mode==2 && search){
+      screen1.dateMenu.selector.date1=inputText;
+      entered=false;
+      search=false;
+    }
+    if(entered && mode==3 && search){
+      screen1.dateMenu.selector.date2=inputText;
       entered=false;
       search=false;
     }
