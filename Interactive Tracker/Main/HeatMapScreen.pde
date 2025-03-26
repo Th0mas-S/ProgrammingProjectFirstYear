@@ -137,6 +137,8 @@ class HeatMapScreen extends Screen {
   boolean isDragging = false;
   
   PGraphics heatMapLayer;
+  
+  CalendarDisplay calendar;
 
   
   HeatMapScreen() {
@@ -144,9 +146,10 @@ class HeatMapScreen extends Screen {
     loadData(400000);
     this.airportLocations = loadAirportCoordinates("coordinate.csv");
     heatMap = new int[heatMapWidth][heatMapHeight];
+    
+    calendar = new CalendarDisplay();
+    
     generateHeatMap();
-    
-    
     
   }
   
@@ -168,6 +171,7 @@ class HeatMapScreen extends Screen {
       drawIntensityTab(heatMap[zoomedMouseX][zoomedMouseY]);
     
     drawLegend();
+    calendar.display();
       
      float zoomedWidth = width * scaleFactor;
      float zoomedHeight = height * scaleFactor;

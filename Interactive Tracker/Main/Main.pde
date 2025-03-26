@@ -71,7 +71,7 @@ void setup() {
   //earthScreenDirectory = new EarthScreenDirectory(earth, airportOrigin, airportDest, airplane);
   earthScreenTracker = new EarthScreenTracker(earth);
   //screenManager.switchScreen(earthScreenDirectory);
-  screenManager.switchScreen(earthScreenTracker);
+  screenManager.switchScreen(new HeatMapScreen());
   noStroke();
   
    flightInfo = new FlightInfo(
