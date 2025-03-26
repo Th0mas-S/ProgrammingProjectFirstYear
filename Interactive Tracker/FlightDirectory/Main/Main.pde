@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter;
 Screen screen1, screen2, screen3, startScreen;
 ArrayList<Flight> flights;                                                      //array of Flight classes - final once initialized
 ArrayList<Integer> arrayIndex;                                                  //array of indexes for flights array - changes throughout program
-ArrayList<String> airportCode, airportName, airlineCode, airlineName;           //code dictionaries
+ArrayList<String> airportCode, airportName, airlineCode, airlineName, airportAddress;           //code dictionaries
 boolean loaded, initialized;                                                  //for loading screen
 String inputText;
 boolean entered;
@@ -69,11 +69,13 @@ String cropData(String dataIn){                 //used for initializing flights
 void initializeDictionary(){
   airportCode = new ArrayList<String>();
   airportName = new ArrayList<String>();
+  airportAddress = new ArrayList<String>();
   String[] readIn = loadStrings("iata-icao.csv");
   for(int i=1; i<readIn.length; i++){
     String[] row = split(readIn[i], ",");
     airportCode.add(removeFirstLast(row[2]));
-    airportName.add(removeFirstLast(row[4])+" / "+removeFirstLast(row[1]));
+    airportName.add(removeFirstLast(row[1]));
+    airportAddress.add(removeFirstLast(row[3])+", "+removeFirstLast(row[4]));
   }
   
   airlineCode = new ArrayList<String>();
@@ -98,6 +100,13 @@ String removeFirst(String str) {
 String getAirport(String airport){
   for(int i=0; i<airportCode.size(); i++){
     if(airportCode.get(i).equals(airport)) return airportName.get(i);
+  }
+  return("error");
+}
+
+String getAirportAddress(String airport){
+  for(int i=0; i<airportCode.size(); i++){
+    if(airportCode.get(i).equals(airport)) return airportAddress.get(i);
   }
   return("error");
 }

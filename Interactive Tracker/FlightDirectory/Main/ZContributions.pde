@@ -38,6 +38,7 @@ TO-DO
 
   Jason Conboy
   -Add cancelled/delayed data to individual flight screen
+  -Add sort by origin/destination
   
   
 */

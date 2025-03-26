@@ -139,10 +139,10 @@ class Screen{
       int i = 140;
       int j = 430+((textSize*3+3));
       
-      text("Origin:                "+flight.origin, i, j+textSize*9);
-      text("From:      "+getAirport(flight.origin), i, j-textSize*5);
-      text("Destination:     "+flight.destination, i, j+textSize*10+10);
-      text("To:            "+getAirport(flight.destination), i, j-textSize*4+10);
+      text("Origin:                "+getAirport(flight.origin)+" / "+flight.origin, i, j+textSize*9);
+      text("From:      "+getAirportAddress(flight.origin), i, j-textSize*5);
+      text("Destination:     "+getAirport(flight.destination)+" / "+flight.destination, i, j+textSize*10+10);
+      text("To:            "+getAirportAddress(flight.destination), i, j-textSize*4+10);
       text("Scheduled Departure:    "+flight.scheduledDeparture, i+width/2, j);
       text("Scheduled Arrival:            "+flight.scheduledArrival, i+width/2, j+textSize*1+10);
       text("Actual Departure:             "+flight.actualDeparture, i+width/2, j+textSize*3+10);
