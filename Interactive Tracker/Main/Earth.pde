@@ -1,3 +1,4 @@
+
 class Earth {
   PShape shape;
   PImage texture;

@@ -25,9 +25,7 @@ class AirportInfoScreen extends Screen {
   void mousePressed() {
      if (mouseX > width/2 - 100 && mouseX < width/2 + 100 &&
           mouseY > height*2/3 - 25 && mouseY < height*2/3 + 25) {
-        //earth.inertiaAngle = 0;
-        //earth.isDragging = false;
-        screenManager.switchScreen(earthScreen);
+        //screenManager.switchScreen(earthScreenDirectory);
      }
   }
   
