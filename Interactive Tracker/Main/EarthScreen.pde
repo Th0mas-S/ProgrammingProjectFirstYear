@@ -32,6 +32,10 @@ class EarthScreen extends Screen {
   }
 
   earth.update();
+    
+  lights();
+  directionalLight(255, 255, 255, 1, 1, 1);
+
   
   // Center the screen once and apply global rotation
   translate(width/2, height/2, 0);
@@ -44,6 +48,7 @@ class EarthScreen extends Screen {
   pushMatrix();
     // Only apply zooming for Earth and its related objects
     scale(earth.zoomFactor);
+
     earth.display();
     airportOrigin.display();
     airportDest.display();

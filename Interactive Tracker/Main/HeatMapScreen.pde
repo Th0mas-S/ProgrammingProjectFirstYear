@@ -9,21 +9,15 @@ class Flight{
   String scheduledDeparture;
   String actualDeparture;
   int departureDelay;
-  int taxiOut;
-  String wheelsOff;
-  int scheduledFlightTime;
-  int elapsedTime;
-  int airTime;
   float flightDistance;
-  String wheelsOn;
-  int taxiIn;
   String scheduledArrival;
   String actualArrival;
-  int arrivalDelay;
   boolean diverted;
   boolean cancelled;
+  boolean mouseOver;
   
-  Flight(String date, String airlineCode, String flightNumber, String origin, String destination, String scheduledDeparture, String actualDeparture, int departureDelay, int taxiOut, String wheelsOff, int scheduledFlightTime, int elapsedTime, int airTime, float flightDistance, String wheelsOn, int taxiIn, String scheduledArrival, String actualArrival, int arrivalDelay, boolean diverted, boolean cancelled) {
+  
+  Flight(String date, String airlineCode, String flightNumber, String origin, String destination, String scheduledDeparture, String actualDeparture, int departureDelay, float flightDistance, String scheduledArrival, String actualArrival, boolean diverted, boolean cancelled) {
     this.date = date;
     this.airlineCode = airlineCode;                            //setup...
     this.flightNumber = flightNumber;
@@ -32,73 +26,83 @@ class Flight{
     this.scheduledDeparture = scheduledDeparture;
     this.actualDeparture = actualDeparture;
     this.departureDelay = departureDelay;
-    this.taxiOut = taxiOut;
-    this.wheelsOff = wheelsOff;
-    this.scheduledFlightTime = scheduledFlightTime;
-    this.elapsedTime = elapsedTime;
-    this.airTime = airTime;
     this.flightDistance = flightDistance;
-    this.wheelsOn = wheelsOn;
-    this.taxiIn = taxiIn;
     this.scheduledArrival = scheduledArrival;
     this.actualArrival = actualArrival;
-    this.arrivalDelay = arrivalDelay;
     this.diverted = diverted;
     this.cancelled = cancelled;
   }
+  
 
-  public String toString() {
-    return date + " | " + airlineCode + flightNumber + " | " + origin + " -> " + destination + 
-           " | Scheduled: " + scheduledDeparture + " - " + scheduledArrival + 
-           " | Actual: " + actualDeparture + " - " + actualArrival + 
-           " | Delay: " + departureDelay + " min | Flight time: " + elapsedTime + " min | Diverted: " + diverted + " | Cancelled: " + cancelled + " | Distance: " + flightDistance + " km";
+  void drawData(int x, int y, int textSize){
+      text(date, x-5, y);
+      text("   " + airlineCode + flightNumber, x+(textSize*4.791), y);
+      text("    " + origin + " -> " + destination, x+(textSize*8.958), y);
+      text("    Scheduled: " + scheduledDeparture + " - " + scheduledArrival, x+(textSize*15), y);
+      text("    Actual: " + actualDeparture + " - " + actualArrival, x+(textSize*26.25), y);
+      text("    Delay: " + departureDelay + " min ", x+(textSize*35.833), y);
+      text("    Diverted: " + diverted, x+(textSize*43.333), y);
+      text("    Cancelled: " + cancelled, x+(textSize*50.833), y);
+      text("    Distance: " + flightDistance + " km", x+(textSize*58.75), y);
+    
+    
+      if(mouseX>x && mouseX<x+width-150 && mouseY>y-textSize && mouseY<y){
+        mouseOver = true;
+      }
+      else mouseOver = false;
   }
+
 
 }
 
-
-String convertToDate(String day, String month, String year){          //used to format dd/mm/yyyy for all flights
-  if(day.length()==1) day="0"+day;                                    //not used outside of initializeFlights()
-  if(month.length()==1) month="0"+month;
-  return(day+"/"+month+"/"+year);
+String convertDate(String dateIn){              //used for initializing flights
+  String[] mess = split(dateIn, '-');
+  return(mess[2]+"/"+mess[1]+"/"+mess[0]);
 }
 
 ArrayList<Flight> flights;  
 
 void loadData(int amountOfRows) { // amount of rows tells me how much data to load, it crashes my computer when i load too much
-  flights = new ArrayList<Flight>();
-  String[] rows = loadStrings("flights.csv");                      //contain all the data for an individual flight
-  for(int i=1; i<amountOfRows; i++){
-    String[] data = split(rows[i], ',');
-    
-    String date = convertToDate(data[3], data[1], data[0]);
-    String airlineCode = data[4];
-    String flightNumber = data[5];
-    String origin = data[7];
-    String destination = data[8];
-    String scheduledDeparture = data[9];
-    String actualDeparture = data[10];
-    int departureDelay = int(data[11]);
-    int taxiOut = int(data[12]);
-    String wheelsOff = data[13];
-    int scheduledFlightTime = int(data[14]);
-    int elapsedTime = int(data[15]);
-    int airTime = int(data[16]);
-    float flightDistance = float(data[17]);
-    String wheelsOn = data[18];
-    int taxiIn = int(data[19]);
-    String scheduledArrival = data[20];
-    String actualArrival = data[21];
-    int arrivalDelay = int(data[22]);
-    boolean diverted = (int(data[23])==1);
-    boolean cancelled = (int(data[24])==1);
+  String[] rows = loadStrings("flight_data_2017.csv");          //contain all the data for an individual flight
+    flights = new ArrayList<Flight>();
 
-    flights.add( new Flight(date, airlineCode, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, taxiOut, wheelsOff, scheduledFlightTime, elapsedTime, airTime, flightDistance, wheelsOn, taxiIn, scheduledArrival, actualArrival, arrivalDelay, diverted, cancelled));
+  
+  for(int i=1; i<20000; i++){
+    String[] data = split(rows[i], ',');
+   
+    String date = convertDate(data[0]);
+    String airlineCode = data[2];
+    String flightNumber = data[3];
+    String origin = data[4];
+    String destination = data[5];
+    String scheduledDeparture = cropData(data[6]);
+    String actualDeparture = cropData(data[8]);
+    int departureDelay = int(data[10]);
+    float flightDistance = float(data[11]);
+    String scheduledArrival = cropData(data[7]);
+    String actualArrival = cropData(data[9]);
+    boolean diverted = (data[13].equals("TRUE"));
+    boolean cancelled = (data[12].equals("TRUE"));
+
+    flights.add( new Flight(date, airlineCode, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, flightDistance, scheduledArrival, actualArrival, diverted, cancelled));
   }
+  println("flights loaded ("+flights.size()+")");
 }
+
+
+String cropData(String dataIn){                 //used for initializing flights
+  if(dataIn.equals("")) return "00:00";
+  String[] mess = split(dataIn, ' ');
+  return(mess[1]);
+}
+
 ///////////////////////// JASON CODE END /////////////////////////////////////////////////////
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.*;
+
 
 
 HashMap<String, Location> loadAirportCoordinates(String filepath) {
@@ -106,7 +110,7 @@ HashMap<String, Location> loadAirportCoordinates(String filepath) {
   HashMap<String, Location> airportLocations = new HashMap<String, Location>();
   for(int i=1; i<rows.length; i++){
       String[] data = split(rows[i], ',');
-      
+      // println(data[2] + " " + data[6] + " " + data[7]);
       airportLocations.put(data[0], new Location(parseFloat(data[1]), parseFloat(data[2])));
   }
   
@@ -119,7 +123,7 @@ class HeatMapScreen extends Screen {
   HashMap<String, Location> airportLocations;     // probably should make this global seems useful for EarthScreen
   
   final float SCALE = 1; // idk what to call this, this is how big the sqaures are EDIT: sqaure size seems like a good name
-  final int heatMapOpacity = 100;
+  final int heatMapOpacity = 150;
   final int heatMapWidth = (int)(width / SCALE);
   final int heatMapHeight = (int)(height / SCALE);
   int[][] heatMap;
@@ -131,14 +135,18 @@ class HeatMapScreen extends Screen {
   float offsetY = 0;
   float startX, startY;
   boolean isDragging = false;
+  
+  PGraphics heatMapLayer;
 
   
   HeatMapScreen() {
     earthImage = loadImage("worldmap.png");
-    loadData(20000);
+    loadData(400000);
     this.airportLocations = loadAirportCoordinates("coordinate.csv");
     heatMap = new int[heatMapWidth][heatMapHeight];
     generateHeatMap();
+    
+    
     
   }
   
@@ -150,14 +158,16 @@ class HeatMapScreen extends Screen {
     scale(scaleFactor);
 
     image(earthImage, 0, 0, width, height);
-    drawHeatMap();
+    image(heatMapLayer, 0, 0);
     popMatrix();
     
-    int zoomedMouseX = (int)((mouseX - offsetX) / scaleFactor);
-    int zoomedMouseY = (int)((mouseY - offsetY) / scaleFactor);
+    int zoomedMouseX = (int)(((mouseX - offsetX) / scaleFactor) / SCALE);
+    int zoomedMouseY = (int)(((mouseY - offsetY) / scaleFactor) / SCALE);
     
     if(heatMap[zoomedMouseX][zoomedMouseY] != 0)
       drawIntensityTab(heatMap[zoomedMouseX][zoomedMouseY]);
+    
+    drawLegend();
       
      float zoomedWidth = width * scaleFactor;
      float zoomedHeight = height * scaleFactor;
@@ -179,65 +189,70 @@ class HeatMapScreen extends Screen {
     text("Flights This Area: " + intensity, 15, 35);
   }
   
-  void generateHeatMap() { // call when user wants to see a different heatmap?
-    for(int x = 0; x < heatMapWidth; x++) {
-      for(int y = 0; y < heatMapHeight; y++) {
-        heatMap[x][y] = 0;
-      }
-    }
+  void drawLegend() {
     
-    for(Flight f : flights) {
-       //Location src = this.airportLocations.get(f.origin);
-       //Location des = this.airportLocations.get(f.destination);
-       
-       //int srcMapX = (int)mapX(src.lon);
-       //int srcMapY = (int)mapY(src.lat);
-       //int desMapX = (int)mapX(des.lon);
-       //int desMapY = (int)mapY(des.lat);
-       
-       //int distance = (int)dist(srcMapX, srcMapY, desMapX, desMapY);
-       
-       //// Define a control point: midpoint, raised upwards to curve
-       //float controlX = (srcMapX + desMapX) / 2;
-       //float controlY = (srcMapY + desMapY) / 2 - distance / 4;
-       
-       //for(int i = 0; i < distance; i++) { // this loop breaks up the line between src and des into 10 parts and adds it
-       //  float t = map(i, 0, distance, 0, 1); // says which part we are on, range between 0 and 1 for lerp
+    int legendXpos = 0;
+    int legendYpos = height - 150;
     
-         
-       //  int posX = (int)(bezierPoint(srcMapX, controlX, controlX, desMapX, t) / SCALE);
-       //  int posY = (int)(bezierPoint(srcMapY, controlY, controlY, desMapY, t) / SCALE);
-         
-       //  heatMap[posX][posY] += 1;
-         
-       //}
-       
-       Location src = this.airportLocations.get(f.origin);
-       Location des = this.airportLocations.get(f.destination);
-       
-       PVector pointA = LocationTo3D(src.toRadians());       
-       PVector pointB = LocationTo3D(des.toRadians());
-       
-       float angle = acos(pointA.dot(pointB));
-       
-       for (float t = 0; t <= 1; t += 0.01) {
-         PVector intermediate = PVector.add(
-         PVector.mult(pointA, sin((1 - t) * angle)),
-         PVector.mult(pointB, sin(t * angle))
-         ).div(sin(angle));
+    stroke(0);
+    strokeWeight(5);
+    fill(255);
+    rect(legendXpos, legendYpos, 250, 150);
+    
+    noStroke();
 
-        // Convert back to 2D projection (equirectangular)
-        float lon = atan2(intermediate.y, intermediate.x);
-        float lat = asin(intermediate.z);
+    fill(0, 0, 255);
+    rect(legendXpos + 10, legendYpos + 10, 20, 20);
+    fill(0);
+    textAlign(CORNER);
+    text("reee", legendXpos + 50, legendYpos + 25);
     
-        // Map to screen coordinates
-        int x = (int)(mapX(degrees(lon)) / SCALE);
-        int y = (int)(mapY(degrees(lat)) / SCALE);
-        
-        heatMap[x][y]++;
-       }
+    fill(255, 255, 0);
+    rect(legendXpos + 10, legendYpos + 40, 20, 20);
+    fill(0);
+    text("reee", legendXpos + 50, legendYpos + 55); 
+    
+    fill(255, 0, 0);
+    rect(legendXpos + 10, legendYpos + 70, 20, 20);
+    fill(0);
+    text("reee", legendXpos + 50, legendYpos + 85); 
+  }
+  
+  
+  // multi threading is like 10 seconds faster on my laptop
+  void generateHeatMap() {
+  // Reset heatmap
+  for (int x = 0; x < heatMapWidth; x++) {
+    for (int y = 0; y < heatMapHeight; y++) {
+      heatMap[x][y] = 0;
     }
-    
+  }
+
+  // Create a thread pool
+  int numThreads = Runtime.getRuntime().availableProcessors(); // Use all CPU cores
+  ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+
+  // Submit flight calculations as parallel tasks
+  List<Future<Void>> futures = new ArrayList<>();
+
+  for (Flight f : flights) {
+    futures.add(executor.submit(() -> {
+      processFlight(f);
+      return null;
+    }));
+  }
+
+  // Wait for all tasks to complete
+  for (Future<Void> future : futures) {
+    try {
+      future.get();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  executor.shutdown();
+  
     medianIntensity = 0;
     ArrayList<Integer> tempList = new ArrayList<Integer>();
     
@@ -253,11 +268,53 @@ class HeatMapScreen extends Screen {
        medianIntensity = tempList.get(tempList.size() / 2);
      else
        medianIntensity = tempList.get((tempList.size() + 1) / 2);
+       
+     generateHeatMapLayer();
+
+}
+
+// Flight processing function (each runs on a separate thread)
+void processFlight(Flight f) {
+  Location src = this.airportLocations.get(f.origin);
+  Location des = this.airportLocations.get(f.destination);
+
+  if (src != null && des != null) {
+    PVector pointA = LocationTo3D(src.toRadians());
+    PVector pointB = LocationTo3D(des.toRadians());
+    float angle = acos(pointA.dot(pointB));
+
+    for (float t = 0; t <= 1; t += 0.001) {
+      PVector intermediate = PVector.add(
+        PVector.mult(pointA, sin((1 - t) * angle)),
+        PVector.mult(pointB, sin(t * angle))
+      ).div(sin(angle));
+
+      // Convert back to 2D
+      float lon = atan2(intermediate.y, intermediate.x);
+      float lat = asin(intermediate.z);
+
+      if (!Float.isNaN(degrees(lon)) && !Float.isNaN(degrees(lat))) {
+        int x = (int) (mapX(degrees(lon)) / SCALE);
+        int y = (int) (mapY(degrees(lat)) / SCALE);
+
+        // Ensure thread-safe update of heatMap
+        if (x >= 0 && x < heatMapWidth && y >= 0 && y < heatMapHeight) {
+          synchronized (heatMap) { // Protect shared resource
+            heatMap[x][y]++;
+          }
+        }
+      }
+    }
   }
+}
   
-  void drawHeatMap() {
+  void generateHeatMapLayer() {
     
-    
+    heatMapLayer = createGraphics(width, height);
+    heatMapLayer.beginDraw();
+    heatMapLayer.noStroke();
+  
+
     
     for(int x = 0; x < heatMapWidth; x++) {
       for (int y = 0; y < heatMapHeight; y++) {
@@ -266,12 +323,14 @@ class HeatMapScreen extends Screen {
         if (intesity > 0) {
           
           color intesityColor = getIntensityColor(intesity);
-          fill(intesityColor);
-          rect(x * SCALE, y * SCALE, SCALE, SCALE);
+          heatMapLayer.fill(intesityColor);
+          heatMapLayer.rect(x * SCALE, y * SCALE, SCALE, SCALE);
          
         }
       }
     }
+    
+    heatMapLayer.endDraw();
     
   }
   
@@ -283,25 +342,17 @@ class HeatMapScreen extends Screen {
     );
   }
   
-  color getIntensityColor(float intensity) {
-    if(intensity < medianIntensity)
-      return lerpColor(color(0, 0, 255, heatMapOpacity), color(255, 255, 0, heatMapOpacity), map(intensity, 1, medianIntensity, 0, 1));
+  color getIntensityColor(float intensity) { // n0thing -> blue (quartar median) -> yellow (median) -> orange (median double median) -> red (4 * median)
+    if(intensity < medianIntensity / 4)
+      return lerpColor(color(0, 0, 0, 0), color(0, 0, 255, heatMapOpacity), map(intensity, 1, medianIntensity / 4, 0, 1));
+    else if (intensity < medianIntensity)
+      return lerpColor(color(0, 0, 255, heatMapOpacity), color(255, 255, 0, heatMapOpacity), map(intensity, medianIntensity / 4, medianIntensity, 0, 1));
+    else if (intensity < medianIntensity * 2)
+      return lerpColor(color(255, 255, 0, heatMapOpacity), color(255, 110, 0, heatMapOpacity), map(intensity, medianIntensity, medianIntensity * 2, 0, 1));
     else
-      return lerpColor(color(255, 255, 0, heatMapOpacity), color(255, 0, 0, heatMapOpacity), map(intensity, medianIntensity, medianIntensity * 4, 0, 1));
+      return lerpColor(color(255, 110, 0, heatMapOpacity), color(255, 0, 0, heatMapOpacity), map(intensity, medianIntensity * 2, medianIntensity * 7, 0, 1));
 
   }
-  
-  //color getIntensityColor(float intensity) { // n0thing -> blue (quartar median) -> yellow (half median) -> orange (median) -> red (double median)
-  //  if(intensity < medianIntensity / 4)
-  //    return lerpColor(color(0, 0, 0, 0), color(0, 0, 255, heatMapOpacity), map(intensity, 1, medianIntensity / 4, 0, 1));
-  //  else if (intensity < medianIntensity / 2)
-  //    return lerpColor(color(0, 0, 255, heatMapOpacity), color(255, 255, 0, heatMapOpacity), map(intensity, medianIntensity / 4, medianIntensity / 2, 0, 1));
-  //  else if (intensity < medianIntensity)
-  //    return lerpColor(color(255, 255, 0, heatMapOpacity), color(255, 110, 0, heatMapOpacity), map(intensity, medianIntensity / 2, medianIntensity, 0, 1));
-  //  else
-  //    return lerpColor(color(255, 110, 0, heatMapOpacity), color(255, 0, 0, heatMapOpacity), map(intensity, medianIntensity, medianIntensity * 5, 0, 1));
-
-  //}
   float mapX(float lon) {
     return map(lon, -180, 180, 0, width);
   }
@@ -328,6 +379,7 @@ class HeatMapScreen extends Screen {
     }
     
   }
+  
   
   // Handle mouse drag for panning
   void mousePressed() {

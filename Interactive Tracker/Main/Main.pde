@@ -43,7 +43,7 @@ void setup() {
   
   screenManager = new ScreenManager();
   earthScreen = new EarthScreen(earth, airportOrigin, airportDest, airplane);
-  screenManager.switchScreen(new HeatMapScreen());
+  screenManager.switchScreen(earthScreen);
   noStroke();
   
    flightInfo = new FlightInfo(
