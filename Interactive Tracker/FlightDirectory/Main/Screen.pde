@@ -39,6 +39,24 @@ class Screen{
     }
   }
   
+  void filterCancelled(){
+    arrayIndex = new ArrayList<Integer>();          
+    for(int i=0; i<flights.size(); i++){
+      if(flights.get(i).cancelled){ 
+        arrayIndex.add(i);
+      }
+    }  
+  }
+  
+  void filterDiverted(){
+    arrayIndex = new ArrayList<Integer>();          
+    for(int i=0; i<flights.size(); i++){
+      if(flights.get(i).diverted){ 
+        arrayIndex.add(i);
+      }
+    }  
+  }
+  
   
   void printArray(){                                //prints all the Flight data from each Flight in flights array that is selected by index array
     int counter=0;
@@ -143,15 +161,19 @@ class Screen{
       text("From:      "+getAirportAddress(flight.origin), i, j-textSize*5);
       text("Destination:     "+getAirport(flight.destination)+" / "+flight.destination, i, j+textSize*10+10);
       text("To:            "+getAirportAddress(flight.destination), i, j-textSize*4+10);
-      text("Scheduled Departure:    "+flight.scheduledDeparture, i+width/2, j);
-      text("Scheduled Arrival:            "+flight.scheduledArrival, i+width/2, j+textSize*1+10);
-      text("Actual Departure:             "+flight.actualDeparture, i+width/2, j+textSize*3+10);
-      text("Actual Arrival:                     "+flight.actualArrival, i+width/2, j+textSize*4+20);
-      text("Delayed:    "+flight.departureDelay+"mins", i+width/2, j+textSize*7+20);
+      
+      text("Scheduled Departure:    "+flight.scheduledDeparture, i+width/2, j-textSize*5);
+      text("Scheduled Arrival:            "+flight.scheduledArrival, i+width/2, j-textSize*4+10);
+      text("Actual Departure:             "+flight.actualDeparture, i+width/2, j-textSize*2+30);
+      text("Actual Arrival:                     "+flight.actualArrival, i+width/2, j-textSize+40);
+      text("Delayed:    "+flight.departureDelay+"mins", i+width/2, j+textSize*4+20);
+      text("Flight Distance:  "+flight.flightDistance+"km", i, j+textSize*4+30);
+      
       text("Flight Number:  "+flight.airlineCode+" "+flight.flightNumber, i, j);
       text("Carrier:  "+getCarrier(flight.airlineCode), i, j+textSize*2+20);
-      text("Date:  "+flight.date, i, j+textSize+10);
-      text("Flight Distance:  "+flight.flightDistance+"km", i+width/2, j+textSize*11);
+      text("Date:  "+flight.date, i, j+textSize+10);     
+      text("Cancelled:  "+(flight.cancelled ? "Yes":"No"), i+width/2, j+textSize*9);
+      text("Diverted:  "+(flight.diverted ? "Yes":"No"), i+width/2, j+textSize*10+20);
       
       back.draw();
     }

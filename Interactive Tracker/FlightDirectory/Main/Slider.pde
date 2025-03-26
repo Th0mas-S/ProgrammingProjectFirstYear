@@ -37,15 +37,14 @@ class Slider{
     }
     
     float getPercent(){
-      float percent = (number*(sliderLength-30))/100;
+      float percent = (number/(sliderLength-30));
       if(percent>0.9999) return(0.9999);
-      println(percent);
+      //println(percent);
       return(percent);
     }
     
     void scroll(float direction){
-      if(arrayIndex.size()<2500) yS+=direction*10;    //for small test file
-      yS+=direction/100;
+      yS+=direction/arrayIndex.size()*1000;
       if(yS<y+10) yS=y+10;
       if(yS>y+sliderLength-20) yS=y+sliderLength-20;
     }

@@ -24,13 +24,13 @@ WEEK10
   
 BUGS
 
-  -Scroll is less sensitive on smaller sections of the data (searches)
-    -> link scroll sensitivity to indexArray size
-
   
   FIXED
     -Pressing clear after sorting by distance or lateness cause a flight to be clicked 
         !fixed 25/03 JC!
+    -Scroll is less sensitive on smaller sections of the data (searches)
+      -> link scroll sensitivity to indexArray size
+        !fixed 26/03 JC!
     
     
 

@@ -1,22 +1,26 @@
 class Query{
   int x, y, colour, mode;
-  Widget lateness, distance, date;
+  Widget lateness, distance, date, cancelled, diverted, cancel;
   DateSelector selector;
   
   
   Query(int colour, int mode){
-    x=300;
-    y=350;
+    x=500;
+    y=400;
     this.colour=colour;
     this.mode=mode;
     if(mode==1){
-      lateness = new Widget(x+width/7, y+160, 7, 200, 100, #F57F5B);
-      distance = new Widget(x+(width/7)*2, y+160, 8, 200, 100, #764838);
-      date = new Widget(x+(width/7)*3, y+160, 9, 200, 100, #FAA968);
+      lateness = new Widget(width/2-(width/10)*2, y+160, 7, width/10, height/16, #F57F5B);
+      distance = new Widget(width/2-width/20, y+160, 8, width/10, height/16, #764838);
+      date = new Widget(width/2+width/10, y+160, 9, width/10, height/16, #FAA968);
+      
+      cancelled = new Widget(width/2-(width/10)*2, (y+160)+height/8, 11, width/10, height/16, #028391);
+      diverted = new Widget(width/2-width/20, (y+160)+height/8, 12, width/10, height/16, #FAECB6);
     }
     else if(mode==2){
       selector = new DateSelector();
     }
+    cancel = new Widget(width/2-width/40, (y+160)+height/3, 13, width/20, height/32, #99AAAA);
   }
 
 
@@ -31,11 +35,13 @@ class Query{
       lateness.draw();
       distance.draw();
       date.draw();
+      cancelled.draw();
+      diverted.draw();
     }
     else if(mode==2){
       selector.draw();
     }
-    
+    cancel.draw();
   }
 
 }

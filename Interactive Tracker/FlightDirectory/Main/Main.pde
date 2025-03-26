@@ -46,8 +46,9 @@ void initializeFlights(){                                          //initializes
     float flightDistance = float(data[11]);
     String scheduledArrival = cropData(data[7]);
     String actualArrival = cropData(data[9]);
-    boolean diverted = (data[13].equals("TRUE"));
-    boolean cancelled = (data[12].equals("TRUE"));
+    //println(data[13]+" "+(data[13].equals("True") ? "T":"F")+" : "+data[12]+" "+(data[12].equals("True") ? "T":"F"));
+    boolean diverted = (data[13].equals("True"));
+    boolean cancelled = (data[12].equals("True"));
 
     flights.add( new Flight(date, airlineCode, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, flightDistance, scheduledArrival, actualArrival, diverted, cancelled));
   }
@@ -70,12 +71,12 @@ void initializeDictionary(){
   airportCode = new ArrayList<String>();
   airportName = new ArrayList<String>();
   airportAddress = new ArrayList<String>();
-  String[] readIn = loadStrings("iata-icao.csv");
+  String[] readIn = loadStrings("airport_data.csv");
   for(int i=1; i<readIn.length; i++){
     String[] row = split(readIn[i], ",");
-    airportCode.add(removeFirstLast(row[2]));
-    airportName.add(removeFirstLast(row[1]));
-    airportAddress.add(removeFirstLast(row[3])+", "+removeFirstLast(row[4]));
+    airportCode.add(row[2]);
+    airportName.add(row[1]);
+    airportAddress.add(row[3]+", "+row[4]);
   }
   
   airlineCode = new ArrayList<String>();
@@ -163,6 +164,10 @@ void mousePressed(){
       screen1.dateMenu.selector.search1.searchPressed();
       screen1.dateMenu.selector.search2.searchPressed();
       screen1.dateMenu.selector.done.widgetPressed();
+      screen1.sortMenu.cancelled.widgetPressed();
+      screen1.sortMenu.diverted.widgetPressed();
+      screen1.dateMenu.cancel.widgetPressed();
+      screen1.sortMenu.cancel.widgetPressed();
     }
   }
   else if(currentScreen==2){

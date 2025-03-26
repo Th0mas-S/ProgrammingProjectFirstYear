@@ -53,9 +53,22 @@ class Widget{
       if(mode==9){
         screen1.sortQuery=false;
         screen1.dateQuery=true;
-      }if(mode==10){
+      }
+      if(mode==10){
         screen1.sortByDate(screen1.dateMenu.selector.date1, screen1.dateMenu.selector.date2);
         screen1.dateQuery=false;
+      }
+      if(mode==11){
+        screen1.filterCancelled();
+        screen1.sortQuery=false;
+      }
+      if(mode==12){
+        screen1.filterDiverted();
+        screen1.sortQuery=false;
+      }
+      if(mode==13){
+        screen1.dateQuery=false;
+        screen1.sortQuery=false;
       }
     }
   }
@@ -107,21 +120,51 @@ class Widget{
     else if(mode==7){
       fill(240);
       textSize(40);
-      text("Lateness", x+30, y+60);
+      textAlign(CENTER);
+      text("Lateness", x+(w/2), y+(h/2)+(40/3));
+      textAlign(LEFT);
     }
     else if(mode==8){
       fill(240);
       textSize(40);
-      text("Distance", x+30, y+60);
+      textAlign(CENTER);
+      text("Distance", x+(w/2), y+(h/2)+(40/3));
+      textAlign(LEFT);
     }
     else if(mode==9){
       fill(240);
       textSize(40);
-      text("Date", x+60, y+60);
+      textAlign(CENTER);
+      text("Date", x+(w/2), y+(h/2)+(40/3));
+      textAlign(LEFT);
     }
     else if(mode==10){
       fill(240);
-      text("Done", x+27, y+33);
+      textSize(40);
+      textAlign(CENTER);
+      text("Enter", x+(w/2), y+(h/2)+(40/3));
+      textAlign(LEFT);
+    }
+    else if(mode==11){
+      fill(240);
+      textSize(40);
+      textAlign(CENTER);
+      text("Cancelled", x+(w/2), y+(h/2)+(40/3));
+      textAlign(LEFT);
+    }
+    else if(mode==12){
+      fill(20);
+      textSize(40);
+      textAlign(CENTER);
+      text("Diverted", x+(w/2), y+(h/2)+(40/3));
+      textAlign(LEFT);
+    }
+    else if(mode==13){
+      fill(20);
+      textSize(20);
+      textAlign(CENTER);
+      text("Cancel", x+(w/2), y+(h/2)+(20/3));
+      textAlign(LEFT);
     }
   }
 
