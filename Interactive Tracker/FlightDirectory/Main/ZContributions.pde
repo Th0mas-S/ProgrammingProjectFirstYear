@@ -37,12 +37,7 @@ BUGS
 TO-DO
 
   Jason Conboy
-  -Add filter by date feature
-  -Add sort by category feature
-    ->Lateness (mandatory) - done
-    ->Date
-    ->Airline code
-    ->Distance - done
+  -Add cancelled/delayed data to individual flight screen
   
   
 */

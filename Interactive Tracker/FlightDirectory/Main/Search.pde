@@ -72,11 +72,11 @@ class Search{
       else{
         if(inputText.equals("")){
           if(animation>35){
-            text(screen1.dateMenu.selector.date1+"_", x+20, y+33);
+            text("_", x+20, y+33);
             animation++;
           }
           else{
-            text(screen1.dateMenu.selector.date1, x+20, y+33);
+            text("", x+20, y+33);
             animation++;
           }
           if(animation>70) animation=0;
@@ -101,11 +101,11 @@ class Search{
       else{
         if(inputText.equals("")){
           if(animation>35){
-            text(screen1.dateMenu.selector.date2+"_", x+20, y+33);
+            text("_", x+20, y+33);
             animation++;
           }
           else{
-            text(screen1.dateMenu.selector.date2, x+20, y+33);
+            text("", x+20, y+33);
             animation++;
           }
           if(animation>70) animation=0;

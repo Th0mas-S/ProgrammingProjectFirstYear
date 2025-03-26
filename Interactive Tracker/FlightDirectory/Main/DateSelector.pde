@@ -7,8 +7,8 @@ class DateSelector{
   DateSelector(){
     x=450;
     y=500;
-    date1="01/01/2024";
-    date2="31/12/2024";
+    date1="01/01/2017";
+    date2="31/12/2017";
     
     search1 = new Search(width/2-350, height-500, 24, 2);
     search2 = new Search(width/2, height-500, 24, 3);

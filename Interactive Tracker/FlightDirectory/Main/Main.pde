@@ -30,24 +30,24 @@ void setup(){
 }
 
 void initializeFlights(){                                          //initializes an array of fight objects which each
-  String[] rows = loadStrings("flight_data_january.csv");          //contain all the data for an individual flight
+  String[] rows = loadStrings("flight_data_2017.csv");          //contain all the data for an individual flight
   
   for(int i=1; i<rows.length; i++){
     String[] data = split(rows[i], ',');
    
     String date = convertDate(data[0]);
-    String airlineCode = data[1];
-    String flightNumber = data[2];
-    String origin = data[3];
-    String destination = data[4];
-    String scheduledDeparture = cropData(data[5]);
-    String actualDeparture = cropData(data[7]);
-    int departureDelay = int(data[9]);
-    float flightDistance = float(data[10]);
-    String scheduledArrival = cropData(data[6]);
-    String actualArrival = cropData(data[8]);
-    boolean diverted = (int(data[12])==1);
-    boolean cancelled = (int(data[11])==1);
+    String airlineCode = data[2];
+    String flightNumber = data[3];
+    String origin = data[4];
+    String destination = data[5];
+    String scheduledDeparture = cropData(data[6]);
+    String actualDeparture = cropData(data[8]);
+    int departureDelay = int(data[10]);
+    float flightDistance = float(data[11]);
+    String scheduledArrival = cropData(data[7]);
+    String actualArrival = cropData(data[9]);
+    boolean diverted = (data[13].equals("TRUE"));
+    boolean cancelled = (data[12].equals("TRUE"));
 
     flights.add( new Flight(date, airlineCode, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, flightDistance, scheduledArrival, actualArrival, diverted, cancelled));
   }
@@ -61,6 +61,7 @@ String convertDate(String dateIn){              //used for initializing flights
 }
 
 String cropData(String dataIn){                 //used for initializing flights
+  if(dataIn.equals("")) return "00:00";
   String[] mess = split(dataIn, ' ');
   return(mess[1]);
 }
@@ -68,20 +69,20 @@ String cropData(String dataIn){                 //used for initializing flights
 void initializeDictionary(){
   airportCode = new ArrayList<String>();
   airportName = new ArrayList<String>();
-  String[] readIn = loadStrings("L_AIRPORT.csv");
+  String[] readIn = loadStrings("iata-icao.csv");
   for(int i=1; i<readIn.length; i++){
     String[] row = split(readIn[i], ",");
-    airportCode.add(removeFirstLast(row[0]));
-    airportName.add(removeFirst(row[1]));
+    airportCode.add(removeFirstLast(row[2]));
+    airportName.add(removeFirstLast(row[4])+" / "+removeFirstLast(row[1]));
   }
   
   airlineCode = new ArrayList<String>();
   airlineName = new ArrayList<String>();
-  readIn = loadStrings("L_CARRIER_HISTORY.csv");
+  readIn = loadStrings("airline_codes.csv");
   for(int i=1; i<readIn.length; i++){
     String[] row = split(readIn[i], ",");
-    airlineCode.add(removeFirstLast(row[0]));
-    airlineName.add(removeFirstLast(row[1]));
+    airlineCode.add(row[0]);
+    airlineName.add(row[1]);
   }
   println("dictionaries loaded");
 }

@@ -37,8 +37,9 @@ class Slider{
     }
     
     float getPercent(){
-      float percent = number*0.001/(sliderLength/100);
+      float percent = (number*(sliderLength-30))/100;
       if(percent>0.9999) return(0.9999);
+      println(percent);
       return(percent);
     }
     
@@ -60,5 +61,6 @@ class Slider{
       else stroke(0);
       rect(xS, yS, 30, 10);
       number=(yS-10-y);
+      //println("number("+number+") : sliderLength("+sliderLength+") : yS("+yS+") : yS-y("+(yS-y)+")");
     }
   }
