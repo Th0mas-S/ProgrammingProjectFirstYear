@@ -1,3 +1,6 @@
+//download "flight_data_2017.csv" before running code
+//link in whatsapp from ben
+
 import java.util.HashMap;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

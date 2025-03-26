@@ -21,6 +21,7 @@ WEEK10
   -Added sort by lateness
   -Added sort by distance
   -Added filter by dates
+  -Added cancelled/delayed data to individual flight screen
   
 BUGS
 
@@ -37,7 +38,6 @@ BUGS
 TO-DO
 
   Jason Conboy
-  -Add cancelled/delayed data to individual flight screen
   -Add sort by origin/destination
   
   
