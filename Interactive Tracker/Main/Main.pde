@@ -44,9 +44,9 @@ SoundFile audio;
 
                                                                                                                                                                       
 void setup() {
-  //size(1920, 1080, P3D); // ben added this >:( (i know you can't hide from me);
+  size(1920, 1061, P3D); // ben added this >:( (i know you can't hide from me);
   
-  fullScreen(P3D);
+  //fullScreen(P3D);
   
   audio = new SoundFile(this, "audio3.mp3");
 
