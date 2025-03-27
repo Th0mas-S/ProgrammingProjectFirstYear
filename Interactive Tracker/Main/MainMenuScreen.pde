@@ -37,11 +37,7 @@ class MainMenuScreen extends Screen {
   MainMenuScreen() {
     audio.loop();
     flightHubLogo = loadImage("Flighthub Logo.png");
-    
-    if(flightHubLogo == null)
-      print("dfdffffffffffffffffffffuck my life");
 
-  
     noStroke();
     
     // Initialize stars with different radii for depth

@@ -285,6 +285,7 @@ void loadFlightsFromCSV() {
 }
 
 void loadAirportMetadata() {
+  
   Table table = loadTable("airport_data.csv", "header");
   for (TableRow row : table.rows()) {
     String iata = row.getString("IATA Code");
