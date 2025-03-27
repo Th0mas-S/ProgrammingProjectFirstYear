@@ -1,240 +1,44 @@
-
-/*class Airplane {
-PShape shape;
- PImage texture;
-  PVector start;
-  PVector end;
-  PVector startNorm;
-  PVector endNorm;
-  PVector currentPos;
-  float t = 0;
-  float sphereRadius;
-  float lastUpdateTime;
-  boolean moving = false;
-  PVector lastScreenPos;
-  
-  PVector temp1 = new PVector();
-  PVector temp2 = new PVector();
-  PVector slerpResult = new PVector();
-  
-  Airplane(Airport origin, Airport destination, float sphereRadius, String shapeFile, String textureFile) {
-    shape = loadShape(shapeFile);
-    texture = loadImage(textureFile);
-    shape.setTexture(texture);
-    this.sphereRadius = sphereRadius;
-    start = origin.getPosition();
-    end = destination.getPosition();
-    startNorm = start.copy().normalize();
-    endNorm = end.copy().normalize();
-    
-    currentPos = start.copy();
-    lastUpdateTime = millis();
-    lastScreenPos = new PVector();
-  }
-  
-  PVector slerpOptimized(float t, PVector temp1, PVector temp2, PVector result) {
-    float dotVal = constrain(startNorm.dot(endNorm), -1, 1);
-    float theta = acos(dotVal);
-    if (theta == 0) {
-      result.set(startNorm);
-      return result;
-    }
-    float sinTheta = sin(theta);
-    float factor0 = sin((1 - t) * theta) / sinTheta;
-    float factor1 = sin(t * theta) / sinTheta;
-    temp1.set(PVector.mult(startNorm, factor0));
-    temp2.set(PVector.mult(endNorm, factor1));
-    result.set(PVector.add(temp1, temp2));
-    result.mult(sphereRadius);
-    return result;
-  }
-  
-  void update() {
-    if (!moving) return;
-    float now = millis();
-    float dt = (now - lastUpdateTime) / 1000.0;
-    lastUpdateTime = now;
-    t += dt / 21.0;
-    if (t > 1) t = 0;
-    
-    slerpOptimized(t, temp1, temp2, slerpResult);
-    slerpResult.normalize();
-    float offset = 20 * sin(PI * t);
-    slerpResult.mult(sphereRadius + offset);
-    currentPos.set(slerpResult);
-  }
-  
-  void displayPath() {
-    int segments = 100;
-    pushStyle();
-    stroke(0, 255, 0);
-    strokeWeight(2);
-    noFill();
-    beginShape();
-    for (int i = 0; i <= segments; i++) {
-      float tt = i / float(segments);
-      slerpOptimized(tt, temp1, temp2, slerpResult);
-      slerpResult.normalize();
-      float offset = 20 * sin(PI * tt);
-      slerpResult.mult(sphereRadius + offset);
-      vertex(slerpResult.x, slerpResult.y, slerpResult.z);
-    }
-    endShape();
-    popStyle();
-  }
-  
-  void display() {
-    pushMatrix();
-    translate(currentPos.x, currentPos.y, currentPos.z);
-    
-    float dtLocal = 0.001;
-    float tFuture = constrain(t + dtLocal, 0, 1);
-    slerpOptimized(tFuture, temp1, temp2, slerpResult);
-    slerpResult.normalize();
-    float offsetFuture = 20 * sin(PI * tFuture);
-    slerpResult.mult(sphereRadius + offsetFuture);
-    PVector futurePos = slerpResult.copy();
-    
-    PVector tangent = PVector.sub(futurePos, currentPos);
-    PVector up = currentPos.copy().normalize();
-    PVector forward = tangent.copy();
-    float dot = forward.dot(up);
-    forward.sub(PVector.mult(up, dot));
-    if (forward.mag() < 0.0001) forward = new PVector(0, 0, 1);
-    else forward.normalize();
-    PVector right = up.cross(forward, null).normalize();
-    
-    PMatrix3D m = new PMatrix3D(
-      right.x, up.x, forward.x, 0,
-      right.y, up.y, forward.y, 0,
-      right.z, up.z, forward.z, 0,
-      0,       0,    0,         1
-    );
-    applyMatrix(m);
-    
-    float sx = screenX(0, 0, 0);
-    float sy = screenY(0, 0, 0);
-    lastScreenPos.set(sx, sy, 0);
-    boolean isHovered = (dist(mouseX, mouseY, sx, sy) < 50);
-    
-    if (isHovered) {
-      tint(255, 255, 0);
-      scale(18);
-    } else {
-      noTint();
-      scale(15);
-    }
-    
-    shape(shape);
-    popMatrix();
-  }
-}*/
-
-
-
-
-//2D Image flight
-/* 
 class Airplane {
-  PVector start;
-  PVector end;
-  PVector currentPos;
-  PImage img;
-  float sphereRadius;
-  float startMinute;
-  int duration = 180; // flight duration in minutes
+  PVector start, end, currentPos;
+  float sphereRadius, startMinute;
+  int duration;
   boolean finished = false;
-
-  Airplane(Airport origin, Airport dest, float sphereRadius, PImage img, float departureMinute) {
-    this.start = origin.getPosition();
-    this.end = dest.getPosition();
-    this.currentPos = start.copy();
-    this.sphereRadius = sphereRadius;
-    this.img = img;
-    this.startMinute = departureMinute;
-  }
-
-  void update(float currentMinute) {
-    if (finished) return;
-
-    float elapsed = currentMinute - startMinute;
-    float t = constrain(elapsed / float(duration), 0, 1);
-
-    if (t >= 1) {
-      finished = true;
-      return;
-    }
-
-    // Slerp for smooth arc travel
-    PVector startNorm = start.copy().normalize();
-    PVector endNorm = end.copy().normalize();
-    float dot = constrain(startNorm.dot(endNorm), -1, 1);
-    float theta = acos(dot);
-    float sinTheta = sin(theta);
-
-    if (sinTheta < 0.001) {
-      currentPos = start.copy();
-    } else {
-      PVector p1 = PVector.mult(startNorm, sin((1 - t) * theta));
-      PVector p2 = PVector.mult(endNorm, sin(t * theta));
-      currentPos = PVector.add(p1, p2).div(sinTheta).normalize().mult(sphereRadius);
-    }
-  }
-
-void display() {
-  if (finished) return;
-
-  pushMatrix();
-  translate(currentPos.x, currentPos.y, currentPos.z);
-
-  // Define orientation vectors
-  PVector tangent = PVector.sub(end, start).normalize();     // Direction of travel
-  PVector normal = currentPos.copy().normalize();            // Globe up
-  PVector right = tangent.cross(normal).normalize();         // Right wing
-  PVector forward = normal.cross(right).normalize();         // Nose direction (flat to sphere)
-
-  PMatrix3D m = new PMatrix3D(
-    forward.x, normal.x, right.x, 0,
-    forward.y, normal.y, right.y, 0,
-    forward.z, normal.z, right.z, 0,
-    0,         0,        0,       1
-  );
-  applyMatrix(m);
-
-  // ✅ Rotate 90° around right axis to make bottom edge lie on globe
-  rotateX(HALF_PI);
-  // ✅ Then flip 180° so the nose points toward destination
-  rotateZ(PI);
-
-  imageMode(CENTER);
-  image(img, 0, 0, 20, 20);
-  popMatrix();
-}
-}*/
-
-
-
-
-//3D Image
-class Airplane {
-  PVector start;
-  PVector end;
-  PVector currentPos;
-  float sphereRadius;
-  float startMinute;
-  int duration = 180; // minutes of flight
-  boolean finished = false;
+  boolean hovered = false;
+  boolean selected = false;
 
   PShape model;
 
-   Airplane(Airport origin, Airport dest, float sphereRadius, PShape model, float departureMinute, int durationMinutes) {
+  // Flight info fields
+  String departureLocation, arrivalLocation;
+  String departureTime, arrivalTime;
+  String airlineName, airlineCode, flightNumber;
+  String departureDate;
+  String originCode, destCode;
+
+  Airplane(
+    Airport origin, Airport dest, float sphereRadius, PShape model, float startMinute,
+    String depLoc, String arrLoc, String depTime, String arrTime,
+    String airlineName, String airlineCode, String flightNumber, String departureDate,
+    int duration, String originCode, String destCode
+  ) {
     this.start = origin.getPosition();
     this.end = dest.getPosition();
     this.currentPos = start.copy();
     this.sphereRadius = sphereRadius;
     this.model = model;
-    this.startMinute = departureMinute;
-    this.duration = durationMinutes;
+    this.startMinute = startMinute;
+    this.duration = duration;
+    this.originCode = originCode;
+    this.destCode = destCode;
+
+    this.departureLocation = depLoc;
+    this.arrivalLocation = arrLoc;
+    this.departureTime = depTime;
+    this.arrivalTime = arrTime;
+    this.airlineName = airlineName;
+    this.airlineCode = airlineCode;
+    this.flightNumber = flightNumber;
+    this.departureDate = departureDate;
   }
 
   void update(float currentMinute) {
@@ -242,13 +46,11 @@ class Airplane {
 
     float elapsed = currentMinute - startMinute;
     float t = constrain(elapsed / float(duration), 0, 1);
-
     if (t >= 1) {
       finished = true;
       return;
     }
 
-    // Slerp interpolation
     PVector startNorm = start.copy().normalize();
     PVector endNorm = end.copy().normalize();
     float dot = constrain(startNorm.dot(endNorm), -1, 1);
@@ -262,21 +64,23 @@ class Airplane {
       PVector p2 = PVector.mult(endNorm, sin(t * theta));
       currentPos = PVector.add(p1, p2).div(sinTheta).normalize().mult(sphereRadius);
     }
-  }
 
+    float sx = screenX(currentPos.x, currentPos.y, currentPos.z);
+    float sy = screenY(currentPos.x, currentPos.y, currentPos.z);
+    hovered = dist(mouseX, mouseY, sx, sy) < 20;
+  }
+  
 void display() {
   if (finished) return;
 
   pushMatrix();
   translate(currentPos.x, currentPos.y, currentPos.z);
 
-  // Build orientation frame relative to globe
-  PVector travelDir = PVector.sub(end, start).normalize();  // Nose direction
-  PVector globeNormal = currentPos.copy().normalize();      // Up from globe
-  PVector right = globeNormal.cross(travelDir).normalize(); // Right wing
-  PVector forward = right.cross(globeNormal).normalize();   // Recomputed forward (in-plane)
+  PVector travelDir = PVector.sub(end, start).normalize();
+  PVector globeNormal = currentPos.copy().normalize();
+  PVector right = globeNormal.cross(travelDir).normalize();
+  PVector forward = right.cross(globeNormal).normalize();
 
-  // Construct transformation matrix: align airplane with travel
   PMatrix3D m = new PMatrix3D(
     forward.x, globeNormal.x, right.x, 0,
     forward.y, globeNormal.y, right.y, 0,
@@ -285,12 +89,122 @@ void display() {
   );
   applyMatrix(m);
 
-  // ✅ Rotate model so that Z+ (model's nose) points toward travelDir
-  rotateY(HALF_PI);  // Tip it over
-  rotateZ(PI);       // Flip to point nose correctly
+  rotateX(PI);
+  rotateY(HALF_PI);
+  rotateZ(PI);
 
-  scale(15);
+  scale(5);
+  noTint();
   shape(model);
   popMatrix();
+
+  // ✅ Curved arc on hover/selection
+  if (hovered || selected) {
+    drawFlightArc();
+  }
 }
+
+  void displayInfoBoxTopRight() {
+    if (!selected) return;
+
+    float boxW = 350;
+    float boxH = 255;
+    float x = width - boxW - 10;
+    float y = 10;
+    float closeSize = 20;
+    float closeX = x + boxW - closeSize - 10;
+    float closeY = y + boxH - closeSize - 10;
+
+    String line1 = "From: " + departureLocation;
+    String line2 = "To: " + arrivalLocation;
+    String line3 = "Departure: " + departureDate + " " + departureTime;
+    String line4 = "Arrival: " + arrivalTime;
+    String line5 = "Airline: " + airlineName;
+    String line6 = "Flight #: " + airlineCode + flightNumber;
+    String line7 = "More Info...";
+
+    pushStyle();
+    noStroke();
+    fill(50, 230);
+    rect(x, y, boxW, boxH, 8);
+
+    // Close button with hover effect
+    boolean overClose = mouseX >= closeX && mouseX <= closeX + closeSize &&
+                        mouseY >= closeY && mouseY <= closeY + closeSize;
+    fill(overClose ? color(100, 150, 255) : color(100));
+    rect(closeX, closeY, closeSize, closeSize, 4);
+
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(14);
+    text("X", closeX + closeSize / 2, closeY + closeSize / 2);
+
+    // Info text
+    fill(255);
+    textAlign(LEFT, TOP);
+    textSize(20);
+    float textX = x + 20;
+    float textY = y + 20;
+    float lineSpacing = 32;
+
+    text(line1, textX, textY + 0 * lineSpacing);
+    text(line2, textX, textY + 1 * lineSpacing);
+    text(line3, textX, textY + 2 * lineSpacing);
+    text(line4, textX, textY + 3 * lineSpacing);
+    text(line5, textX, textY + 4 * lineSpacing);
+    text(line6, textX, textY + 5 * lineSpacing);
+
+    // Hoverable "More Info"
+    float infoY = textY + 6 * lineSpacing;
+    float infoW = textWidth(line7);
+    float infoH = lineSpacing;
+    boolean overInfo = mouseX >= textX && mouseX <= textX + infoW &&
+                       mouseY >= infoY && mouseY <= infoY + infoH;
+
+    if (overInfo) {
+      fill(100, 150, 255);
+      stroke(255);
+      strokeWeight(1.5);
+    } else {
+      fill(255);
+      noStroke();
+    }
+    text(line7, textX, infoY);
+
+    popStyle();
+  }
+
+  boolean closeButtonClicked(int mouseX, int mouseY) {
+    float boxW = 350;
+    float boxH = 255;
+    float x = width - boxW - 10;
+    float y = 10;
+    float closeSize = 20;
+    float closeX = x + boxW - closeSize - 10;
+    float closeY = y + boxH - closeSize - 10;
+
+    return mouseX >= closeX && mouseX <= closeX + closeSize &&
+           mouseY >= closeY && mouseY <= closeY + closeSize;
+  }
+
+  boolean isHovered() {
+    return hovered;
+  }
+  
+  void drawFlightArc() {
+  int segments = 100;
+  pushStyle();
+  stroke(255, 255, 0); // Yellow
+  strokeWeight(2);
+  noFill();
+  beginShape();
+  for (int i = 0; i <= segments; i++) {
+    float t = i / float(segments);
+    PVector point = slerp(t, start.copy().normalize(), end.copy().normalize()).mult(sphereRadius + 10 * sin(PI * t));
+    vertex(point.x, point.y, point.z);
+  }
+  endShape();
+  popStyle();
+}
+
 }
