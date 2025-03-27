@@ -39,8 +39,6 @@ class Airplane {
     this.airlineCode = airlineCode;
     this.flightNumber = flightNumber;
     this.departureDate = departureDate;
-
-    model.disableStyle();  // <- allows tint() to override material
   }
 
   void update(float currentMinute) {
@@ -67,55 +65,44 @@ class Airplane {
       currentPos = PVector.add(p1, p2).div(sinTheta).normalize().mult(sphereRadius);
     }
 
-    // Only detect hover if facing the camera
-    PVector viewVector = new PVector(0, 0, 1);
-    PVector cameraToPoint = currentPos.copy().normalize();
-    boolean isFacingCamera = cameraToPoint.dot(viewVector) > 0;
-
-    if (isFacingCamera) {
-      float sx = screenX(currentPos.x, currentPos.y, currentPos.z);
-      float sy = screenY(currentPos.x, currentPos.y, currentPos.z);
-      hovered = dist(mouseX, mouseY, sx, sy) < 20;
-    } else {
-      hovered = false;
-    }
+    float sx = screenX(currentPos.x, currentPos.y, currentPos.z);
+    float sy = screenY(currentPos.x, currentPos.y, currentPos.z);
+    hovered = dist(mouseX, mouseY, sx, sy) < 20;
   }
+  
+void display() {
+  if (finished) return;
 
-  void display() {
-    if (finished) return;
+  pushMatrix();
+  translate(currentPos.x, currentPos.y, currentPos.z);
 
-    pushMatrix();
-    translate(currentPos.x, currentPos.y, currentPos.z);
+  PVector travelDir = PVector.sub(end, start).normalize();
+  PVector globeNormal = currentPos.copy().normalize();
+  PVector right = globeNormal.cross(travelDir).normalize();
+  PVector forward = right.cross(globeNormal).normalize();
 
-    PVector travelDir = PVector.sub(end, start).normalize();
-    PVector globeNormal = currentPos.copy().normalize();
-    PVector right = globeNormal.cross(travelDir).normalize();
-    PVector forward = right.cross(globeNormal).normalize();
+  PMatrix3D m = new PMatrix3D(
+    forward.x, globeNormal.x, right.x, 0,
+    forward.y, globeNormal.y, right.y, 0,
+    forward.z, globeNormal.z, right.z, 0,
+    0,         0,              0,      1
+  );
+  applyMatrix(m);
 
-    PMatrix3D m = new PMatrix3D(
-      forward.x, globeNormal.x, right.x, 0,
-      forward.y, globeNormal.y, right.y, 0,
-      forward.z, globeNormal.z, right.z, 0,
-      0,         0,              0,      1
-    );
-    applyMatrix(m);
+  rotateX(PI);
+  rotateY(HALF_PI);
+  rotateZ(PI);
 
-    rotateX(PI);
-    rotateY(HALF_PI);
-    rotateZ(PI);
-    scale(5);
+  scale(5);
+  noTint();
+  shape(model);
+  popMatrix();
 
-    // Use tint for highlighting
-    if (hovered || selected) {
-      tint(255, 255, 0);  // Yellow
-    } else {
-      tint(255);          // Default color (white)
-    }
-
-    noStroke();
-    shape(model);
-    popMatrix();
+  // ✅ Curved arc on hover/selection
+  if (hovered || selected) {
+    drawFlightArc();
   }
+}
 
   void displayInfoBoxTopRight() {
     if (!selected) return;
@@ -203,10 +190,21 @@ class Airplane {
   boolean isHovered() {
     return hovered;
   }
-
-  void onClick() {
-    if (hovered) {
-      selected = true;
-    }
+  
+  void drawFlightArc() {
+  int segments = 100;
+  pushStyle();
+  stroke(255, 255, 0); // Yellow
+  strokeWeight(2);
+  noFill();
+  beginShape();
+  for (int i = 0; i <= segments; i++) {
+    float t = i / float(segments);
+    PVector point = slerp(t, start.copy().normalize(), end.copy().normalize()).mult(sphereRadius + 10 * sin(PI * t));
+    vertex(point.x, point.y, point.z);
   }
+  endShape();
+  popStyle();
+}
+
 }

@@ -147,7 +147,16 @@ void multiplyP3DMatrixScalar(PMatrix3D mat, float s) {
   mat.m10 *= s;  mat.m11 *= s;  mat.m12 *= s;  mat.m13 *= s;
   mat.m20 *= s;  mat.m21 *= s;  mat.m22 *= s;  mat.m23 *= s;
   mat.m30 *= s;  mat.m31 *= s;  mat.m32 *= s;  mat.m33 *= s;
-  
+}
+
+PVector slerp(float t, PVector v0, PVector v1) {
+  float dot = constrain(v0.dot(v1), -1, 1);
+  float theta = acos(dot);
+  if (theta < 0.001) return v0.copy();
+  float sinTheta = sin(theta);
+  float w1 = sin((1 - t) * theta) / sinTheta;
+  float w2 = sin(t * theta) / sinTheta;
+  return PVector.add(v0.copy().mult(w1), v1.copy().mult(w2));
 }
 
 void loadAirportsFromCSV() {
