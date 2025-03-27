@@ -9,8 +9,8 @@ int numAirplanes = 2;
 final PVector Y_AXIS = new PVector(0, 1, 0);
 
 // Precompute constant rotation matrices
-final PMatrix3D EARTH_ROTATION_DELTA = getRotationMatrix(0.001, Y_AXIS);
-final PMatrix3D STAR_INERTIA_DELTA   = getRotationMatrix(0.0003, Y_AXIS);
+final PMatrix3D EARTH_ROTATION_DELTA = getUnRotationMatrix(0.001, Y_AXIS);
+final PMatrix3D STAR_INERTIA_DELTA   = getUnRotationMatrix(0.0003, Y_AXIS);
 
 // Global variables to control shooting stars.
 boolean globalShootingStarActiveMenu = false;
@@ -32,35 +32,44 @@ class MainMenuScreen extends Screen {
   EarthMenu earth;
   ArrayList<AirplaneMenu> airplanes; 
   
+  PImage flightHubLogo;
 
   MainMenuScreen() {
-  audio.loop();
+    audio.loop();
+    flightHubLogo = loadImage("Flighthub Logo.png");
+    
+    if(flightHubLogo == null)
+      print("dfdffffffffffffffffffffuck my life");
 
-  noStroke();
   
-  // Initialize stars with different radii for depth
-  for (int i = 0; i < numStars; i++) {
-    stars[i] = new StarMenu(1000, 2500);
-  }
-  for (int i = 0; i < numMoreStars; i++) {
-    moreStars[i] = new StarMenu(1500, 3000);
-  }
-  for (int i = 0; i < numEvenMoreStars; i++) {
-    evenMoreStars[i] = new StarMenu(2000, 3500);
-  }
+    noStroke();
+    
+    // Initialize stars with different radii for depth
+    for (int i = 0; i < numStars; i++) {
+      stars[i] = new StarMenu(1000, 2500);
+    }
+    for (int i = 0; i < numMoreStars; i++) {
+      moreStars[i] = new StarMenu(1500, 3000);
+    }
+    for (int i = 0; i < numEvenMoreStars; i++) {
+      evenMoreStars[i] = new StarMenu(2000, 3500);
+    }
+    
+    // Initialize the Earth model (ensure "Earth.obj" and "Surface2k.png" are in the data folder)
+    earth = new EarthMenu("Earth.obj", "Surface2k.png");
+    
+    // Initialize the airplanes list and add airplanes
+    airplanes = new ArrayList<AirplaneMenu>();
+    for (int i = 0; i < numAirplanes; i++) {
+      airplanes.add(new AirplaneMenu(earthRadius, "Airplane.obj", "AirplaneTexture.png"));
+    }
   
-  // Initialize the Earth model (ensure "Earth.obj" and "Surface2k.png" are in the data folder)
-  earth = new EarthMenu("Earth.obj", "Surface2k.png");
-  
-  // Initialize the airplanes list and add airplanes
-  airplanes = new ArrayList<AirplaneMenu>();
-  for (int i = 0; i < numAirplanes; i++) {
-    airplanes.add(new AirplaneMenu(earthRadius, "Airplane.obj", "AirplaneTexture.png"));
-  }
   }
   
   void draw() {
    background(0);
+   
+
   
   // Draw stars (using an array of star arrays to reduce duplicate loops)
   StarMenu[][] starArrays = { stars, moreStars, evenMoreStars };
@@ -74,6 +83,8 @@ class MainMenuScreen extends Screen {
     // Draw UI on top for transperency to work.
     hint(DISABLE_DEPTH_TEST);
     drawUI();
+    image(flightHubLogo, 800, -250, 1200, 900);
+
     hint(ENABLE_DEPTH_TEST);
     
   
@@ -89,7 +100,10 @@ class MainMenuScreen extends Screen {
       a.update();
       a.display();
     }
+
   popMatrix();
+  
+
   }
   
   void drawHoverButton(float x, float y, float w, float h, String label, float baseTextSize) {
@@ -129,11 +143,11 @@ class MainMenuScreen extends Screen {
 
 void drawUI() {
   // Draw the title.
-  textAlign(CENTER, CENTER);
-  textSize(50);
-  fill(255);
-  text("FLIGHTHUB", width - 400, height / 2 - 250);
-  
+
+  //textAlign(CENTER, CENTER);
+  //textSize(50);
+  //fill(255);
+  //text("FLIGHTHUB", width - 400, height / 2 - 250);
 
   drawHoverButton(startX, startY, buttonWidth, buttonHeight, "Globe", 40);
   
@@ -447,4 +461,17 @@ class StarMenu {
       }
     popMatrix();
   }
+}
+
+PMatrix3D getUnRotationMatrix(float angle, PVector axis) {
+  float c = cos(angle);
+  float s = -sin(angle);
+  float t = 1 - c;
+  float x = axis.x, y = axis.y, z = axis.z;
+  return new PMatrix3D(
+    t * x * x + c,      t * x * y - s * z,  t * x * z + s * y, 0,
+    t * x * y + s * z,  t * y * y + c,      t * y * z - s * x, 0,
+    t * x * z - s * y,  t * y * z + s * x,  t * z * z + c,     0,
+    0,                  0,                  0,                 1
+  );
 }

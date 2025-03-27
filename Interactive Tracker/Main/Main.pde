@@ -48,7 +48,7 @@ void setup() {
   
   fullScreen(P3D);
   
-  audio = new SoundFile(this, "audio2.mp3");
+  audio = new SoundFile(this, "audio3.mp3");
 
   
   // Initialize near stars (300 - 500 units away)
