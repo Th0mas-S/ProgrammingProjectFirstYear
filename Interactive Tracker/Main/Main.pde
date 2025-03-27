@@ -7,6 +7,8 @@ ScreenManager  screenManager;
 //EarthScreenDirectory  earthScreenDirectory;
 EarthScreenTracker  earthScreenTracker; 
 
+HeatMapScreen heatMapScreen;
+
 Earth earth;
 Airport airportOrigin;
 Airport airportDest;
@@ -32,9 +34,16 @@ HashSet<String> spawnedFlights = new HashSet<String>();
 
 String lastCheckedDate = "";
 
+SoundFile audio; 
+
                                                                                                                                                                       
 void setup() {
-  size(1920, 1080, P3D);
+  //size(1920, 1080, P3D); // ben added this >:( (i know you can't hide from me);
+  
+  fullScreen(P3D);
+  
+  audio = new SoundFile(this, "audio2.mp3");
+
   
   // Initialize near stars (300 - 500 units away)
     // Initialize stars (300 - 500 units away)
@@ -71,7 +80,10 @@ void setup() {
   //earthScreenDirectory = new EarthScreenDirectory(earth, airportOrigin, airportDest, airplane);
   earthScreenTracker = new EarthScreenTracker(earth);
   //screenManager.switchScreen(earthScreenDirectory);
-  screenManager.switchScreen(new HeatMapScreen());
+  
+  heatMapScreen = new HeatMapScreen();
+  
+  screenManager.switchScreen(new MainMenuScreen());
   noStroke();
   
    flightInfo = new FlightInfo(
