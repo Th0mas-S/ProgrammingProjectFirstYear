@@ -1,4 +1,7 @@
 import java.util.HashSet;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 CalendarDisplay calendar;
 TimeSlider timeSlider;
@@ -29,8 +32,11 @@ ArrayList<Airplane> activePlanes = new ArrayList<Airplane>();
 PImage airplaneImg;
 PShape airplaneModel;
 HashSet<String> spawnedFlights = new HashSet<String>();
+HashMap<String, String> airportLocations = new HashMap<String, String>();
+
 
 String lastCheckedDate = "";
+Airplane selectedPlane = null;
 
                                                                                                                                                                       
 void setup() {
@@ -58,6 +64,7 @@ void setup() {
   airportDest = new Airport(destination, sphereRadius, 5);
   //airplane = new Airplane(airportOrigin, airportDest, sphereRadius, "Airplane.obj", "AirplaneTexture.png");
   //airplane = new Airplane(airportOrigin, airportDest, sphereRadius, "Airplane.png");
+    loadAirportMetadata();
   loadAirportsFromCSV();
   loadFlightsFromCSV(); 
   
@@ -146,20 +153,20 @@ void multiplyP3DMatrixScalar(PMatrix3D mat, float s) {
 void loadAirportsFromCSV() {
   // Step 1: Collect all relevant IATA codes from flights
   HashSet<String> usedCodes = new HashSet<String>();
-  Table flightTable = loadTable("flight_2024.csv", "header");
+  Table flightTable = loadTable("flight_data_2017.csv", "header");
 
   for (TableRow row : flightTable.rows()) {
-    String origin = row.getString("Origin");
-    String dest = row.getString("Destination");
+    String origin = row.getString("origin");
+    String dest = row.getString("destination");
     if (origin != null) usedCodes.add(origin.trim());
     if (dest != null) usedCodes.add(dest.trim());
   }
 
   // Step 2: Load only matching airports from coordinate.csv
-  Table coordTable = loadTable("coordinate.csv", "header");
+  Table coordTable = loadTable("airport_data.csv", "header");
 
   for (TableRow row : coordTable.rows()) {
-    String code = row.getString("iata").trim();
+    String code = row.getString("IATA Code").trim();
     if (!usedCodes.contains(code)) continue;
 
     float lat = row.getFloat("latitude");
@@ -174,30 +181,98 @@ void loadAirportsFromCSV() {
 }
 
 void loadFlightsFromCSV() {
-  Table table = loadTable("flight_2024.csv", "header");
+  Table table = loadTable("flight_data_2017.csv", "header");
+
+  if (table == null) {
+    println("⚠️ Could not load flight_data_2017.csv");
+    return;
+  }
+
+  int skippedMalformedTime = 0;
+  int skippedBadDuration = 0;
+  int loaded = 0;
 
   for (TableRow row : table.rows()) {
-    String origin = row.getString("Origin");
-    String dest = row.getString("Destination");
-    String dateStr = row.getString("Date");
+    String origin = row.getString("origin");
+    String destination = row.getString("destination");
+    String actualDeparture = row.getString("actual_departure");
+    String actualArrival = row.getString("actual_arrival");
 
-    String depStr = row.getString("Actual Departure");
-    String arrStr = row.getString("Actual Arrival");
+    if (origin == null || destination == null || actualDeparture == null || actualArrival == null) {
+      continue; // Required fields missing
+    }
 
-    if (depStr == null || arrStr == null) continue;
+    String[] depParts = split(actualDeparture, " ");
+    String[] arrParts = split(actualArrival, " ");
 
-    String[] depParts = split(depStr, " ");
-    String[] arrParts = split(arrStr, " ");
+    if (depParts.length != 2 || arrParts.length != 2) {
+      skippedMalformedTime++;
+      continue;
+    }
 
-    if (depParts.length < 2 || arrParts.length < 2) continue;
+    String dateStr = depParts[0];
+    String depTimeStr = depParts[1];
+    String arrTimeStr = arrParts[1];
 
-    String[] depTime = split(depParts[1], ":");
-    String[] arrTime = split(arrParts[1], ":");
-    if (depTime.length < 2 || arrTime.length < 2) continue;
+    String[] depHM = split(depTimeStr, ":");
+    String[] arrHM = split(arrTimeStr, ":");
 
-    int depMin = int(depTime[0]) * 60 + int(depTime[1]);
-    int arrMin = int(arrTime[0]) * 60 + int(arrTime[1]);
+    if (depHM.length < 2 || arrHM.length < 2) {
+      skippedMalformedTime++;
+      continue;
+    }
 
-    allFlights.add(new FlightData(origin, dest, dateStr, depMin, arrMin));
+    int depMin = int(depHM[0]) * 60 + int(depHM[1]);
+    int arrMin = int(arrHM[0]) * 60 + int(arrHM[1]);
+
+    // Handle flights that arrive after midnight
+    if (arrMin < depMin) {
+      arrMin += 1440; // Add 24h in minutes
+    }
+
+    int duration = arrMin - depMin;
+    if (duration <= 0) {
+      skippedBadDuration++;
+      continue;
+    }
+
+    // City + Country from airport metadata
+    String originCityCountry = airportLocations.get(origin);
+    String destCityCountry = airportLocations.get(destination);
+
+    if (originCityCountry == null) originCityCountry = origin;
+    if (destCityCountry == null) destCityCountry = destination;
+
+    String airlineName = row.getString("airline_name");
+    String airlineCode = row.getString("airline_code");
+    String flightNumber = row.getString("flight_number");
+
+    FlightData flight = new FlightData(
+      origin, destination, dateStr, depMin, duration,
+      originCityCountry, destCityCountry,
+      depTimeStr, arrTimeStr,
+      airlineName, airlineCode, flightNumber
+    );
+
+    allFlights.add(flight);
+    loaded++;
+  }
+
+  println("✅ Loaded flights: " + loaded);
+  println("❌ Skipped (malformed time): " + skippedMalformedTime);
+  println("❌ Skipped (zero/negative duration): " + skippedBadDuration);
+}
+
+void loadAirportMetadata() {
+  Table table = loadTable("airport_data.csv", "header");
+  for (TableRow row : table.rows()) {
+    String iata = row.getString("IATA Code");
+    String city = row.getString("City");
+    String country = row.getString("Country");
+
+    if (iata != null && city != null && country != null) {
+      String location = city + ", " + country;
+      airportLocations.put(iata.trim(), location);
+    }
   }
 }

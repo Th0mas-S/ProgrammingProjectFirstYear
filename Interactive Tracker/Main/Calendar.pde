@@ -8,7 +8,7 @@ class CalendarDisplay {
 
   CalendarDisplay() {
     month = 0;
-    year = 2024; 
+    year = 2017; 
     x = 10;
     y = 10;
     w = 350;
@@ -36,8 +36,8 @@ class CalendarDisplay {
       boolean leftHover = (mouseX >= x + 10 && mouseX <= x + 10 + arrowSize &&
                            mouseY >= arrowY - arrowSize / 2 && mouseY <= arrowY + arrowSize / 2);
       if (leftHover) {
-        fill(255, 0, 0);
-        stroke(255, 255, 0);
+        fill(100, 150, 255);
+        stroke(255, 255, 255);
         strokeWeight(2);
       } else {
         fill(200);

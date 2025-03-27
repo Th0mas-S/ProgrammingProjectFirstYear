@@ -2,17 +2,33 @@ class FlightData {
   String originCode;
   String destCode;
   String dateStr;
-  int departureMinutes;
-  int arrivalMinutes;
-  int durationMinutes;
+  int minutes;
+  int duration;
 
-  FlightData(String origin, String dest, String dateStr, int departureMinutes, int arrivalMinutes) {
-    this.originCode = origin;
-    this.destCode = dest;
+  String originCityCountry;
+  String destCityCountry;
+  String departureTimeStr;
+  String arrivalTimeStr;
+  String airlineName;
+  String airlineCode;
+  String flightNumber;
+
+  FlightData(String originCode, String destCode, String dateStr, int minutes, int duration,
+             String originCityCountry, String destCityCountry,
+             String departureTimeStr, String arrivalTimeStr,
+             String airlineName, String airlineCode, String flightNumber) {
+    this.originCode = originCode;
+    this.destCode = destCode;
     this.dateStr = dateStr;
-    this.departureMinutes = departureMinutes;
-    this.arrivalMinutes = arrivalMinutes;
-    this.durationMinutes = arrivalMinutes - departureMinutes;
-    if (this.durationMinutes <= 0) this.durationMinutes += 1440; // Handle overnight flights
+    this.minutes = minutes;
+    this.duration = duration;
+
+    this.originCityCountry = originCityCountry;
+    this.destCityCountry = destCityCountry;
+    this.departureTimeStr = departureTimeStr;
+    this.arrivalTimeStr = arrivalTimeStr;
+    this.airlineName = airlineName;
+    this.airlineCode = airlineCode;
+    this.flightNumber = flightNumber;
   }
 }
