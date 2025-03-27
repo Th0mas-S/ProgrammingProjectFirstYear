@@ -1,3 +1,4 @@
+
 class Location {
   float lat;
   float lon;
@@ -6,4 +7,9 @@ class Location {
     this.lat = lat;
     this.lon = lon;
   }
+  
+  Location toRadians() {
+    return new Location(radians(this.lat), radians(this.lon));
+  }
+  
 }

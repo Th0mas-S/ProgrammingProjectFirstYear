@@ -1,6 +1,7 @@
-class Airplane {
-  PShape shape;
-  PImage texture;
+
+/*class Airplane {
+PShape shape;
+ PImage texture;
   PVector start;
   PVector end;
   PVector startNorm;
@@ -10,9 +11,8 @@ class Airplane {
   float sphereRadius;
   float lastUpdateTime;
   boolean moving = false;
-  PVector lastScreenPos;  // for hover detection
+  PVector lastScreenPos;
   
-  // Temporary vectors for optimized slerp computations.
   PVector temp1 = new PVector();
   PVector temp2 = new PVector();
   PVector slerpResult = new PVector();
@@ -24,7 +24,6 @@ class Airplane {
     this.sphereRadius = sphereRadius;
     start = origin.getPosition();
     end = destination.getPosition();
-    // Precompute normalized versions (they remain constant after construction).
     startNorm = start.copy().normalize();
     endNorm = end.copy().normalize();
     
@@ -33,9 +32,7 @@ class Airplane {
     lastScreenPos = new PVector();
   }
   
-  // Optimized slerp using precomputed startNorm and endNorm.
   PVector slerpOptimized(float t, PVector temp1, PVector temp2, PVector result) {
-    // Use precomputed normalized vectors.
     float dotVal = constrain(startNorm.dot(endNorm), -1, 1);
     float theta = acos(dotVal);
     if (theta == 0) {
@@ -131,4 +128,169 @@ class Airplane {
     shape(shape);
     popMatrix();
   }
+}*/
+
+
+
+
+//2D Image flight
+/* 
+class Airplane {
+  PVector start;
+  PVector end;
+  PVector currentPos;
+  PImage img;
+  float sphereRadius;
+  float startMinute;
+  int duration = 180; // flight duration in minutes
+  boolean finished = false;
+
+  Airplane(Airport origin, Airport dest, float sphereRadius, PImage img, float departureMinute) {
+    this.start = origin.getPosition();
+    this.end = dest.getPosition();
+    this.currentPos = start.copy();
+    this.sphereRadius = sphereRadius;
+    this.img = img;
+    this.startMinute = departureMinute;
+  }
+
+  void update(float currentMinute) {
+    if (finished) return;
+
+    float elapsed = currentMinute - startMinute;
+    float t = constrain(elapsed / float(duration), 0, 1);
+
+    if (t >= 1) {
+      finished = true;
+      return;
+    }
+
+    // Slerp for smooth arc travel
+    PVector startNorm = start.copy().normalize();
+    PVector endNorm = end.copy().normalize();
+    float dot = constrain(startNorm.dot(endNorm), -1, 1);
+    float theta = acos(dot);
+    float sinTheta = sin(theta);
+
+    if (sinTheta < 0.001) {
+      currentPos = start.copy();
+    } else {
+      PVector p1 = PVector.mult(startNorm, sin((1 - t) * theta));
+      PVector p2 = PVector.mult(endNorm, sin(t * theta));
+      currentPos = PVector.add(p1, p2).div(sinTheta).normalize().mult(sphereRadius);
+    }
+  }
+
+void display() {
+  if (finished) return;
+
+  pushMatrix();
+  translate(currentPos.x, currentPos.y, currentPos.z);
+
+  // Define orientation vectors
+  PVector tangent = PVector.sub(end, start).normalize();     // Direction of travel
+  PVector normal = currentPos.copy().normalize();            // Globe up
+  PVector right = tangent.cross(normal).normalize();         // Right wing
+  PVector forward = normal.cross(right).normalize();         // Nose direction (flat to sphere)
+
+  PMatrix3D m = new PMatrix3D(
+    forward.x, normal.x, right.x, 0,
+    forward.y, normal.y, right.y, 0,
+    forward.z, normal.z, right.z, 0,
+    0,         0,        0,       1
+  );
+  applyMatrix(m);
+
+  // ✅ Rotate 90° around right axis to make bottom edge lie on globe
+  rotateX(HALF_PI);
+  // ✅ Then flip 180° so the nose points toward destination
+  rotateZ(PI);
+
+  imageMode(CENTER);
+  image(img, 0, 0, 20, 20);
+  popMatrix();
+}
+}*/
+
+
+
+
+//3D Image
+class Airplane {
+  PVector start;
+  PVector end;
+  PVector currentPos;
+  float sphereRadius;
+  float startMinute;
+  int duration = 180; // minutes of flight
+  boolean finished = false;
+
+  PShape model;
+
+   Airplane(Airport origin, Airport dest, float sphereRadius, PShape model, float departureMinute, int durationMinutes) {
+    this.start = origin.getPosition();
+    this.end = dest.getPosition();
+    this.currentPos = start.copy();
+    this.sphereRadius = sphereRadius;
+    this.model = model;
+    this.startMinute = departureMinute;
+    this.duration = durationMinutes;
+  }
+
+  void update(float currentMinute) {
+    if (finished) return;
+
+    float elapsed = currentMinute - startMinute;
+    float t = constrain(elapsed / float(duration), 0, 1);
+
+    if (t >= 1) {
+      finished = true;
+      return;
+    }
+
+    // Slerp interpolation
+    PVector startNorm = start.copy().normalize();
+    PVector endNorm = end.copy().normalize();
+    float dot = constrain(startNorm.dot(endNorm), -1, 1);
+    float theta = acos(dot);
+    float sinTheta = sin(theta);
+
+    if (sinTheta < 0.001) {
+      currentPos = start.copy();
+    } else {
+      PVector p1 = PVector.mult(startNorm, sin((1 - t) * theta));
+      PVector p2 = PVector.mult(endNorm, sin(t * theta));
+      currentPos = PVector.add(p1, p2).div(sinTheta).normalize().mult(sphereRadius);
+    }
+  }
+
+void display() {
+  if (finished) return;
+
+  pushMatrix();
+  translate(currentPos.x, currentPos.y, currentPos.z);
+
+  // Build orientation frame relative to globe
+  PVector travelDir = PVector.sub(end, start).normalize();  // Nose direction
+  PVector globeNormal = currentPos.copy().normalize();      // Up from globe
+  PVector right = globeNormal.cross(travelDir).normalize(); // Right wing
+  PVector forward = right.cross(globeNormal).normalize();   // Recomputed forward (in-plane)
+
+  // Construct transformation matrix: align airplane with travel
+  PMatrix3D m = new PMatrix3D(
+    forward.x, globeNormal.x, right.x, 0,
+    forward.y, globeNormal.y, right.y, 0,
+    forward.z, globeNormal.z, right.z, 0,
+    0,         0,              0,      1
+  );
+  applyMatrix(m);
+
+  // ✅ Rotate model so that Z+ (model's nose) points toward travelDir
+  rotateY(HALF_PI);  // Tip it over
+  rotateZ(PI);       // Flip to point nose correctly
+
+  scale(15);
+  shape(model);
+  popMatrix();
+}
 }
