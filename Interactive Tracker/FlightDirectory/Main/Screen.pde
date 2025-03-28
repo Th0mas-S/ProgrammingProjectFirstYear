@@ -10,7 +10,8 @@ class Screen{
   Widget clear, back, sort;
   Widget directory, graphs, exitButton;
   Flight flight;
-  Graphs newGraph;
+  //Graphs newGraph;
+  AirportList airList;
 
   Screen(int mode){
     screenNum = mode;
@@ -34,8 +35,11 @@ class Screen{
       graphs = new Widget((width/2)-(width/8), int((height/3)*1.6), 4, width/4, 200, #F9A822);
       exitButton = new Widget((width/2)-(width/8), int((height/3)*2.2), 5, width/4, 200, #F57F5B);
     }
-    else if(mode==4){                                                //start screen...
-      newGraph = new Graphs();
+    else if(mode==4){
+      airList = new AirportList(flights);
+      slider = new Slider(width - 60, 150, height - 250);
+      searchbar = new Search(width-340, 160, textSize, 1);
+      clear = new Widget(width-480, 160, 1, 100, 50, #F96635);                      
     }
   }
   
@@ -187,12 +191,9 @@ class Screen{
       exitButton.draw();
     }
     
-     else if(screenNum==4){                               //graph screen
-     newGraph.draw();
-     newGraph.drawButtons();
-     newGraph.drawPieChart();
+     else if(screenNum==4){                             
+      airList.draw();
+      // Add these lines to initialize missing components
     }
-    
   }
-
 }

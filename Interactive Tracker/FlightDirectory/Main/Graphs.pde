@@ -6,13 +6,6 @@ class Graphs
 
   int totalFlights, departedOnTime, delayedFlights, canceledFlights;
 
-  //void setup() {
-  //  size(800, 600);
-  //  background(255);
-  //  textFont(createFont("Comic Sans MS", 20));
-  //  drawButtons();
-  //}
-
   void draw() {
     if (!selectedAirport.equals("")) {
       drawPieChart();
@@ -20,7 +13,7 @@ class Graphs
   }
 
   void drawButtons() {
-    background(255);
+    background(255, 214, 131);
     fill(0);
     textSize(20);
     textAlign(CENTER, CENTER);
@@ -42,15 +35,9 @@ class Graphs
   void drawPieChart() {
     float chartX = width/2;    // Keep horizontal center
     float chartY = height/2 + 100;  // Move down by 100 pixels
-    int chartSize = 300;       // Diameter of the pie chart
+    int chartSize = 600;       // Diameter of the pie chart
     background(255);
     drawButtons();
-
-    if (totalFlights == 0) {
-      fill(255, 0, 0);
-      text("No flight data found for " + selectedAirport, chartX, chartY);
-      return;
-    }
 
     float onTimeAngle = (float) departedOnTime / totalFlights * TWO_PI;
     float delayedAngle = (float) delayedFlights / totalFlights * TWO_PI;
@@ -74,7 +61,7 @@ class Graphs
 
       fill(0);
       textAlign(CENTER, CENTER);
-      textSize(12);
+      textSize(30);
       text(labels[i] + "\n" + nf((counts[i]*100.0/totalFlights), 0, 1) + "%", x, y);
 
       lastAngle += angles[i];

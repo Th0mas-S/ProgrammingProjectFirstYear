@@ -4,7 +4,7 @@
 import java.util.HashMap;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-Screen screen1, screen2, screen3, startScreen;
+Screen screen1, screen2, screen3, screen4, startScreen;
 ArrayList<Flight> flights;                                                      //array of Flight classes - final once initialized
 ArrayList<Integer> arrayIndex;                                                  //array of indexes for flights array - changes throughout program
 ArrayList<String> airportCode, airportName, airlineCode, airlineName, airportAddress;           //code dictionaries
@@ -25,7 +25,8 @@ void setup(){
   startScreen = new Screen(3);
   screen1 = new Screen(1);                                        //screen1 is the main directory screen
   screen2 = new Screen(2);
-  screen3 = new Screen(4);
+  screen3 = new Screen(3);
+  screen4 = new Screen(4);
   flights = new ArrayList<Flight>();
   arrayIndex = new ArrayList<Integer>();
   currentScreen=0;                                                  //default to start screen
@@ -124,7 +125,12 @@ String getCarrier(String carrier){
 
 void mouseWheel(MouseEvent event) {                                    
   float e = event.getCount();
-  screen1.slider.scroll(e);                               //scrolls list               
+  if(currentScreen == 1) {
+    screen1.slider.scroll(e);
+  }
+  if(currentScreen == 4) {
+    screen4.slider.scroll(e);
+  }
 }
 
 void clearInput(){                                      //clears user input line
@@ -176,21 +182,31 @@ void mousePressed(){
   else if(currentScreen==2){
     screen2.back.widgetPressed();
   }
-   else if(currentScreen==3){
-    screen3.newGraph.graphPressed();
-    menu.returnPressed();
-  }
+  // else if(currentScreen==3){
+  //  screen3.newGraph.graphPressed();
+  //  menu.returnPressed();
+  //}
+  
+  //else if(currentScreen==4){
+  //  menu.returnPressed();
+  //}
   println("x: "+mouseX+"  y: "+mouseY);     //!for testing!
 }
 
 void mouseReleased(){
   screen1.slider.sliderReleased();
+  screen4.slider.sliderReleased();
 }
 
 void mouseMoved(){
   if(currentScreen==1){
     if(screen1.slider.mouseOver()) screen1.slider.hover=true;
     else if(!screen1.slider.mouseOver()) screen1.slider.hover=false;
+  } 
+  
+  if(currentScreen==4){
+    if(screen4.slider.mouseOver()) screen4.slider.hover=true;
+    else if(!screen4.slider.mouseOver()) screen4.slider.hover=false;
   }
 }
 
@@ -230,6 +246,9 @@ void draw(){
       screen3.draw();
       textAlign(LEFT);
       menu.draw();
+    }
+    else if(currentScreen==4){
+      screen4.draw();
     }
   }
 }

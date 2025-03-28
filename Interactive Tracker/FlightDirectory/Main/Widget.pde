@@ -34,7 +34,7 @@ class Widget{
         currentScreen=1;
       }
       if(mode==4){
-        currentScreen=3;
+        currentScreen=5;
       }
       if(mode==5){
         exit();

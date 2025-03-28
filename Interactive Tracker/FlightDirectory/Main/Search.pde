@@ -126,7 +126,7 @@ class Search{
     
     
     
-    if(entered && mode==1 && search){                                      //when the user enters (from keyPressed() in main) it calls the search method
+    if(entered && mode==1 && search){                //when the user enters (from keyPressed() in main) it calls the search method
       screen1.search(inputText);                      //with the user input and resets the search bar
       entered=false;
       search=false;
@@ -142,7 +142,4 @@ class Search{
       search=false;
     }
   }
-    
-
-
 }
