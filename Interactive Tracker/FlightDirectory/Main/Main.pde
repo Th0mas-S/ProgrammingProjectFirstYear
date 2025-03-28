@@ -1,5 +1,8 @@
-//download "flight_data_2017.csv" before running code
-//link in whatsapp from ben
+//download "flight_data_2017.csv" or smaller version before running code
+//https://drive.google.com/drive/folders/1WkfU48SkPd7TacrarQukp4GZepC0g73Z?usp=drive_link
+//set currentDataset to filename if using different version ↓
+
+String currentDataset = "flight_data_2017.csv";
 
 import java.util.HashMap;
 import java.time.LocalDate;
@@ -33,7 +36,7 @@ void setup(){
 }
 
 void initializeFlights(){                                          //initializes an array of fight objects which each
-  String[] rows = loadStrings("flight_data_2017.csv");          //contain all the data for an individual flight
+  String[] rows = loadStrings(currentDataset);          //contain all the data for an individual flight
   
   for(int i=1; i<rows.length; i++){
     String[] data = split(rows[i], ',');
@@ -70,8 +73,8 @@ String cropData(String dataIn){                 //used for initializing flights
   return(mess[1]);
 }
 
-void initializeDictionary(){
-  airportCode = new ArrayList<String>();
+void initializeDictionary(){                                //call once on startup
+  airportCode = new ArrayList<String>();                    //initializes dictionarys for airport and airline codes
   airportName = new ArrayList<String>();
   airportAddress = new ArrayList<String>();
   String[] readIn = loadStrings("airport_data.csv");

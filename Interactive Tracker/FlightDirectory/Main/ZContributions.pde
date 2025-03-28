@@ -22,6 +22,7 @@ WEEK10
   -Added sort by distance
   -Added filter by dates
   -Added cancelled/delayed data to individual flight screen
+  -Added filter by cancelled/diverted
   
 BUGS
 
@@ -38,7 +39,8 @@ BUGS
 TO-DO
 
   Jason Conboy
-  -Add sort by origin/destination
+  -Add sort by origin/destination when searching 
+  -Add support for searching by location/airline names instead of codes
   
   
 */
