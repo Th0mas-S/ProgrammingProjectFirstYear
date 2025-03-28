@@ -167,11 +167,11 @@ class HeatMapScreen extends Screen {
     int zoomedMouseX = (int)(((mouseX - offsetX) / scaleFactor) / SCALE);
     int zoomedMouseY = (int)(((mouseY - offsetY) / scaleFactor) / SCALE);
     
-    if(heatMap[zoomedMouseX][zoomedMouseY] != 0)
-      drawIntensityTab(heatMap[zoomedMouseX][zoomedMouseY]);
-    
     drawLegend();
     calendar.display();
+    
+    if(heatMap[zoomedMouseX][zoomedMouseY] != 0)
+      drawIntensityTab(heatMap[zoomedMouseX][zoomedMouseY]);
       
      float zoomedWidth = width * scaleFactor;
      float zoomedHeight = height * scaleFactor;
@@ -182,15 +182,19 @@ class HeatMapScreen extends Screen {
   }
   
   void drawIntensityTab(int intensity) {
-    stroke(0);
+    int x = (int)calendar.x;
+    int y = (int)(calendar.y + calendar.h + 50);
+
+    stroke(135, 206, 235, 150);
     strokeWeight(5);
-    fill(255);
-    rect(10, 10, 200, 50);
+    fill(128, 128, 128, 50);
+    rect(x, y, 200, 50);
     noStroke();
     
-    fill(0);
+    fill(255);
+    textAlign(CENTER);
     textSize(20);
-    text("Flights This Area: " + intensity, 15, 35);
+    text("Flights This Area: " + intensity, x + 100, y + 25);
   }
   
   void drawLegend() {
@@ -198,28 +202,30 @@ class HeatMapScreen extends Screen {
     int legendXpos = 0;
     int legendYpos = height - 150;
     
-    stroke(0);
+    stroke(135, 206, 235, 150);
     strokeWeight(5);
-    fill(255);
+    fill(128, 128, 128, 50);
     rect(legendXpos, legendYpos, 250, 150);
+    textSize(20);
+
     
     noStroke();
-
+    
     fill(0, 0, 255);
     rect(legendXpos + 10, legendYpos + 10, 20, 20);
-    fill(0);
+    fill(255);
     textAlign(CORNER);
-    text("reee", legendXpos + 50, legendYpos + 25);
+    text("Low intensity", legendXpos + 50, legendYpos + 25);
     
     fill(255, 255, 0);
     rect(legendXpos + 10, legendYpos + 40, 20, 20);
-    fill(0);
-    text("reee", legendXpos + 50, legendYpos + 55); 
+    fill(255);
+    text("Median intensity", legendXpos + 50, legendYpos + 55); 
     
     fill(255, 0, 0);
     rect(legendXpos + 10, legendYpos + 70, 20, 20);
-    fill(0);
-    text("reee", legendXpos + 50, legendYpos + 85); 
+    fill(255);
+    text("High intensity", legendXpos + 50, legendYpos + 85); 
   }
   
   

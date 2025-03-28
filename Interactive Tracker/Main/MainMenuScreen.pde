@@ -9,8 +9,8 @@ int numAirplanes = 2;
 final PVector Y_AXIS = new PVector(0, 1, 0);
 
 // Precompute constant rotation matrices
-final PMatrix3D EARTH_ROTATION_DELTA = getRotationMatrix(0.001, Y_AXIS);
-final PMatrix3D STAR_INERTIA_DELTA   = getRotationMatrix(0.0003, Y_AXIS);
+final PMatrix3D EARTH_ROTATION_DELTA = getUnRotationMatrix(0.001, Y_AXIS);
+final PMatrix3D STAR_INERTIA_DELTA   = getUnRotationMatrix(0.0003, Y_AXIS);
 
 // Global variables to control shooting stars.
 boolean globalShootingStarActiveMenu = false;
@@ -21,51 +21,56 @@ class MainMenuScreen extends Screen {
 
   
   // Global variables for stars
-  int numStars = 300;
-  int numMoreStars = 200;
-  int numEvenMoreStars = 1000;
+  //int numStars = 300;
+  //int numMoreStars = 200;
+  //int numEvenMoreStars = 1000;
   
-  StarMenu[] stars = new StarMenu[numStars];
-  StarMenu[] moreStars = new StarMenu[numMoreStars];
-  StarMenu[] evenMoreStars = new StarMenu[numEvenMoreStars];
+  //Star[] stars = new Star[numStars];
+  //Star[] moreStars = new Star[numMoreStars];
+  //Star[] evenMoreStars = new Star[numEvenMoreStars];
   
   EarthMenu earth;
   ArrayList<AirplaneMenu> airplanes; 
   
+  PImage flightHubLogo;
 
   MainMenuScreen() {
-  audio.loop();
+    audio.loop();
+    flightHubLogo = loadImage("Flighthub Logo.png");
 
-  noStroke();
+    noStroke();
+    
+    // Initialize stars with different radii for depth
+    for (int i = 0; i < numStars; i++) {
+      stars[i] = new Star(1000, 2500);
+    }
+    for (int i = 0; i < numMoreStars; i++) {
+      moreStars[i] = new Star(1500, 3000);
+    }
+    for (int i = 0; i < numEvenMoreStars; i++) {
+      evenMoreStars[i] = new Star(2000, 3500);
+    }
+    
+    // Initialize the Earth model (ensure "Earth.obj" and "Surface2k.png" are in the data folder)
+    earth = new EarthMenu("Earth.obj", "Surface2k.png");
+    
+    // Initialize the airplanes list and add airplanes
+    airplanes = new ArrayList<AirplaneMenu>();
+    for (int i = 0; i < numAirplanes; i++) {
+      airplanes.add(new AirplaneMenu(earthRadius, "Airplane.obj", "AirplaneTexture.png"));
+    }
   
-  // Initialize stars with different radii for depth
-  for (int i = 0; i < numStars; i++) {
-    stars[i] = new StarMenu(1000, 2500);
-  }
-  for (int i = 0; i < numMoreStars; i++) {
-    moreStars[i] = new StarMenu(1500, 3000);
-  }
-  for (int i = 0; i < numEvenMoreStars; i++) {
-    evenMoreStars[i] = new StarMenu(2000, 3500);
-  }
-  
-  // Initialize the Earth model (ensure "Earth.obj" and "Surface2k.png" are in the data folder)
-  earth = new EarthMenu("Earth.obj", "Surface2k.png");
-  
-  // Initialize the airplanes list and add airplanes
-  airplanes = new ArrayList<AirplaneMenu>();
-  for (int i = 0; i < numAirplanes; i++) {
-    airplanes.add(new AirplaneMenu(earthRadius, "Airplane.obj", "AirplaneTexture.png"));
-  }
   }
   
   void draw() {
    background(0);
+   
+
   
   // Draw stars (using an array of star arrays to reduce duplicate loops)
-  StarMenu[][] starArrays = { stars, moreStars, evenMoreStars };
-  for (StarMenu[] starArray : starArrays) {
-    for (StarMenu star : starArray) {
+  Star[][] starArrays = { stars, moreStars, evenMoreStars };
+  for (Star[] starArray : starArrays) {
+    for (Star star : starArray) {
       star.update();
       star.display();
     }
@@ -74,6 +79,8 @@ class MainMenuScreen extends Screen {
     // Draw UI on top for transperency to work.
     hint(DISABLE_DEPTH_TEST);
     drawUI();
+    image(flightHubLogo, 800, -250, 1200, 900);
+
     hint(ENABLE_DEPTH_TEST);
     
   
@@ -89,7 +96,10 @@ class MainMenuScreen extends Screen {
       a.update();
       a.display();
     }
+
   popMatrix();
+  
+
   }
   
   void drawHoverButton(float x, float y, float w, float h, String label, float baseTextSize) {
@@ -129,11 +139,11 @@ class MainMenuScreen extends Screen {
 
 void drawUI() {
   // Draw the title.
-  textAlign(CENTER, CENTER);
-  textSize(50);
-  fill(255);
-  text("FLIGHTHUB", width - 400, height / 2 - 250);
-  
+
+  //textAlign(CENTER, CENTER);
+  //textSize(50);
+  //fill(255);
+  //text("FLIGHTHUB", width - 400, height / 2 - 250);
 
   drawHoverButton(startX, startY, buttonWidth, buttonHeight, "Globe", 40);
   
@@ -292,159 +302,15 @@ class EarthMenu {
   }
 }
 
-class StarMenu {
-  float x, y, z;
-  float origX, origY, origZ;
-  
-  //Shooting star animation
-  float startX, startY, startZ;
-  float dx, dy, dz;
-  float shootProgress = 0.0;
-  float fadeAlpha = 255;
-  
-  float minSpeed = 0.01;
-  float maxSpeed = 0.05;
-  float currentSpeed = 0.05;
-  
-  int state = 0;
-  boolean blink;
-  boolean isShooting = false;
-  int starColor;
-  
-  PMatrix3D rotationMatrix;
-  
-  StarMenu(float minRadius, float maxRadius) {
-    float theta = random(TWO_PI);
-    float phi = random(PI);
-    float radius = random(minRadius, maxRadius);
-    x = radius * sin(phi) * cos(theta);
-    y = radius * sin(phi) * sin(theta);
-    z = radius * cos(phi);
-    
-    origX = x;
-    origY = y;
-    origZ = z;
-    
-    rotationMatrix = new PMatrix3D();
-    
-    if (random(50) < 1) {
-      float chance = random(1);
-      if (chance < 0.3333) {
-        starColor = color(178, 219, 234);
-      } else if (chance < 0.5333) {
-        starColor = color(255, 255, 0);
-      } else if (chance < 0.7333) {
-        starColor = color(255, 165, 0);
-      } else if (chance < 0.8667) {
-        starColor = color(255, 243, 229);
-      } else {
-        starColor = color(255, 192, 203);
-      }
-    } else {
-      starColor = color(255);
-    }
-  }
-  
-  void update() {
-    blink = (random(1) < 0.0002);
-    // Use precomputed inertia rotation matrix.
-    rotationMatrix.preApply(STAR_INERTIA_DELTA);
-    
-    int currentTime = millis();
-    if (state == 0) {
-      if (!globalShootingStarActiveMenu && currentTime >= globalNextShootingStarTimeMenu) {
-        if (random(1) < 0.9) {
-          state = 1;
-          isShooting = true;
-          shootProgress = 0.0;
-          fadeAlpha = 255;
-          currentSpeed = random(minSpeed, maxSpeed);
-          startX = origX;
-          startY = origY;
-          startZ = origZ;
-          float shootDistance = random(500, 5000);
-          float thetaShoot = random(TWO_PI);
-          float phiShoot = random(PI);
-          dx = shootDistance * sin(phiShoot) * cos(thetaShoot);
-          dy = shootDistance * sin(phiShoot) * sin(thetaShoot);
-          dz = shootDistance * cos(phiShoot);
-          globalShootingStarActiveMenu = true;
-        } else {
-          globalNextShootingStarTimeMenu = currentTime + 1000;
-        }
-      }
-    }
-    
-    if (isShooting) {
-      if (state == 1) {
-        shootProgress += currentSpeed;
-        x = origX + shootProgress * dx;
-        y = origY + shootProgress * dy;
-        z = origZ + shootProgress * dz;
-        if (shootProgress >= 1.0) {
-          state = 2;
-        }
-      } else if (state == 2) {
-        shootProgress += currentSpeed;
-        x = origX + shootProgress * dx;
-        y = origY + shootProgress * dy;
-        z = origZ + shootProgress * dz;
-        fadeAlpha -= 10;
-        if (fadeAlpha <= 0) {
-          fadeAlpha = 0;
-          state = 0;
-          isShooting = false;
-          globalShootingStarActiveMenu = false;
-          globalNextShootingStarTimeMenu = currentTime + 1000;
-          x = origX;
-          y = origY;
-          z = origZ;
-        }
-      }
-    }
-  }
-  
-  void display() {
-    if (blink) return;
-    pushMatrix();
-      // Center the coordinate system.
-      translate(width/2, height/2, 0);
-      applyMatrix(rotationMatrix);
-      
-      if (isShooting) {
-        if (state == 1 || state == 2) {
-          float totalDistance = sqrt(dx*dx + dy*dy + dz*dz);
-          float currentDistance = shootProgress * totalDistance;
-          float maxTrailLength = 200;
-          float trailFraction = (currentDistance > maxTrailLength) ? (currentDistance - maxTrailLength) / currentDistance : 0;
-          float trailStartX = lerp(origX, x, trailFraction);
-          float trailStartY = lerp(origY, y, trailFraction);
-          float trailStartZ = lerp(origZ, z, trailFraction);
-          
-          int steps = 20;
-          for (int i = 0; i < steps; i++) {
-            float t1 = i / float(steps);
-            float t2 = (i + 1) / float(steps);
-            float xi1 = lerp(trailStartX, x, t1);
-            float yi1 = lerp(trailStartY, y, t1);
-            float zi1 = lerp(trailStartZ, z, t1);
-            float xi2 = lerp(trailStartX, x, t2);
-            float yi2 = lerp(trailStartY, y, t2);
-            float zi2 = lerp(trailStartZ, z, t2);
-            stroke(255, int(fadeAlpha * t2));
-            strokeWeight(2);
-            line(xi1, yi1, zi1, xi2, yi2, zi2);
-          }
-          stroke(255, fadeAlpha);
-          strokeWeight(3);
-          point(x, y, z);
-        }
-      } else {
-        translate(x, y, z);
-        stroke(starColor);
-        strokeWeight(2);
-        point(0, 0);
-      }
-    popMatrix();
-  }
+PMatrix3D getUnRotationMatrix(float angle, PVector axis) {
+  float c = cos(angle);
+  float s = -sin(angle);
+  float t = 1 - c;
+  float x = axis.x, y = axis.y, z = axis.z;
+  return new PMatrix3D(
+    t * x * x + c,      t * x * y - s * z,  t * x * z + s * y, 0,
+    t * x * y + s * z,  t * y * y + c,      t * y * z - s * x, 0,
+    t * x * z - s * y,  t * y * z + s * x,  t * z * z + c,     0,
+    0,                  0,                  0,                 1
+  );
 }

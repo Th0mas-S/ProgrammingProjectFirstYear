@@ -3,10 +3,27 @@
 Week 10:
 
 - Darragh O' Toole
-  - 
+  - Calendar class 
+  - Slider button class
+  - Generated global flights csv file on thonny
+
+- Aman Pathak
+  - HeatMap class and screen
+  - Merged individual code together
+  - Tech support
+ 
+- Fhomas Shanahan
+  - Main menu screen
+  - Main menu flights 
+  - Main menu rotation
+  - Added buttons
+  - Designed logo
   
 - Ben Murphy 
-  - 
+  - Time slider class
+  - Updated airplane class (made planes travel)
+  - Loaded planes and airports
+  - Flight info screen
   
   
 
