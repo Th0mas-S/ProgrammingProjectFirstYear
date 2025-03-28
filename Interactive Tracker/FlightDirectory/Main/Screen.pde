@@ -124,7 +124,15 @@ class Screen{
       fill(160);      
       rect(55, 280, width-110, height-335, 15);
       
-      //stroke(120);
+      strokeWeight(1);
+      stroke(0);
+      textSize(textSize);
+      fill(#3E1607);
+      printArray();
+      
+      stroke(100);
+      strokeWeight(5);
+      
       line(90+(textSize*4.791), 280, 90+(textSize*4.791), height-55);
       line(90+(textSize*8.958), 280, 90+(textSize*8.958), height-55);
       line(90+(textSize*15), 280, 90+(textSize*15), height-55);
@@ -134,11 +142,6 @@ class Screen{
       line(90+(textSize*50.833), 280, 90+(textSize*50.833), height-55);
       line(90+(textSize*58.75), 280, 90+(textSize*58.75), height-55);
       
-      strokeWeight(1);
-      stroke(0);
-      textSize(textSize);
-      fill(#3E1607);
-      printArray();
       slider.draw();
       searchbar.draw();
       clear.draw();

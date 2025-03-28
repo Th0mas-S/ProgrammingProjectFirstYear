@@ -33,15 +33,26 @@ class Flight{
   
 
   void drawData(int x, int y, int textSize){
-      text(date, x-5, y);
-      text("   " + airlineCode + flightNumber, x+(textSize*4.791), y);
-      text("    " + origin + " -> " + destination, x+(textSize*8.958), y);
-      text("    Scheduled: " + scheduledDeparture + " - " + scheduledArrival, x+(textSize*15), y);
-      text("    Actual: " + actualDeparture + " - " + actualArrival, x+(textSize*26.25), y);
-      text("    Delay: " + departureDelay + " min ", x+(textSize*35.833), y);
-      text("    Diverted: " + diverted, x+(textSize*43.333), y);
-      text("    Cancelled: " + cancelled, x+(textSize*50.833), y);
-      text("    Distance: " + flightDistance + " km", x+(textSize*58.75), y);
+    if(mouseX>x && mouseX<x+width-150 && mouseY>=y-textSize && mouseY<=y+2){
+        mouseOver = true; 
+        noStroke();
+        fill(170);
+        rect(55+4, y-textSize+2, width-110-8, textSize+8, 15);
+    }
+    else mouseOver = false;
+    
+    fill(#3E1607);
+    strokeWeight(1);
+    stroke(0);
+    text(date, x-5, y);
+    text("   " + airlineCode + flightNumber, x+(textSize*4.791), y);
+    text("    " + origin + " -> " + destination, x+(textSize*8.958), y);
+    text("    Scheduled: " + scheduledDeparture + " - " + scheduledArrival, x+(textSize*15), y);
+    text("    Actual: " + actualDeparture + " - " + actualArrival, x+(textSize*26.25), y);
+    text("    Delay: " + departureDelay + " min ", x+(textSize*35.833), y);
+    text("    Diverted: " + diverted, x+(textSize*43.333), y);
+    text("    Cancelled: " + cancelled, x+(textSize*50.833), y);
+    text("    Distance: " + flightDistance + " km", x+(textSize*58.75), y);
     
     
       if(mouseX>x && mouseX<x+width-150 && mouseY>y-textSize && mouseY<y){
