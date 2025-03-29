@@ -25,7 +25,6 @@ void setup(){
   startScreen = new Screen(3);
   screen1 = new Screen(1);                                        //screen1 is the main directory screen
   screen2 = new Screen(2);
-  screen3 = new Screen(3);
   screen4 = new Screen(4);
   flights = new ArrayList<Flight>();
   arrayIndex = new ArrayList<Integer>();
@@ -182,14 +181,7 @@ void mousePressed(){
   else if(currentScreen==2){
     screen2.back.widgetPressed();
   }
-  // else if(currentScreen==3){
-  //  screen3.newGraph.graphPressed();
-  //  menu.returnPressed();
-  //}
-  
-  //else if(currentScreen==4){
-  //  menu.returnPressed();
-  //}
+
   println("x: "+mouseX+"  y: "+mouseY);     //!for testing!
 }
 
