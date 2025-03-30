@@ -11,6 +11,7 @@ ScreenManager  screenManager;
 EarthScreenTracker  earthScreenTracker; 
 
 HeatMapScreen heatMapScreen;
+MainMenuScreen mainMenuScreen;
 
 Earth earth;
 Airport airportOrigin;
@@ -90,7 +91,9 @@ void setup() {
   
   heatMapScreen = new HeatMapScreen();
   
-  screenManager.switchScreen(new MainMenuScreen());
+  mainMenuScreen = new MainMenuScreen();
+  
+  screenManager.switchScreen(mainMenuScreen);
   noStroke();
   
    flightInfo = new FlightInfo(

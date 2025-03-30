@@ -139,6 +139,7 @@ class HeatMapScreen extends Screen {
   PGraphics heatMapLayer;
   
   CalendarDisplay calendar;
+  Button backButton;
 
   
   HeatMapScreen() {
@@ -150,6 +151,17 @@ class HeatMapScreen extends Screen {
     calendar = new CalendarDisplay();
     
     generateHeatMap();
+    ButtonSettings bs = new ButtonSettings();
+    bs.x = width - 150;
+    bs.y = height - 200;
+    bs.w = 150;
+    bs.h = 200;
+    bs.col = color(0, 0, 255);
+    bs.textColor = color(255);
+    bs.text = "BACK";
+    backButton = new Button(bs, () -> {
+      screenManager.switchScreen(mainMenuScreen);
+    });
     
   }
   
@@ -179,6 +191,8 @@ class HeatMapScreen extends Screen {
      // Clamp offsetX and offsetY so edges stay within the canvas
      offsetX = constrain(offsetX, width - zoomedWidth, 0);
      offsetY = constrain(offsetY, height - zoomedHeight, 0);
+     
+     backButton.draw();
   }
   
   void drawIntensityTab(int intensity) {
@@ -396,6 +410,8 @@ void processFlight(Flight f) {
     startX = mouseX - offsetX;
     startY = mouseY - offsetY;
     isDragging = true;
+    backButton.handleOnClick();
+
   }
   
   void mouseDragged() {
