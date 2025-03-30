@@ -74,10 +74,10 @@ void draw() {
   textSize(50);
   fill(255);
   text("Loading...", 850, 300);
-
+  
   // Draw 3D terrain
   pushMatrix();
-  translate(width/2, height/2 + 150);
+  translate(width/2, height/2 );
   rotateX(PI/2.3);
   scale(2, 1, 2);
   translate(-width/2, -height/2);
@@ -95,7 +95,7 @@ void draw() {
   // Draw cockpit (full brightness)
   hint(DISABLE_DEPTH_TEST);
   imageMode(CORNER);
-  image(cockpit, 0, 0, width, height);
+  image(cockpit, 0, 0, width, height+300);
   hint(ENABLE_DEPTH_TEST);
 }
 
