@@ -96,15 +96,12 @@ void setup() {
   initGlobalVariables();
           clearIndex();
   
-  mainMenuScreen = new MainMenuScreen();
+  mainMenuScreen = new MainMenuScreen(this);
   directoryScreen = new DirectoryScreen();
   heatMapScreen = new HeatMapScreen();
   
   screenManager.switchScreen(mainMenuScreen);
-  mainMenuScreen = new MainMenuScreen();
   
-  screenManager.switchScreen(mainMenuScreen);
-
   noStroke();
   
    flightInfo = new FlightInfo(
