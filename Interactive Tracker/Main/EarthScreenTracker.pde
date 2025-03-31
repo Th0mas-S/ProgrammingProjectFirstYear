@@ -78,18 +78,20 @@ class EarthScreenTracker extends Screen {
       star.display();
     }
     
-    // 🌍 Update Earth and draw globe and airplanes.
+    // 🌍 Update Earth and draw globe.
     earth.update();
     pushMatrix();
       translate(width / 2, height / 2, 0);
       applyMatrix(earth.rotationMatrix);
       scale(earth.zoomFactor);
       earth.display();
-      // Continuously update and display airplanes.
+      // Airplane drawing code commented out:
+      
       for (Airplane a : activePlanes) {
         a.update(currentTime);
         a.display();
       }
+      
     popMatrix();
     
     // Only draw additional UI elements if UI is not hidden.
@@ -263,5 +265,11 @@ class EarthScreenTracker extends Screen {
   boolean isOverSliderTrack() {
     return (mouseX >= timeSlider.x && mouseX <= timeSlider.x + timeSlider.w &&
             mouseY >= timeSlider.y && mouseY <= timeSlider.y + timeSlider.h);
+  }
+  
+  String minutesToTimeString(int minutes) {
+    int hh = minutes / 60;
+    int mm = minutes % 60;
+    return nf(hh, 2) + ":" + nf(mm, 2);
   }
 }

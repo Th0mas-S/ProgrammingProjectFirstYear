@@ -6,7 +6,8 @@ class Airplane {
   boolean hovered = false;
   boolean selected = false;
 
-  PShape model;
+  // Changed from PShape to PImage
+  PImage model; 
 
   // Flight info fields
   String departureLocation, arrivalLocation;
@@ -16,7 +17,7 @@ class Airplane {
   String originCode, destCode;
 
   Airplane(
-    Airport origin, Airport dest, float sphereRadius, PShape model, float startMinute,
+    Airport origin, Airport dest, float sphereRadius, PImage model, float startMinute,
     String depLoc, String arrLoc, String depTime, String arrTime,
     String airlineName, String airlineCode, String flightNumber, String departureDate,
     int duration, String originCode, String destCode
@@ -70,40 +71,42 @@ class Airplane {
     hovered = dist(mouseX, mouseY, sx, sy) < 20;
   }
   
-void display() {
-  if (finished) return;
+  void display() {
+    if (finished) return;
 
-  pushMatrix();
-  translate(currentPos.x, currentPos.y, currentPos.z);
 
-  PVector travelDir = PVector.sub(end, start).normalize();
-  PVector globeNormal = currentPos.copy().normalize();
-  PVector right = globeNormal.cross(travelDir).normalize();
-  PVector forward = right.cross(globeNormal).normalize();
 
-  PMatrix3D m = new PMatrix3D(
-    forward.x, globeNormal.x, right.x, 0,
-    forward.y, globeNormal.y, right.y, 0,
-    forward.z, globeNormal.z, right.z, 0,
-    0,         0,              0,      1
-  );
-  applyMatrix(m);
+    PVector travelDir = PVector.sub(end, start).normalize();
+    PVector globeNormal = currentPos.copy().normalize();
+    PVector right = globeNormal.cross(travelDir).normalize();
+    PVector forward = right.cross(globeNormal).normalize();
 
-  rotateX(PI);
-  rotateY(HALF_PI);
-  rotateZ(PI);
+    PMatrix3D m = new PMatrix3D(
+      forward.x, globeNormal.x, right.x, 0,
+      forward.y, globeNormal.y, right.y, 0,
+      forward.z, globeNormal.z, right.z, 0,
+      0,         0,              0,      1
+    );
+            pushMatrix();
 
-  scale(5);
-  noTint();
-  shape(model);
-  popMatrix();
+    applyMatrix(m);
+    translate(currentPos.x, currentPos.y, currentPos.z);
+    
+    rotateX(HALF_PI);
+    rotateZ(PI);
 
-  // ✅ Curved arc on hover/selection
-  if (hovered || selected) {
-    drawFlightArc();
+    scale(0.01);
+    noTint();
+    imageMode(CENTER);
+    image(model, 0, 0);
+    popMatrix();
+
+    // Draw flight arc if hovered or selected
+    if (hovered || selected) {
+      drawFlightArc();
+    }
   }
-}
-
+  
   void displayInfoBoxTopRight() {
     if (!selected) return;
 
@@ -192,19 +195,18 @@ void display() {
   }
   
   void drawFlightArc() {
-  int segments = 100;
-  pushStyle();
-  stroke(255, 255, 0); // Yellow
-  strokeWeight(2);
-  noFill();
-  beginShape();
-  for (int i = 0; i <= segments; i++) {
-    float t = i / float(segments);
-    PVector point = slerp(t, start.copy().normalize(), end.copy().normalize()).mult(sphereRadius + 10 * sin(PI * t));
-    vertex(point.x, point.y, point.z);
+    int segments = 100;
+    pushStyle();
+    stroke(255, 255, 0); // Yellow
+    strokeWeight(2);
+    noFill();
+    beginShape();
+    for (int i = 0; i <= segments; i++) {
+      float t = i / float(segments);
+      PVector point = slerp(t, start.copy().normalize(), end.copy().normalize()).mult(sphereRadius + 10 * sin(PI * t));
+      vertex(point.x, point.y, point.z);
+    }
+    endShape();
+    popStyle();
   }
-  endShape();
-  popStyle();
-}
-
 }
