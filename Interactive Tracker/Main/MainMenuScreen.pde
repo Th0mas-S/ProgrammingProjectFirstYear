@@ -21,7 +21,17 @@ PImage flightHubLogo;
 
 class MainMenuScreen extends Screen {
 
+  // New variables for hover sound
+  SoundFile hoverSound;
+  boolean wasHoveringButton = false;
   
+  // Reference to the main PApplet
+  PApplet parent;
+  
+  EarthMenu earth;
+  ArrayList<AirplaneMenu> airplanes; 
+  PImage flightHubLogo;
+
   // Global variables for stars
   //int numStars = 300;
   //int numMoreStars = 200;
@@ -30,15 +40,17 @@ class MainMenuScreen extends Screen {
   //Star[] stars = new Star[numStars];
   //Star[] moreStars = new Star[numMoreStars];
   //Star[] evenMoreStars = new Star[numEvenMoreStars];
-  
-  EarthMenu earth;
-  ArrayList<AirplaneMenu> airplanes; 
-  
 
-  MainMenuScreen() {
+  // Modified constructor to accept a PApplet reference
+  MainMenuScreen(PApplet parent) {
+    this.parent = parent;
     audio.loop();
+    flightHubLogo = parent.loadImage("Flighthub Logo.png");
 
-    noStroke();
+    // Load the hover sound (make sure "audio4.mp3" is in your data folder)
+    hoverSound = new SoundFile(parent, "audio4.mp3");
+
+    parent.noStroke();
     
     // Initialize stars with different radii for depth
     for (int i = 0; i < numStars; i++) {
@@ -63,32 +75,28 @@ class MainMenuScreen extends Screen {
   }
   
   void draw() {
-   background(0);
-   
-
-  
-  // Draw stars (using an array of star arrays to reduce duplicate loops)
-  Star[][] starArrays = { stars, moreStars, evenMoreStars };
-  for (Star[] starArray : starArrays) {
-    for (Star star : starArray) {
-      star.update();
-      star.display();
-    }
-  }
-  
-    // Draw UI on top for transperency to work.
-    hint(DISABLE_DEPTH_TEST);
-    drawUI();
-    image(flightHubLogo, 800, -250, 1200, 900);
-
-    hint(ENABLE_DEPTH_TEST);
+    parent.background(0);
     
-  
+    // Draw stars (using an array of star arrays to reduce duplicate loops)
+    Star[][] starArrays = { stars, moreStars, evenMoreStars };
+    for (Star[] starArray : starArrays) {
+      for (Star star : starArray) {
+        star.update();
+        star.display();
+      }
+    }
+    
+    // Draw UI on top for transperency to work.
+    parent.hint(PConstants.DISABLE_DEPTH_TEST);
+    drawUI();
+    parent.image(flightHubLogo, 800, -250, 1200, 900);
+    parent.hint(PConstants.ENABLE_DEPTH_TEST);
+    
     // Draw the Earth and airplanes.
-    pushMatrix();
+    parent.pushMatrix();
     earth.slowRotate();
-    translate(0, height);
-    scale(1.5);
+    parent.translate(0, parent.height);
+    parent.scale(1.5);
     earth.display();
     
     // Update and display each airplane.
@@ -96,85 +104,116 @@ class MainMenuScreen extends Screen {
       a.update();
       a.display();
     }
-
-  popMatrix();
-  
-
+    parent.popMatrix();
   }
   
   void drawHoverButton(float x, float y, float w, float h, String label, float baseTextSize) {
-  boolean hover = (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h);
-  float scaleFactor = hover ? 1.1 : 1.0;
+    boolean hover = (parent.mouseX >= x && parent.mouseX <= x + w && parent.mouseY >= y && parent.mouseY <= y + h);
+    float scaleFactor = hover ? 1.1 : 1.0;
+    
+    float currentW = w * scaleFactor;
+    float currentH = h * scaleFactor;
+    // Adjust x and y so that the button grows/shrinks from its center.
+    float currentX = x - (currentW - w) / 2;
+    float currentY = y - (currentH - h) / 2;
+    
+    parent.fill(128, 128, 128, 50);
+    parent.stroke(135, 206, 235, 150);
+    parent.rect(currentX, currentY, currentW, currentH, 10);
+    
+    parent.fill(255);
+    parent.textSize(baseTextSize * scaleFactor);
+    parent.textAlign(PConstants.CENTER, PConstants.CENTER);
+    parent.text(label, currentX + currentW / 2, currentY + currentH / 2);
+  }
   
-  float currentW = w * scaleFactor;
-  float currentH = h * scaleFactor;
-  // Adjust x and y so that the button grows/shrinks from its center.
-  float currentX = x - (currentW - w) / 2;
-  float currentY = y - (currentH - h) / 2;
-  
-  fill(128, 128, 128, 50);
-  stroke(135, 206, 235, 150);
-  rect(currentX, currentY, currentW, currentH, 10);
-  
-  fill(255);
-  textSize(baseTextSize * scaleFactor);
-  textAlign(CENTER, CENTER);
-  text(label, currentX + currentW / 2, currentY + currentH / 2);
-}
-
-
- // these are member variables, i put them down here for now because they are relevant to the drawUI function
+  // these are member variables, i put them down here for now because they are relevant to the drawUI function
   float buttonWidth = 700;
   float buttonHeight = 80;
   float gap = 70;
-  float startX = width - (buttonWidth - 10);
-  float startY = height / 2.5;
-  float secondButtonY = startY + buttonHeight + gap;
-  float thirdButtonY = secondButtonY + buttonHeight + gap;
-  float fourthButtonY = thirdButtonY + buttonHeight + gap;
-  float creditsWidth = buttonWidth / 2 - 50;
+  // The following values are calculated based on parent's dimensions in drawUI:
+  // float startX = parent.width - (buttonWidth - 10);
+  // float startY = parent.height / 2.5;
+  // float secondButtonY = startY + buttonHeight + gap;
+  // float thirdButtonY = secondButtonY + buttonHeight + gap;
+  // float fourthButtonY = thirdButtonY + buttonHeight + gap;
+  // float creditsWidth = buttonWidth / 2 - 50;
+  // float exitX = startX * 1.275 - 10;
+  // float exitWidth = buttonWidth / 2 + 20;
   
-  float exitX = startX * 1.275 - 10;
-  float exitWidth = buttonWidth / 2 + 20;
-
-void drawUI() {
-  // Draw the title.
-
-  //textAlign(CENTER, CENTER);
-  //textSize(50);
-  //fill(255);
-  //text("FLIGHTHUB", width - 400, height / 2 - 250);
-
-  drawHoverButton(startX, startY, buttonWidth, buttonHeight, "Globe", 40);
-  
-  drawHoverButton(startX, secondButtonY, buttonWidth, buttonHeight, "Heatmap", 40);
-  
-  drawHoverButton(startX, thirdButtonY, buttonWidth, buttonHeight, "Directory", 40);
-  
-  drawHoverButton(startX, fourthButtonY, creditsWidth, buttonHeight - 30, "Credits", 40);
-  
-  drawHoverButton(exitX, fourthButtonY, exitWidth, buttonHeight - 30, "Exit", 40);
-}
+  void drawUI() {
+    // Calculate button positions based on parent's dimensions
+    float startX = parent.width - (buttonWidth - 10);
+    float startY = parent.height / 2.5f;
+    float secondButtonY = startY + buttonHeight + gap;
+    float thirdButtonY = secondButtonY + buttonHeight + gap;
+    float fourthButtonY = thirdButtonY + buttonHeight + gap;
+    float creditsWidth = buttonWidth / 2 - 50;
+    float exitX = startX * 1.275f - 10;
+    float exitWidth = buttonWidth / 2 + 20;
+    
+    // --- NEW CODE TO DETECT HOVER AND PLAY SOUND ---
+    // Check if the mouse is over any button
+    boolean currentlyHovering = 
+      isMouseOverRect(startX, startY, buttonWidth, buttonHeight) ||
+      isMouseOverRect(startX, secondButtonY, buttonWidth, buttonHeight) ||
+      isMouseOverRect(startX, thirdButtonY, buttonWidth, buttonHeight) ||
+      isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30) ||
+      isMouseOverRect(exitX, fourthButtonY, exitWidth, buttonHeight - 30);
+      
+    // If the mouse just entered a button, play the hover sound
+    if (currentlyHovering && !wasHoveringButton) {
+      hoverSound.play();
+    }
+    // Update flag for next frame
+    wasHoveringButton = currentlyHovering;
+    // --------------------------------------------------
+    
+    // Draw the title.
+    //parent.textAlign(PConstants.CENTER, PConstants.CENTER);
+    //parent.textSize(50);
+    //parent.fill(255);
+    //parent.text("FLIGHTHUB", parent.width - 400, parent.height / 2 - 250);
+    
+    drawHoverButton(startX, startY, buttonWidth, buttonHeight, "Globe", 40);
+    drawHoverButton(startX, secondButtonY, buttonWidth, buttonHeight, "Heatmap", 40);
+    drawHoverButton(startX, thirdButtonY, buttonWidth, buttonHeight, "Directory", 40);
+    drawHoverButton(startX, fourthButtonY, creditsWidth, buttonHeight - 30, "Credits", 40);
+    drawHoverButton(exitX, fourthButtonY, exitWidth, buttonHeight - 30, "Exit", 40);
+  }
   
   boolean isMouseOverRect(float x, float y, float w, float h) {
-    return mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h;
+    return parent.mouseX > x && parent.mouseX < x + w && parent.mouseY > y && parent.mouseY < y + h;
   }
   
   void mousePressed() {
-    if(isMouseOverRect(startX, startY, buttonWidth, buttonHeight))
-    {
+    // Calculate button positions based on parent's dimensions
+    float startX = parent.width - (buttonWidth - 10);
+    float startY = parent.height / 2.5f;
+    float secondButtonY = startY + buttonHeight + gap;
+    float thirdButtonY = secondButtonY + buttonHeight + gap;
+    float fourthButtonY = thirdButtonY + buttonHeight + gap;
+    float creditsWidth = buttonWidth / 2 - 50;
+    float exitX = startX * 1.275f - 10;
+    float exitWidth = buttonWidth / 2 + 20;
+    
+    if(isMouseOverRect(startX, startY, buttonWidth, buttonHeight)) {
       screenManager.switchScreen(earthScreenTracker);
     } else if (isMouseOverRect(startX, secondButtonY, buttonWidth, buttonHeight)) {
       screenManager.switchScreen(heatMapScreen);
     } else if(isMouseOverRect(startX, thirdButtonY, buttonWidth, buttonHeight)) {
       screenManager.switchScreen(directoryScreen);
     } else if(isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30)){
+      // switch screen to directory
+    } else if(isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30)) {
       // switch screen to credits
     } else if(isMouseOverRect(exitX, fourthButtonY, exitWidth, buttonHeight - 30)) {
-      exit();
+      parent.exit();
     }
   }
 }
+
+
 
 class AirplaneMenu {
   PShape shape;

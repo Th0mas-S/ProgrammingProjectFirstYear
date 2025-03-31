@@ -104,6 +104,7 @@ void setup() {
   mainMenuScreen = new MainMenuScreen();
   
   screenManager.switchScreen(mainMenuScreen);
+
   noStroke();
   
    flightInfo = new FlightInfo(
