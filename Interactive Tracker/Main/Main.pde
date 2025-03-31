@@ -8,9 +8,11 @@ TimeSlider timeSlider;
 
 ScreenManager  screenManager;
 //EarthScreenDirectory  earthScreenDirectory;
-EarthScreenTracker  earthScreenTracker; 
+EarthScreenTracker  earthScreenTracker;
+MainMenuScreen mainMenuScreen;
 
 HeatMapScreen heatMapScreen;
+DirectoryScreen directoryScreen;
 
 Earth earth;
 Airport airportOrigin;
@@ -47,6 +49,9 @@ void setup() {
   size(1920, 1061, P3D); // ben added this >:( (i know you can't hide from me);
   
   //fullScreen(P3D);
+  
+  flightHubLogo = loadImage("Flighthub Logo.png");
+
   
   audio = new SoundFile(this, "audio3.mp3");
 
@@ -88,9 +93,14 @@ void setup() {
   earthScreenTracker = new EarthScreenTracker(earth);
   //screenManager.switchScreen(earthScreenDirectory);
   
-  heatMapScreen = new HeatMapScreen();
+  initGlobalVariables();
+          clearIndex();
   
-  screenManager.switchScreen(new MainMenuScreen());
+  mainMenuScreen = new MainMenuScreen();
+  directoryScreen = new DirectoryScreen();
+  //heatMapScreen = new HeatMapScreen();
+  
+  screenManager.switchScreen(mainMenuScreen);
   noStroke();
   
    flightInfo = new FlightInfo(
@@ -122,9 +132,14 @@ void mouseWheel(MouseEvent event) {
   screenManager.handleMouseWheel(event);
 }
 
+void mouseMoved() {
+  screenManager.handleMouseMoved();
+}
+
 void keyPressed() {
   screenManager.handleKeyPressed();
 }
+
 
 //Helper Functions
 PMatrix3D getRotationMatrix(float angle, PVector axis) {

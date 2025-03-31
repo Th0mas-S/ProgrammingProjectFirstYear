@@ -16,6 +16,8 @@ final PMatrix3D STAR_INERTIA_DELTA   = getUnRotationMatrix(0.0003, Y_AXIS);
 boolean globalShootingStarActiveMenu = false;
 int globalNextShootingStarTimeMenu = 0;
 
+PImage flightHubLogo;
+
 
 class MainMenuScreen extends Screen {
 
@@ -32,11 +34,9 @@ class MainMenuScreen extends Screen {
   EarthMenu earth;
   ArrayList<AirplaneMenu> airplanes; 
   
-  PImage flightHubLogo;
 
   MainMenuScreen() {
     audio.loop();
-    flightHubLogo = loadImage("Flighthub Logo.png");
 
     noStroke();
     
@@ -167,7 +167,7 @@ void drawUI() {
     } else if (isMouseOverRect(startX, secondButtonY, buttonWidth, buttonHeight)) {
       screenManager.switchScreen(heatMapScreen);
     } else if(isMouseOverRect(startX, thirdButtonY, buttonWidth, buttonHeight)) {
-      // switch screen to directory
+      screenManager.switchScreen(directoryScreen);
     } else if(isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30)){
       // switch screen to credits
     } else if(isMouseOverRect(exitX, fourthButtonY, exitWidth, buttonHeight - 30)) {

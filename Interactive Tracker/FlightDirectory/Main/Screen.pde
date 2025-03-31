@@ -16,7 +16,7 @@ class Screen{
     screenNum = mode;
     textSize=int((width-110)*0.014);
     logo = loadImage("logoBigHD.png");
-    if(mode==1){                                                    //screen1..
+    if(mode==1){                                                    //screen1.. main directory
       scrollPercent = 0;
       sliderLength=height-335-55-40;
       slider = new Slider(width-28, height-55-(sliderLength/2)-(height-335)/2, sliderLength);
@@ -29,7 +29,7 @@ class Screen{
     else if(mode==2){                                                //screen2...
       back = new Widget(width-160, 160, 2, 100, 50, #DD5341);
     }
-    else if(mode==3){                                                //start screen...
+    else if(mode==3){                                                //start screen... // main menu screen
       directory = new Widget((width/2)-(width/8), height/3, 3, width/4, 200, #028391);
       graphs = new Widget((width/2)-(width/8), int((height/3)*1.6), 4, width/4, 200, #F9A822);
       exitButton = new Widget((width/2)-(width/8), int((height/3)*2.2), 5, width/4, 200, #F57F5B);
@@ -128,7 +128,7 @@ class Screen{
       stroke(0);
       textSize(textSize);
       fill(#3E1607);
-      printArray();
+      //printArray();
       
       stroke(100);
       strokeWeight(5);
