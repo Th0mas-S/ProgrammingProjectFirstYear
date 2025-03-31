@@ -3,7 +3,8 @@ class EarthScreenTracker extends Screen {
   CalendarDisplay calendar;
   TimeSlider timeSlider;
   boolean uiHeld = false;
-  
+  boolean uiHidden = false;  // Toggle for UI visibility
+
   EarthScreenTracker(Earth earth) {
     this.earth = earth;
     calendar = new CalendarDisplay();
@@ -13,15 +14,16 @@ class EarthScreenTracker extends Screen {
   void draw() {
     background(0);
     
-    String currentDate = calendar.getSelectedDate();
+    // Always update the simulation clock regardless of UI visibility.
+    timeSlider.update();
     float currentTime = timeSlider.value;
+    String currentDate = calendar.getSelectedDate();
     
-    // ✅ Date change: reload today's flights
+    // ✅ Date change: reload today's flights if needed.
     if (!currentDate.equals(lastCheckedDate)) {
       todaysFlights.clear();
       spawnedFlights.clear();
       activePlanes.clear();
-      
       for (FlightData flight : allFlights) {
         if (flight.dateStr.equals(currentDate)) {
           todaysFlights.add(flight);
@@ -30,17 +32,17 @@ class EarthScreenTracker extends Screen {
       lastCheckedDate = currentDate;
     }
     
-    // ✅ Remove planes no longer valid
+    // ✅ Remove planes that are no longer active.
     for (int i = activePlanes.size() - 1; i >= 0; i--) {
       Airplane a = activePlanes.get(i);
       if (currentTime < a.startMinute || currentTime > a.startMinute + a.duration || a.finished) {
         String id = a.originCode + "_" + a.destCode + "_" + int(a.startMinute);
-        spawnedFlights.remove(id); // allow re-spawning later
+        spawnedFlights.remove(id);
         activePlanes.remove(i);
       }
     }
     
-    // ✅ Spawn planes that should now be active
+    // ✅ Spawn planes that should now be active.
     for (FlightData flight : todaysFlights) {
       if (currentTime >= flight.minutes && currentTime <= flight.minutes + flight.duration) {
         String flightID = flight.originCode + "_" + flight.destCode + "_" + flight.minutes;
@@ -62,7 +64,7 @@ class EarthScreenTracker extends Screen {
       }
     }
     
-    // 🌌 Stars
+    // 🌌 Stars (always update and display)
     for (Star star : stars) {
       star.update(earth);
       star.display();
@@ -76,32 +78,82 @@ class EarthScreenTracker extends Screen {
       star.display();
     }
     
+    // 🌍 Update Earth and draw globe and airplanes.
     earth.update();
-    
-    // 🌍 Earth + Planes
     pushMatrix();
       translate(width / 2, height / 2, 0);
       applyMatrix(earth.rotationMatrix);
       scale(earth.zoomFactor);
       earth.display();
+      // Continuously update and display airplanes.
       for (Airplane a : activePlanes) {
         a.update(currentTime);
         a.display();
       }
     popMatrix();
     
-    // 🧭 UI
-    hint(DISABLE_DEPTH_TEST);
-    timeSlider.update();
-    timeSlider.display();
-    calendar.display();
-    if (selectedPlane != null) {
-      selectedPlane.displayInfoBoxTopRight();
+    // Only draw additional UI elements if UI is not hidden.
+    if (!uiHidden) {
+      hint(DISABLE_DEPTH_TEST);
+      timeSlider.display();
+      calendar.display();
+      if (selectedPlane != null) {
+        selectedPlane.displayInfoBoxTopRight();
+      }
+      hint(ENABLE_DEPTH_TEST);
     }
-    hint(ENABLE_DEPTH_TEST);
+    
+    // Always draw the Hide UI button in the bottom right.
+    drawHideUIButton();
+  }
+  
+  // Draws the hide/show UI button in the bottom right corner.
+  void drawHideUIButton() {
+    int buttonWidth = 120;
+    int buttonHeight = 40;
+    int margin = 20;
+    int x = width - buttonWidth - margin;
+    int y = height - buttonHeight - margin;
+    
+    boolean over = (mouseX >= x && mouseX <= x + buttonWidth && mouseY >= y && mouseY <= y + buttonHeight);
+    if (over) {
+      fill(100, 150, 255);
+      stroke(255);
+      strokeWeight(2);
+    } else {
+      fill(150);
+      noStroke();
+    }
+    rect(x, y, buttonWidth, buttonHeight, 5);
+    
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(16);
+    text(uiHidden ? "Show UI" : "Hide UI", x + buttonWidth/2, y + buttonHeight/2);
+  }
+  
+  // Checks if the mouse is over the hide UI button.
+  boolean isOverHideUIButton() {
+    int buttonWidth = 120;
+    int buttonHeight = 40;
+    int margin = 20;
+    int x = width - buttonWidth - margin;
+    int y = height - buttonHeight - margin;
+    return (mouseX >= x && mouseX <= x + buttonWidth && mouseY >= y && mouseY <= y + buttonHeight);
   }
   
   void mousePressed() {
+    // Check if the Hide UI button is clicked.
+    if (isOverHideUIButton()) {
+      uiHidden = !uiHidden;
+      return;
+    }
+    
+    // Even if UI is hidden, allow globe interaction; otherwise, process UI events.
+    if (uiHidden) {
+      return;
+    }
+    
     timeSlider.mousePressed();
     
     if (selectedPlane != null && selectedPlane.closeButtonClicked(mouseX, mouseY)) {
@@ -110,7 +162,7 @@ class EarthScreenTracker extends Screen {
       return;
     }
     
-    // Select one airplane if hovered
+    // Select one airplane if hovered.
     for (Airplane a : activePlanes) {
       if (a.isHovered()) {
         if (selectedPlane != null) selectedPlane.selected = false;
