@@ -7,19 +7,58 @@ class ButtonSettings {
   color col = color(255);
   String text = "test";
   color textColor = color(0);
+  Runnable onClick;
   
   ButtonSettings() {
   }
+  
+  ButtonSettings setX(int x) {
+    this.x = x;
+    return this;
+  }
+  
+  ButtonSettings setY(int y) {
+    this.y = y;
+    return this;
+  }
+  
+  ButtonSettings setWidth(int w) {
+    this.w = w;
+    return this;
+  }
+  
+  ButtonSettings setHeight(int h) {
+    this.h = h;
+    return this;
+  }
+  
+  ButtonSettings setColor(color c) {
+    col = col;
+    return this;
+  }
+  
+  ButtonSettings setTextColor(color textColor) {
+    this.textColor = textColor;
+    return this;
+  }
+  
+  ButtonSettings setOnClick(Runnable onClick) {
+    this.onClick = onClick;
+    return this;
+  }
+  
+  Button build() {
+    return new Button(this);
+  }
+  
 }
 
 class Button {
   
   ButtonSettings s;
-  Runnable onClick;
   
-  Button(ButtonSettings settings, Runnable onClick) {
+  Button(ButtonSettings settings) {
     this.s = settings;
-    this.onClick = onClick;
   }
   
   void draw() {
@@ -37,7 +76,7 @@ class Button {
   
   void handleOnClick() {
     if(isMouseOverRect(s.x, s.y, s.w, s.h)) {
-      this.onClick.run();
+      s.onClick.run();
     }
   }
    

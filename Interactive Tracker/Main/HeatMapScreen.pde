@@ -66,8 +66,8 @@ void loadData(int amountOfRows) { // amount of rows tells me how much data to lo
   String[] rows = loadStrings("flight_data_2017.csv");          //contain all the data for an individual flight
     flights = new ArrayList<Flight>();
 
-  
-  for(int i=1; i<20000; i++){
+  println(rows.length);  
+  for(int i=1; i<rows.length; i++){
     String[] data = split(rows[i], ',');
    
     String date = convertDate(data[0]);
@@ -111,7 +111,7 @@ HashMap<String, Location> loadAirportCoordinates(String filepath) {
   for(int i=1; i<rows.length; i++){
       String[] data = split(rows[i], ',');
       // println(data[2] + " " + data[6] + " " + data[7]);
-      airportLocations.put(data[0], new Location(parseFloat(data[1]), parseFloat(data[2])));
+      airportLocations.put(data[2], new Location(parseFloat(data[6]), parseFloat(data[7])));
   }
   
   return airportLocations;
@@ -122,7 +122,7 @@ class HeatMapScreen extends Screen {
   PImage earthImage;
   HashMap<String, Location> airportLocations;     // probably should make this global seems useful for EarthScreen
   
-  final float SCALE = 1; // idk what to call this, this is how big the sqaures are EDIT: sqaure size seems like a good name
+  final float SCALE = 2; // idk what to call this, this is how big the sqaures are EDIT: sqaure size seems like a good name
   final int heatMapOpacity = 150;
   final int heatMapWidth = (int)(width / SCALE);
   final int heatMapHeight = (int)(height / SCALE);
@@ -140,28 +140,41 @@ class HeatMapScreen extends Screen {
   
   CalendarDisplay calendar;
   Button backButton;
+  Button confirmButton;
+  
 
   
   HeatMapScreen() {
     earthImage = loadImage("worldmap.png");
-    loadData(400000);
-    this.airportLocations = loadAirportCoordinates("coordinate.csv");
+    loadData(4000000);
+    this.airportLocations = loadAirportCoordinates("airport_data.csv");
     heatMap = new int[heatMapWidth][heatMapHeight];
     
     calendar = new CalendarDisplay();
     
     generateHeatMap();
     ButtonSettings bs = new ButtonSettings();
-    bs.x = width - 150;
-    bs.y = height - 200;
-    bs.w = 150;
-    bs.h = 200;
+    bs.x = width - 200;
+    bs.y = height - 100;
+    bs.w = 200;
+    bs.h = 100;
     bs.col = color(0, 0, 255);
     bs.textColor = color(255);
     bs.text = "BACK";
-    backButton = new Button(bs, () -> {
+    bs.onClick = () -> {
       screenManager.switchScreen(mainMenuScreen);
-    });
+    };
+    backButton = bs.build();
+    
+   
+    bs.x = width - 200;
+    bs.y = 0;
+    bs.text = "OKAY";
+    bs.onClick = () -> {
+      generateHeatMap();
+    };
+    
+    confirmButton = bs.build();
     
   }
   
@@ -246,11 +259,13 @@ class HeatMapScreen extends Screen {
   // multi threading is like 10 seconds faster on my laptop
   void generateHeatMap() {
   // Reset heatmap
-  for (int x = 0; x < heatMapWidth; x++) {
-    for (int y = 0; y < heatMapHeight; y++) {
-      heatMap[x][y] = 0;
-    }
-  }
+  //for (int x = 0; x < heatMapWidth; x++) {
+  //  for (int y = 0; y < heatMapHeight; y++) {
+  //    heatMap[x][y] = 0;
+  //  }
+  //}
+  
+  heatMap = new int[heatMapWidth][heatMapHeight];
 
   // Create a thread pool
   int numThreads = Runtime.getRuntime().availableProcessors(); // Use all CPU cores
@@ -258,8 +273,17 @@ class HeatMapScreen extends Screen {
 
   // Submit flight calculations as parallel tasks
   List<Future<Void>> futures = new ArrayList<>();
+  
+  ArrayList<Flight> filteredFlights = new ArrayList<Flight>();
+  
+  for(Flight f : flights) {
+  
+    if(f.date.equals(calendar.getSelectedDate2())) {
+      filteredFlights.add(f);    
+    }
+  }
 
-  for (Flight f : flights) {
+  for (Flight f : filteredFlights) {
     futures.add(executor.submit(() -> {
       processFlight(f);
       return null;
@@ -276,7 +300,7 @@ class HeatMapScreen extends Screen {
   }
 
   executor.shutdown();
-  
+ 
     medianIntensity = 0;
     ArrayList<Integer> tempList = new ArrayList<Integer>();
     
@@ -287,11 +311,13 @@ class HeatMapScreen extends Screen {
   
       
      Collections.sort(tempList);
-         
-     if(tempList.size() % 2 == 0)
-       medianIntensity = tempList.get(tempList.size() / 2);
-     else
-       medianIntensity = tempList.get((tempList.size() + 1) / 2);
+     if(tempList.size() != 0) {
+       if(tempList.size() % 2 == 0)
+         medianIntensity = tempList.get(tempList.size() / 2);
+       else
+         medianIntensity = tempList.get((tempList.size() + 1) / 2);
+     }
+   
        
      generateHeatMapLayer();
 
@@ -307,7 +333,7 @@ void processFlight(Flight f) {
     PVector pointB = LocationTo3D(des.toRadians());
     float angle = acos(pointA.dot(pointB));
 
-    for (float t = 0; t <= 1; t += 0.001) {
+    for (float t = 0; t <= 1; t += 0.01) {
       PVector intermediate = PVector.add(
         PVector.mult(pointA, sin((1 - t) * angle)),
         PVector.mult(pointB, sin(t * angle))
@@ -411,6 +437,11 @@ void processFlight(Flight f) {
     startY = mouseY - offsetY;
     isDragging = true;
     backButton.handleOnClick();
+    boolean dateChanged = calendar.mousePressed();
+    if(dateChanged) {
+      confirmButton.handleOnClick();
+    }
+    
 
   }
   

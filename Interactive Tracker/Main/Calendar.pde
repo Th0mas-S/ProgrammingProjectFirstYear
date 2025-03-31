@@ -175,7 +175,11 @@ class CalendarDisplay {
   void nextMonth() {
     if (month < 11) month++;
   }
-
+  
+  String getSelectedDate2() {
+    return nf(selectedDay, 2) + "/" + nf(month + 1, 2) + "/" + nf(year, 4); 
+  }
+  
   String getSelectedDate() {
     return nf(year, 4) + "-" + nf(month + 1, 2) + "-" + nf(selectedDay, 2);
   }
