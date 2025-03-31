@@ -1,7 +1,8 @@
 class Query{
   int x, y, colour, mode;
-  Widget lateness, distance, date, cancelled, diverted, cancel;
+  Widget lateness, distance, date, cancelled, diverted, cancel, airport;
   DateSelector selector;
+  AirportSorter airportSelector;
   
   
   Query(int colour, int mode){
@@ -16,9 +17,13 @@ class Query{
       
       cancelled = new Widget(width/2-(width/10)*2, (y+160)+height/8, 11, width/10, height/16, #028391);
       diverted = new Widget(width/2-width/20, (y+160)+height/8, 12, width/10, height/16, #FAECB6);
+      airport = new Widget(width/2+width/10, (y+160)+height/8, 14, width/10, height/16, #A73838);
     }
     else if(mode==2){
       selector = new DateSelector();
+    }
+    else if(mode==3){
+      airportSelector = new AirportSorter();
     }
     cancel = new Widget(width/2-width/40, (y+160)+height/3, 13, width/20, height/32, #99AAAA);
   }
@@ -37,9 +42,13 @@ class Query{
       date.draw();
       cancelled.draw();
       diverted.draw();
+      airport.draw();
     }
     else if(mode==2){
       selector.draw();
+    }
+    else if(mode==3){
+      airportSelector.draw();
     }
     cancel.draw();
   }

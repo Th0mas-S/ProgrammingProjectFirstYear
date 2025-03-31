@@ -69,6 +69,19 @@ class Widget{
       if(mode==13){
         screen1.dateQuery=false;
         screen1.sortQuery=false;
+        screen1.airportQuery=false;
+      }
+      if(mode==14){
+        screen1.airportQuery=true;
+        screen1.sortQuery=false;
+      }
+      if(mode==15){
+        screen1.airportMenu.airportSelector.sortOrigin();
+        screen1.airportQuery=false;
+      }
+      if(mode==16){
+        screen1.airportMenu.airportSelector.sortDestination();
+        screen1.airportQuery=false;
       }
     }
   }
@@ -164,6 +177,27 @@ class Widget{
       textSize(20);
       textAlign(CENTER);
       text("Cancel", x+(w/2), y+(h/2)+(20/3));
+      textAlign(LEFT);
+    }
+    else if(mode==14){
+      fill(240);
+      textSize(40);
+      textAlign(CENTER);
+      text("Airports", x+(w/2), y+(h/2)+(40/3));
+      textAlign(LEFT);
+    }
+    else if(mode==15){
+      fill(240);
+      textSize(40);
+      textAlign(CENTER);
+      text("Origin", x+(w/2), y+(h/2)+(40/3));
+      textAlign(LEFT);
+    }
+    else if(mode==16){
+      fill(240);
+      textSize(40);
+      textAlign(CENTER);
+      text("Destination", x+(w/2), y+(h/2)+(40/3));
       textAlign(LEFT);
     }
   }
