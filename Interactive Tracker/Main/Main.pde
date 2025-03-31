@@ -98,7 +98,7 @@ void setup() {
   
   mainMenuScreen = new MainMenuScreen();
   directoryScreen = new DirectoryScreen();
-  //heatMapScreen = new HeatMapScreen();
+  heatMapScreen = new HeatMapScreen();
   
   screenManager.switchScreen(mainMenuScreen);
   mainMenuScreen = new MainMenuScreen();

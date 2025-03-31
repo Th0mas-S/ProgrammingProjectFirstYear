@@ -66,9 +66,9 @@
 //  String[] rows = loadStrings("flight_data_2017.csv");          //contain all the data for an individual flight
 //    flights = new ArrayList<Flight>();
 
-  println(rows.length);  
-  for(int i=1; i<rows.length; i++){
-    String[] data = split(rows[i], ',');
+//println(rows.length);  
+//for(int i=1; i<rows.length; i++){
+//  String[] data = split(rows[i], ',');
    
 //    String date = convertDate(data[0]);
 //    String airlineCode = data[2];
@@ -146,7 +146,7 @@ class HeatMapScreen extends Screen {
   
   HeatMapScreen() {
     earthImage = loadImage("worldmap.png");
-    loadData(4000000);
+    //loadData(4000000);
     this.airportLocations = loadAirportCoordinates("airport_data.csv");
     heatMap = new int[heatMapWidth][heatMapHeight];
     
