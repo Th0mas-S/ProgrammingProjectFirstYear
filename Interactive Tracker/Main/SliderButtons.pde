@@ -1,5 +1,5 @@
 class SliderButtons {
-  float buttonsX, playY, pauseY, ffY;
+  float buttonsX, playY, ffY, backY;
   float buttonSize, buttonGap;
   int speedIndex;
   float speedMultiplier;
@@ -10,9 +10,9 @@ class SliderButtons {
     this.buttonsX = buttonsX;
     this.buttonSize = buttonSize;
     this.buttonGap = buttonGap;
-    this.playY = playY;
-    this.pauseY = playY + buttonSize + buttonGap;
-    this.ffY = this.pauseY + buttonSize + buttonGap;
+    this.playY = playY;  // singular toggle button's Y coordinate.
+    this.ffY = playY + buttonSize + buttonGap; // Fast-forward button positioned just below.
+    this.backY = ffY + buttonSize + buttonGap; // Back button positioned beneath fast-forward.
     this.speeds = speeds;
     speedIndex = 0;
     speedMultiplier = speeds[0];
@@ -20,53 +20,41 @@ class SliderButtons {
   }
   
   void display() {
-    // Play Button
-    boolean playHover = (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
+    // Toggle Play/Pause Button
+    boolean toggleHover = (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
                            mouseY >= playY && mouseY <= playY + buttonSize);
-    if (playHover) {
+    if (toggleHover) {
       stroke(255);
       strokeWeight(2);
     } else {
       noStroke();
     }
     if (isPlaying) {
-      fill(100, 150, 255);
+      fill(100, 150, 255); // blue background when playing
     } else {
-      fill(150);
+      fill(150); // grey background when paused
     }
     rect(buttonsX, playY, buttonSize, buttonSize, 5);
     noStroke();
     fill(255);
-    float pt1x = buttonsX + 15;
-    float pt1y = playY + 15;
-    float pt2x = buttonsX + 15;
-    float pt2y = playY + buttonSize - 15;
-    float pt3x = buttonsX + buttonSize - 15;
-    float pt3y = playY + buttonSize/2;
-    triangle(pt1x, pt1y, pt2x, pt2y, pt3x, pt3y);
     
-    // Pause Button
-    boolean pauseHover = (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
-                           mouseY >= pauseY && mouseY <= pauseY + buttonSize);
-    if (pauseHover) {
-      stroke(255);
-      strokeWeight(2);
+    if (isPlaying) {
+      // When playing, display play symbol (triangle)
+      float pt1x = buttonsX + 15;
+      float pt1y = playY + 15;
+      float pt2x = buttonsX + 15;
+      float pt2y = playY + buttonSize - 15;
+      float pt3x = buttonsX + buttonSize - 15;
+      float pt3y = playY + buttonSize / 2;
+      triangle(pt1x, pt1y, pt2x, pt2y, pt3x, pt3y);
     } else {
-      noStroke();
+      // When paused, display pause symbol: two vertical bars
+      float barWidth = 12;
+      float barHeight = 30;
+      float barY = playY + (buttonSize - barHeight) / 2;
+      rect(buttonsX + 15, barY, barWidth, barHeight);
+      rect(buttonsX + buttonSize - 15 - barWidth, barY, barWidth, barHeight);
     }
-    if (!isPlaying) {
-      fill(100, 150, 255);
-    } else {
-      fill(150);
-    }
-    rect(buttonsX, pauseY, buttonSize, buttonSize, 5);
-    noStroke();
-    fill(255);
-    float barWidth = 12;
-    float barHeight = 30;
-    float barY = pauseY + (buttonSize - barHeight) / 2;
-    rect(buttonsX + 15, barY, barWidth, barHeight);
-    rect(buttonsX + buttonSize - 15 - barWidth, barY, barWidth, barHeight);
     
     // Fast-Forward Button
     boolean ffHover = (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
@@ -100,6 +88,32 @@ class SliderButtons {
     float f6y = ffY + buttonSize / 2;
     triangle(f4x, f4y, f5x, f5y, f6x, f6y);
     
+    // Back Button
+    boolean backHover = (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
+                          mouseY >= backY && mouseY <= backY + buttonSize);
+    if (backHover) {
+      stroke(255);
+      strokeWeight(2);
+      fill(100, 150, 255); // blue when hovered
+    } else {
+      noStroke();
+      fill(150); // grey when not hovered
+    }
+    rect(buttonsX, backY, buttonSize, buttonSize, 5);
+    
+    // Draw a left-pointing arrow that resembles "<-"
+    stroke(255);
+    strokeWeight(3);
+    float arrowTailX = buttonsX + buttonSize - 15;  // right end of the line
+    float arrowHeadX = buttonsX + 15;               // left end where arrow head begins
+    float centerY = backY + buttonSize / 2;
+    line(arrowTailX, centerY, arrowHeadX, centerY); // horizontal line
+    
+    // Draw arrow head: two diagonal lines from the left end of the line
+    line(arrowHeadX, centerY, arrowHeadX + 10, centerY - 10);
+    line(arrowHeadX, centerY, arrowHeadX + 10, centerY + 10);
+    
+    // Display speed multiplier on the fast-forward button
     String speedText = "x" + nf(speedMultiplier, 0, 1);
     pushStyle();
       textAlign(RIGHT, BOTTOM);
@@ -107,21 +121,6 @@ class SliderButtons {
       fill(0);
       text(speedText, buttonsX + buttonSize - 5, ffY + buttonSize - 5);
     popStyle();
-  }
-  
-  boolean checkPlay(float mx, float my) {
-    return (mx >= buttonsX && mx <= buttonsX + buttonSize &&
-            my >= playY && my <= playY + buttonSize);
-  }
-  
-  boolean checkPause(float mx, float my) {
-    return (mx >= buttonsX && mx <= buttonsX + buttonSize &&
-            my >= pauseY && my <= pauseY + buttonSize);
-  }
-  
-  boolean checkFF(float mx, float my) {
-    return (mx >= buttonsX && mx <= buttonsX + buttonSize &&
-            my >= ffY && my <= ffY + buttonSize);
   }
   
   void updateSpeed() {

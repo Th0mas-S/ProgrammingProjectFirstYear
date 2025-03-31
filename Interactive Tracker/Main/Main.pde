@@ -101,6 +101,9 @@ void setup() {
   //heatMapScreen = new HeatMapScreen();
   
   screenManager.switchScreen(mainMenuScreen);
+  mainMenuScreen = new MainMenuScreen();
+  
+  screenManager.switchScreen(mainMenuScreen);
   noStroke();
   
    flightInfo = new FlightInfo(
