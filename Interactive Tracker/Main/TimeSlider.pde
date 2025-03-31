@@ -22,12 +22,13 @@ class TimeSlider {
     pauseClicked = false;
     lastUpdateTime = millis();
     speedMultiplier = 1.0;
+    // Set up the singular toggle button (play/pause), fast-forward, and back button:
     float buttonsX = 370;
-    float playY = 10;
+    float toggleY = 10; // Y for the singular toggle button
     float buttonSize = 60;
     float buttonGap = 10;
     float[] speeds = {1.0, 2.0, 4.0, 12.0, 30.0, 0.5};
-    sliderButtons = new SliderButtons(buttonsX, playY, buttonSize, buttonGap, speeds);
+    sliderButtons = new SliderButtons(buttonsX, toggleY, buttonSize, buttonGap, speeds);
   }
   
   void update() {
@@ -54,22 +55,22 @@ class TimeSlider {
     float handleY = y + h / 2 - 30;
     float handleWidth = 20;
     float handleHeight = 60;
-
+    
     boolean overHandle = dist(mouseX, mouseY, handleX, y + h / 2) < 20;
-
+    
     if (dragging) {
       fill(100, 150, 255);
     } else {
       fill(128);
     }
-
+    
     if (dragging || overHandle) {
       stroke(255);
       strokeWeight(2);
     } else {
       noStroke();
     }
-
+    
     rect(handleX - handleWidth / 2, handleY, handleWidth, handleHeight);
     
     float timeBoxWidth = 80;
@@ -86,19 +87,9 @@ class TimeSlider {
     textSize(20);
     text(minutesToTimeString(int(value)), timeBoxX + timeBoxWidth / 2, timeBoxY + timeBoxHeight / 2);
     
-    if (dragging) {
-      if (wasAutoPlaying) {
-        sliderButtons.isPlaying = true;
-      } else {
-        sliderButtons.isPlaying = false;
-      }
-    } else {
-      if (autoPlaying) {
-        sliderButtons.isPlaying = true;
-      } else {
-        sliderButtons.isPlaying = false;
-      }
-    }
+    // When dragging the slider, show the previous auto-play state.
+    // Otherwise, show the current auto-playing state.
+    sliderButtons.isPlaying = dragging ? wasAutoPlaying : autoPlaying;
     
     sliderButtons.display();
   }
@@ -106,14 +97,16 @@ class TimeSlider {
   void mousePressed() {
     float handleX = map(value, 0, 1439, x, x + w);
     float handleRadius = 20;
-
+    
+    // Check if the handle is grabbed
     if (dist(mouseX, mouseY, handleX, y + h / 2) < handleRadius) {
       wasAutoPlaying = autoPlaying;
       dragging = true;
       autoPlaying = false;
       return;
     }
-
+    
+    // Check if clicking on the slider track (outside the handle)
     if (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h) {
       value = map(mouseX, x, x + w, 0, 1439);
       dragging = false;
@@ -121,33 +114,36 @@ class TimeSlider {
       wasAutoPlaying = false;
       return;
     }
-
-    float buttonSize = 60;
-    float buttonGap = 10;
-    float buttonsX = 370;
-    float playButtonY = 10;
-    float pauseButtonY = playButtonY + buttonSize + buttonGap;
-    float ffButtonY = pauseButtonY + buttonSize + buttonGap;
-  
+    
+    float buttonsX = sliderButtons.buttonsX;
+    float buttonSize = sliderButtons.buttonSize;
+    
+    // Toggle play/pause button hitbox
+    float toggleY = sliderButtons.playY;  // singular toggle button’s Y coordinate
     if (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
-        mouseY >= playButtonY && mouseY <= playButtonY + buttonSize) {
-      autoPlaying = true;
+        mouseY >= toggleY && mouseY <= toggleY + buttonSize) {
+      autoPlaying = !autoPlaying;
       dragging = false;
-      pauseClicked = false;
+      pauseClicked = !autoPlaying; // if autoPlaying becomes false, mark as paused
       lastUpdateTime = millis();
+      return;
     }
-
-    if (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
-        mouseY >= pauseButtonY && mouseY <= pauseButtonY + buttonSize) {
-      autoPlaying = false;
-      dragging = false;
-      pauseClicked = true;
-    }
-
+    
+    // Fast-Forward button hitbox
+    float ffButtonY = sliderButtons.ffY;
     if (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
         mouseY >= ffButtonY && mouseY <= ffButtonY + buttonSize) {
       sliderButtons.updateSpeed();
       speedMultiplier = sliderButtons.speedMultiplier;
+      return;
+    }
+    
+    // Back button hitbox (located just beneath the fast-forward button)
+    float backButtonY = sliderButtons.backY;
+    if (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
+        mouseY >= backButtonY && mouseY <= backButtonY + buttonSize) {
+      screenManager.switchScreen(mainMenuScreen);
+      return;
     }
   }
   
