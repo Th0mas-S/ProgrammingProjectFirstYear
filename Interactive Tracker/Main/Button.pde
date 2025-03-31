@@ -27,6 +27,19 @@ class ButtonSettings {
     return this;
   }
   
+  ButtonSettings copy() {
+    ButtonSettings copy = new ButtonSettings();
+    copy.x = this.x;
+    copy.y = this.y;
+    copy.w = this.w;
+    copy.h = this.h;
+    copy.col = this.col;
+    copy.text = this.text;
+    copy.textColor = this.textColor;
+    copy.onClick = this.onClick;
+    return copy;
+  }
+  
   ButtonSettings setHeight(int h) {
     this.h = h;
     return this;
@@ -48,7 +61,7 @@ class ButtonSettings {
   }
   
   Button build() {
-    return new Button(this);
+    return new Button(this.copy());
   }
   
 }

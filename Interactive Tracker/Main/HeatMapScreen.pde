@@ -166,7 +166,8 @@ class HeatMapScreen extends Screen {
     };
     backButton = bs.build();
     
-   
+    bs = bs.copy();
+    
     bs.x = width - 200;
     bs.y = 0;
     bs.text = "OKAY";
@@ -206,6 +207,7 @@ class HeatMapScreen extends Screen {
      offsetY = constrain(offsetY, height - zoomedHeight, 0);
      
      backButton.draw();
+     confirmButton.draw();
   }
   
   void drawIntensityTab(int intensity) {
@@ -438,9 +440,8 @@ void processFlight(Flight f) {
     isDragging = true;
     backButton.handleOnClick();
     boolean dateChanged = calendar.mousePressed();
-    if(dateChanged) {
-      confirmButton.handleOnClick();
-    }
+    
+    confirmButton.handleOnClick();
     
 
   }
