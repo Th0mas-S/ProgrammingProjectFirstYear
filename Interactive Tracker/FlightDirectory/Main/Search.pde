@@ -121,7 +121,36 @@ class Search{
           }
           if(animation>70) animation=0;
         }
+      }  
+    }
+    else if(mode==4){
+      if(!search){                                          
+        text(screen1.airportMenu.airportSelector.airportCode, x+20, y+33);
       }
+      else{
+        if(inputText.equals("")){
+          if(animation>35){
+            text("_", x+20, y+33);
+            animation++;
+          }
+          else{
+            text("", x+20, y+33);
+            animation++;
+          }
+          if(animation>70) animation=0;
+        }
+        else{
+          if(animation>35){
+            text(inputText+"_", x+20, y+33);
+            animation++;
+          }
+          else{
+            text(inputText, x+20, y+33);
+            animation++;
+          }
+          if(animation>70) animation=0;
+        }
+      }  
     }
     
     
@@ -138,6 +167,11 @@ class Search{
     }
     if(entered && mode==3 && search){
       screen1.dateMenu.selector.date2=inputText;
+      entered=false;
+      search=false;
+    }
+    if(entered && mode==4 && search){
+      screen1.airportMenu.airportSelector.airportCode=inputText;
       entered=false;
       search=false;
     }

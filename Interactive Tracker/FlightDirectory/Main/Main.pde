@@ -7,6 +7,7 @@ String currentDataset = "flight_data_2017.csv";
 import java.util.HashMap;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 Screen screen1, screen2, screen3, startScreen;
 ArrayList<Flight> flights;                                                      //array of Flight classes - final once initialized
 ArrayList<Integer> arrayIndex;                                                  //array of indexes for flights array - changes throughout program
@@ -19,7 +20,7 @@ Return menu;
 
 void setup(){
   size(1920, 1080);
-  fullScreen();
+  //fullScreen();
   background(0);
   fill(0, 200, 0);
   textSize(60);
@@ -155,25 +156,33 @@ void mousePressed(){
     startScreen.exitButton.widgetPressed();
   }
   else if(currentScreen==1){
-    if(!screen1.sortQuery && !screen1.dateQuery){
+    if(!screen1.sortQuery && !screen1.dateQuery && !screen1.airportQuery){
       screen1.slider.sliderPressed();
       screen1.searchbar.searchPressed();
       screen1.clear.widgetPressed();
       screen1.checkFlights();
       menu.returnPressed();
       screen1.sort.widgetPressed();
+      screen1.headersPressed();
     }
     else{
       screen1.sortMenu.lateness.widgetPressed();
       screen1.sortMenu.distance.widgetPressed();
-      screen1.sortMenu.date.widgetPressed();
+      screen1.sortMenu.airport.widgetPressed();
+      screen1.sortMenu.date.widgetPressed();            
+      screen1.sortMenu.cancelled.widgetPressed();
+      screen1.sortMenu.diverted.widgetPressed();
+      screen1.sortMenu.cancel.widgetPressed();
+      
+      screen1.dateMenu.cancel.widgetPressed();      
       screen1.dateMenu.selector.search1.searchPressed();
       screen1.dateMenu.selector.search2.searchPressed();
       screen1.dateMenu.selector.done.widgetPressed();
-      screen1.sortMenu.cancelled.widgetPressed();
-      screen1.sortMenu.diverted.widgetPressed();
-      screen1.dateMenu.cancel.widgetPressed();
-      screen1.sortMenu.cancel.widgetPressed();
+      
+      screen1.airportMenu.airportSelector.origin.widgetPressed();
+      screen1.airportMenu.airportSelector.destination.widgetPressed();
+      screen1.airportMenu.cancel.widgetPressed();
+      screen1.airportMenu.airportSelector.search.searchPressed();
     }
   }
   else if(currentScreen==2){
