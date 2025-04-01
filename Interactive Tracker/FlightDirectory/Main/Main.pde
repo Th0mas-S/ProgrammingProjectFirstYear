@@ -1,10 +1,19 @@
 //download "flight_data_2017.csv" before running code
 //link in whatsapp from ben
-
+// In main class:
 import java.util.HashMap;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-Screen screen1, screen2, screen3, screen4, startScreen;
+import java.util.Arrays;
+import java.util.Map; 
+import java.util.List;
+
+Screen screen1, screen2, screen4, screen5, startScreen;
+HashMap<String, String> airportCodeToName = new HashMap<>();
+HashMap<String, String> airportCodeToAddress = new HashMap<>();
+HashMap<String, String> airlineCodeToName = new HashMap<>();
+ArrayList<Flight> selectedAirportFlights; 
+String selectedAirportCode;
 ArrayList<Flight> flights;                                                      //array of Flight classes - final once initialized
 ArrayList<Integer> arrayIndex;                                                  //array of indexes for flights array - changes throughout program
 ArrayList<String> airportCode, airportName, airlineCode, airlineName, airportAddress;           //code dictionaries
@@ -25,7 +34,7 @@ void setup(){
   startScreen = new Screen(3);
   screen1 = new Screen(1);                                        //screen1 is the main directory screen
   screen2 = new Screen(2);
-  screen4 = new Screen(4);
+  screen5 = new Screen(5);
   flights = new ArrayList<Flight>();
   arrayIndex = new ArrayList<Integer>();
   currentScreen=0;                                                  //default to start screen
@@ -70,56 +79,59 @@ String cropData(String dataIn){                 //used for initializing flights
   return(mess[1]);
 }
 
-void initializeDictionary(){
-  airportCode = new ArrayList<String>();
-  airportName = new ArrayList<String>();
-  airportAddress = new ArrayList<String>();
-  String[] readIn = loadStrings("airport_data.csv");
-  for(int i=1; i<readIn.length; i++){
-    String[] row = split(readIn[i], ",");
-    airportCode.add(row[2]);
-    airportName.add(row[1]);
-    airportAddress.add(row[3]+", "+row[4]);
+void initializeDictionary() {
+  // For airports:
+  String[] rows = loadStrings("airport_data.csv");
+  for (int i = 1; i < rows.length; i++) {
+    String[] data = split(rows[i], ",");
+    airportCodeToName.put(data[2], data[1]);
+    airportCodeToAddress.put(data[2], data[3] + ", " + data[4]);
   }
-  
-  airlineCode = new ArrayList<String>();
-  airlineName = new ArrayList<String>();
-  readIn = loadStrings("airline_codes.csv");
-  for(int i=1; i<readIn.length; i++){
-    String[] row = split(readIn[i], ",");
-    airlineCode.add(row[0]);
-    airlineName.add(row[1]);
+
+  // For airlines:
+  rows = loadStrings("airline_codes.csv");
+  for (int i = 1; i < rows.length; i++) {
+    String[] data = split(rows[i], ",");
+    airlineCodeToName.put(data[0], data[1]);
   }
-  println("dictionaries loaded");
 }
 
-String removeFirstLast(String str) {
+// Replace getAirport() with:
+String getAirport(String code) 
+{
+  return airportCodeToName.getOrDefault(code, "Unknown");
+}
+
+String getAirportAddress(String code) 
+{
+    return airportCodeToAddress.getOrDefault(code, "Unknown");
+}
+
+String getCarrier(String code) 
+{
+    return airlineCodeToName.getOrDefault(code, "Unknown");
+}
+
+
+String removeFirstLast(String str) 
+{
   return (str.length() > 1) ? str.substring(1, str.length() - 1) : "";
 }
 
-String removeFirst(String str) {
+String removeFirst(String str) 
+{
   return (str.length() > 1) ? str.substring(1, str.length()) : "";
 }
 
-String getAirport(String airport){
-  for(int i=0; i<airportCode.size(); i++){
-    if(airportCode.get(i).equals(airport)) return airportName.get(i);
+void selectAirport(String airportCode) {
+  selectedAirportCode = airportCode;
+  selectedAirportFlights = new ArrayList<>();
+  for (Flight f : flights) {
+    if (f.origin.equals(airportCode) || f.destination.equals(airportCode)) {
+      selectedAirportFlights.add(f);
+    }
   }
-  return("error");
-}
-
-String getAirportAddress(String airport){
-  for(int i=0; i<airportCode.size(); i++){
-    if(airportCode.get(i).equals(airport)) return airportAddress.get(i);
-  }
-  return("error");
-}
-  
-String getCarrier(String carrier){
-  for(int i=0; i<airlineCode.size(); i++){
-    if(airlineCode.get(i).equals(carrier)) return airlineName.get(i);
-  }
-  return("error");
+  currentScreen = 5;
 }
 
 void mouseWheel(MouseEvent event) {                                    
@@ -181,6 +193,13 @@ void mousePressed(){
   else if(currentScreen==2){
     screen2.back.widgetPressed();
   }
+  
+   else if(currentScreen==4){
+    screen4.airList.checkAirportClick();
+    screen4.slider.sliderPressed();
+    screen4.back.widgetPressed();
+    menu.returnPressed();
+  }
 
   println("x: "+mouseX+"  y: "+mouseY);     //!for testing!
 }
@@ -221,6 +240,7 @@ void draw(){
       initializeDictionary();
       clearIndex();
       loaded=true;
+      screen4 = new Screen(4);
   }
   if(initialized){                 //main draw area...
     if(currentScreen==0){
@@ -234,13 +254,11 @@ void draw(){
     else if(currentScreen==2){
       screen2.draw();
     }
-    else if(currentScreen==3){
-      screen3.draw();
-      textAlign(LEFT);
-      menu.draw();
-    }
     else if(currentScreen==4){
       screen4.draw();
+    }
+    else if(currentScreen==5){
+      screen5.draw();
     }
   }
 }

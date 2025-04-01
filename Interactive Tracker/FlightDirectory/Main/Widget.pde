@@ -34,7 +34,7 @@ class Widget{
         currentScreen=1;
       }
       if(mode==4){
-        currentScreen=5;
+        currentScreen=4;
       }
       if(mode==5){
         exit();
@@ -69,6 +69,9 @@ class Widget{
       if(mode==13){
         screen1.dateQuery=false;
         screen1.sortQuery=false;
+      }
+     if(mode==14){
+       currentScreen=0;
       }
     }
   }
@@ -166,6 +169,12 @@ class Widget{
       text("Cancel", x+(w/2), y+(h/2)+(20/3));
       textAlign(LEFT);
     }
+    else if(mode==14){
+      fill(240);
+      text("Back", x+26, y+33);
+    }
+     else if(mode==15){
+       currentScreen = 4;
+    }
   }
-
 }

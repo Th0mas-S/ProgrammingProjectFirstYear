@@ -10,6 +10,8 @@ class Screen{
   Widget clear, back, sort;
   Widget directory, graphs, exitButton;
   Flight flight;
+  ArrayList<Flight> selectedAirportFlights = new ArrayList<>();
+  FlightAnalytics flightAnalytics = new FlightAnalytics();
   //Graphs newGraph;
   AirportList airList;
 
@@ -35,11 +37,15 @@ class Screen{
       graphs = new Widget((width/2)-(width/8), int((height/3)*1.6), 4, width/4, 200, #F9A822);
       exitButton = new Widget((width/2)-(width/8), int((height/3)*2.2), 5, width/4, 200, #F57F5B);
     }
-    else if(mode==4){
+    // In Screen class's constructor for mode4:
+    else if (mode == 4) {
+      back = new Widget(20, height - 80, 14, 100, 50, #DD5341); // Add this
       airList = new AirportList(flights);
       slider = new Slider(width - 60, 150, height - 250);
-      searchbar = new Search(width-340, 160, textSize, 1);
-      clear = new Widget(width-480, 160, 1, 100, 50, #F96635);                      
+    }
+     else if (mode == 5) { // Flight Analytics Screen
+      back = new Widget(20, height - 100, 15, 100, 50, #DD5341); // Back to Screen 4
+      // Initialize graphs here (data will be loaded later)
     }
   }
   
@@ -193,7 +199,25 @@ class Screen{
     
      else if(screenNum==4){                             
       airList.draw();
-      // Add these lines to initialize missing components
-    }
+      airList.checkAirportClick();
+      slider.draw(); 
+      back.draw(); 
+     }
+      
+     else if (screenNum == 5) { // Flight Analytics Screen
+      background(#FACA78);
+      image(logo, 60, 60);
+  
+      // Back button
+      back.draw();
+  
+      // Draw graphs in sections
+      flightAnalytics.drawFlightTraffic(selectedAirportFlights);
+      //selectedAirportFlights
+      flightAnalytics.drawDestinationDistribution(selectedAirportFlights);
+      //selectedAirportFlights
+      flightAnalytics.drawAverageDelay(selectedAirportFlights);
+      flightAnalytics.drawCancellationPie(selectedAirportFlights);
+     }
   }
 }

@@ -25,7 +25,4 @@ class DateSelector{
     search2.draw();
     done.draw();
   }
-
-
-
 }
