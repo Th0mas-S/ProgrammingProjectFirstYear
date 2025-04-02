@@ -2,10 +2,15 @@ import java.util.HashSet;
 
 CalendarDisplay calendar;
 TimeSlider timeSlider;
-ScreenManager screenManager;
-EarthScreenTracker earthScreenTracker; 
-HeatMapScreen heatMapScreen;
+
+ScreenManager  screenManager;
+//EarthScreenDirectory  earthScreenDirectory;
+EarthScreenTracker  earthScreenTracker;
 MainMenuScreen mainMenuScreen;
+
+HeatMapScreen heatMapScreen;
+DirectoryScreen directoryScreen;
+
 Earth earth;
 Airport airportOrigin;
 Airport airportDest;
@@ -39,11 +44,18 @@ SoundFile audio;
 // setup()
 // ========================
 void setup() {
-  size(1920, 1055, P3D);
+  size(1920, 1061, P3D); // ben added this >:( (i know you can't hide from me);
   
-  audio = new SoundFile(this, "audio2.mp3");
+  //fullScreen(P3D);
   
-  // Initialize stars
+  flightHubLogo = loadImage("Flighthub Logo.png");
+
+  
+  audio = new SoundFile(this, "audio3.mp3");
+
+  
+  // Initialize near stars (300 - 500 units away)
+    // Initialize stars (300 - 500 units away)
   for (int i = 0; i < numStars; i++) {
     stars[i] = new Star(1000, 2500);
   }
@@ -75,10 +87,17 @@ void setup() {
   
   screenManager = new ScreenManager();
   earthScreenTracker = new EarthScreenTracker(earth);
+  //screenManager.switchScreen(earthScreenDirectory);
+  
+  initGlobalVariables();
+          clearIndex();
+  
+  mainMenuScreen = new MainMenuScreen(this);
+  directoryScreen = new DirectoryScreen();
   heatMapScreen = new HeatMapScreen();
-  mainMenuScreen = new MainMenuScreen();
   
   screenManager.switchScreen(mainMenuScreen);
+  
   noStroke();
   
   flightInfo = new FlightInfo("Miami", "London", "23:05", "11:30", "British Airways", "BA0208");
@@ -110,9 +129,14 @@ void mouseWheel(MouseEvent event) {
   screenManager.handleMouseWheel(event);
 }
 
+void mouseMoved() {
+  screenManager.handleMouseMoved();
+}
+
 void keyPressed() {
   screenManager.handleKeyPressed();
 }
+
 
 // ========================
 // Helper Functions

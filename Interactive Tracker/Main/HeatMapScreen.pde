@@ -1,100 +1,100 @@
 // Data already loaded in jasons flight directory code, copied and pasted here,
 // Once integrated remove the load data
-class Flight{
-  String date;                          //list of all data points stored for each flight
-  String airlineCode;
-  String flightNumber;
-  String origin;
-  String destination;
-  String scheduledDeparture;
-  String actualDeparture;
-  int departureDelay;
-  float flightDistance;
-  String scheduledArrival;
-  String actualArrival;
-  boolean diverted;
-  boolean cancelled;
-  boolean mouseOver;
+//class Flight{
+//  String date;                          //list of all data points stored for each flight
+//  String airlineCode;
+//  String flightNumber;
+//  String origin;
+//  String destination;
+//  String scheduledDeparture;
+//  String actualDeparture;
+//  int departureDelay;
+//  float flightDistance;
+//  String scheduledArrival;
+//  String actualArrival;
+//  boolean diverted;
+//  boolean cancelled;
+//  boolean mouseOver;
   
   
-  Flight(String date, String airlineCode, String flightNumber, String origin, String destination, String scheduledDeparture, String actualDeparture, int departureDelay, float flightDistance, String scheduledArrival, String actualArrival, boolean diverted, boolean cancelled) {
-    this.date = date;
-    this.airlineCode = airlineCode;                            //setup...
-    this.flightNumber = flightNumber;
-    this.origin = origin;
-    this.destination = destination;
-    this.scheduledDeparture = scheduledDeparture;
-    this.actualDeparture = actualDeparture;
-    this.departureDelay = departureDelay;
-    this.flightDistance = flightDistance;
-    this.scheduledArrival = scheduledArrival;
-    this.actualArrival = actualArrival;
-    this.diverted = diverted;
-    this.cancelled = cancelled;
-  }
+//  Flight(String date, String airlineCode, String flightNumber, String origin, String destination, String scheduledDeparture, String actualDeparture, int departureDelay, float flightDistance, String scheduledArrival, String actualArrival, boolean diverted, boolean cancelled) {
+//    this.date = date;
+//    this.airlineCode = airlineCode;                            //setup...
+//    this.flightNumber = flightNumber;
+//    this.origin = origin;
+//    this.destination = destination;
+//    this.scheduledDeparture = scheduledDeparture;
+//    this.actualDeparture = actualDeparture;
+//    this.departureDelay = departureDelay;
+//    this.flightDistance = flightDistance;
+//    this.scheduledArrival = scheduledArrival;
+//    this.actualArrival = actualArrival;
+//    this.diverted = diverted;
+//    this.cancelled = cancelled;
+//  }
   
 
-  void drawData(int x, int y, int textSize){
-      text(date, x-5, y);
-      text("   " + airlineCode + flightNumber, x+(textSize*4.791), y);
-      text("    " + origin + " -> " + destination, x+(textSize*8.958), y);
-      text("    Scheduled: " + scheduledDeparture + " - " + scheduledArrival, x+(textSize*15), y);
-      text("    Actual: " + actualDeparture + " - " + actualArrival, x+(textSize*26.25), y);
-      text("    Delay: " + departureDelay + " min ", x+(textSize*35.833), y);
-      text("    Diverted: " + diverted, x+(textSize*43.333), y);
-      text("    Cancelled: " + cancelled, x+(textSize*50.833), y);
-      text("    Distance: " + flightDistance + " km", x+(textSize*58.75), y);
+//  void drawData(int x, int y, int textSize){
+//      text(date, x-5, y);
+//      text("   " + airlineCode + flightNumber, x+(textSize*4.791), y);
+//      text("    " + origin + " -> " + destination, x+(textSize*8.958), y);
+//      text("    Scheduled: " + scheduledDeparture + " - " + scheduledArrival, x+(textSize*15), y);
+//      text("    Actual: " + actualDeparture + " - " + actualArrival, x+(textSize*26.25), y);
+//      text("    Delay: " + departureDelay + " min ", x+(textSize*35.833), y);
+//      text("    Diverted: " + diverted, x+(textSize*43.333), y);
+//      text("    Cancelled: " + cancelled, x+(textSize*50.833), y);
+//      text("    Distance: " + flightDistance + " km", x+(textSize*58.75), y);
     
     
-      if(mouseX>x && mouseX<x+width-150 && mouseY>y-textSize && mouseY<y){
-        mouseOver = true;
-      }
-      else mouseOver = false;
-  }
+//      if(mouseX>x && mouseX<x+width-150 && mouseY>y-textSize && mouseY<y){
+//        mouseOver = true;
+//      }
+//      else mouseOver = false;
+//  }
 
 
-}
+//}
 
-String convertDate(String dateIn){              //used for initializing flights
-  String[] mess = split(dateIn, '-');
-  return(mess[2]+"/"+mess[1]+"/"+mess[0]);
-}
+//String convertDate(String dateIn){              //used for initializing flights
+//  String[] mess = split(dateIn, '-');
+//  return(mess[2]+"/"+mess[1]+"/"+mess[0]);
+//}
 
-ArrayList<Flight> flights;  
+//ArrayList<Flight> flights;  
 
-void loadData(int amountOfRows) { // amount of rows tells me how much data to load, it crashes my computer when i load too much
-  String[] rows = loadStrings("flight_data_2017.csv");          //contain all the data for an individual flight
-    flights = new ArrayList<Flight>();
+//void loadData(int amountOfRows) { // amount of rows tells me how much data to load, it crashes my computer when i load too much
+//  String[] rows = loadStrings("flight_data_2017.csv");          //contain all the data for an individual flight
+//    flights = new ArrayList<Flight>();
 
-  println(rows.length);  
-  for(int i=1; i<rows.length; i++){
-    String[] data = split(rows[i], ',');
+//println(rows.length);  
+//for(int i=1; i<rows.length; i++){
+//  String[] data = split(rows[i], ',');
    
-    String date = convertDate(data[0]);
-    String airlineCode = data[2];
-    String flightNumber = data[3];
-    String origin = data[4];
-    String destination = data[5];
-    String scheduledDeparture = cropData(data[6]);
-    String actualDeparture = cropData(data[8]);
-    int departureDelay = int(data[10]);
-    float flightDistance = float(data[11]);
-    String scheduledArrival = cropData(data[7]);
-    String actualArrival = cropData(data[9]);
-    boolean diverted = (data[13].equals("TRUE"));
-    boolean cancelled = (data[12].equals("TRUE"));
+//    String date = convertDate(data[0]);
+//    String airlineCode = data[2];
+//    String flightNumber = data[3];
+//    String origin = data[4];
+//    String destination = data[5];
+//    String scheduledDeparture = cropData(data[6]);
+//    String actualDeparture = cropData(data[8]);
+//    int departureDelay = int(data[10]);
+//    float flightDistance = float(data[11]);
+//    String scheduledArrival = cropData(data[7]);
+//    String actualArrival = cropData(data[9]);
+//    boolean diverted = (data[13].equals("TRUE"));
+//    boolean cancelled = (data[12].equals("TRUE"));
 
-    flights.add( new Flight(date, airlineCode, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, flightDistance, scheduledArrival, actualArrival, diverted, cancelled));
-  }
-  println("flights loaded ("+flights.size()+")");
-}
+//    flights.add( new Flight(date, airlineCode, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, flightDistance, scheduledArrival, actualArrival, diverted, cancelled));
+//  }
+//  println("flights loaded ("+flights.size()+")");
+//}
 
 
-String cropData(String dataIn){                 //used for initializing flights
-  if(dataIn.equals("")) return "00:00";
-  String[] mess = split(dataIn, ' ');
-  return(mess[1]);
-}
+//String cropData(String dataIn){                 //used for initializing flights
+//  if(dataIn.equals("")) return "00:00";
+//  String[] mess = split(dataIn, ' ');
+//  return(mess[1]);
+//}
 
 ///////////////////////// JASON CODE END /////////////////////////////////////////////////////
 
@@ -146,7 +146,7 @@ class HeatMapScreen extends Screen {
   
   HeatMapScreen() {
     earthImage = loadImage("worldmap.png");
-    loadData(4000000);
+    //loadData(4000000);
     this.airportLocations = loadAirportCoordinates("airport_data.csv");
     heatMap = new int[heatMapWidth][heatMapHeight];
     

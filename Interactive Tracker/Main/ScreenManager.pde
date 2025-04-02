@@ -4,6 +4,7 @@ class Screen {
   void mousePressed() {}
   void mouseDragged() {}
   void mouseReleased() {}
+  void mouseMoved() {}
   void mouseWheel(MouseEvent event) {}
   void keyPressed() {}
 }
@@ -40,5 +41,9 @@ class ScreenManager {
   
   void handleKeyPressed() {
     currentScreen.keyPressed();
+  }
+  
+  void handleMouseMoved() {
+    currentScreen.mouseMoved();
   }
 }
