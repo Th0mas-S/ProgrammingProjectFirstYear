@@ -35,7 +35,6 @@ HashMap<String, String> airportLocations = new HashMap<String, String>();
 
 String lastCheckedDate = "";
 Airplane selectedPlane = null;
-PImage flightHubLogo;
 
 
 SoundFile audio;
@@ -48,7 +47,6 @@ void setup() {
   
   //fullScreen(P3D);
   
-  flightHubLogo = loadImage("Flighthub Logo.png");
 
   
   audio = new SoundFile(this, "audio3.mp3");

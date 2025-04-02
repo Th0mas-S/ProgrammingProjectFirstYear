@@ -30,7 +30,6 @@ class MainMenuScreen extends Screen {
   
   EarthMenu earth;
   ArrayList<AirplaneMenu> airplanes; 
-  PImage flightHubLogo;
 
   // Global variables for stars
   //int numStars = 300;
@@ -104,17 +103,15 @@ class MainMenuScreen extends Screen {
       a.update();
       a.display();
     }
-
-  popMatrix();
   
-  pushMatrix();
-    hint(DISABLE_DEPTH_TEST);  // Disable depth testing so the logo draws on top
-    int logoX = 800;  
-    int logoY = -250;  
-    imageMode(CORNER);
-    image(flightHubLogo, logoX, logoY, 1200, 900);
-    hint(ENABLE_DEPTH_TEST);
-  popMatrix();
+  //pushMatrix();
+  //  hint(DISABLE_DEPTH_TEST);  // Disable depth testing so the logo draws on top
+  //  int logoX = 800;  
+  //  int logoY = -250;  
+  //  imageMode(CORNER);
+  //  image(flightHubLogo, logoX, logoY, 1200, 900);
+  //  hint(ENABLE_DEPTH_TEST);
+  //popMatrix();
     parent.popMatrix();
   }
   
