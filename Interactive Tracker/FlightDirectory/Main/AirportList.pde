@@ -4,6 +4,7 @@ import java.util.Collections;
 
 class AirportList {
   ArrayList<String> airportCodes;
+  ArrayList<Flight> flights;
   Widget airportBack;
   //Slider slider; 
   int screenNum; 
@@ -11,9 +12,8 @@ class AirportList {
   int sliderLength;
 
   
-  AirportList(ArrayList<Flight> flights, Main main) {
+  AirportList(ArrayList<Flight> flights) {
     this.flights = flights;
-    this.mainClass = main;
     this.textSize = int((width - 110) * 0.014);
     
     // Initialize airport list
@@ -92,17 +92,19 @@ class AirportList {
     // ... existing code to detect clicked airport ...
     if (mouseX > 100 && mouseY > y && mouseY < y + itemHeight) {
       String selectedCode = airportCodes.get(index);
-      mainClass.selectAirport(selectedCode); // Notify main class
+      selectAirport(selectedCode); // Notify main class
     }
 
     if (airportBack.mouseOver()) {
       // Change screen via your main screen controller
     }
   }
+}
+}
 
   
 //  // Dummy method - implement actual lookup
-//  private String getAirportName(String code) {
-//    return "Airport Name for " + code;
-//  }
+  private String getAirportName(String code) {
+    return "Airport Name for " + code;
+  }
 //}
