@@ -73,6 +73,9 @@ class Airplane {
   
   void display() {
     if (finished) return;
+                pushMatrix();
+
+        translate(currentPos.x, currentPos.y, currentPos.z);
 
     PVector travelDir = PVector.sub(end, start).normalize();
     PVector globeNormal = currentPos.copy().normalize();
@@ -85,20 +88,18 @@ class Airplane {
       forward.z, globeNormal.z, right.z, 0,
       0,         0,              0,      1
     );
-            pushMatrix();
 
     applyMatrix(m);
-    translate(currentPos.x, currentPos.y, currentPos.z);
+
     
-    rotateY(PI);
-    rotateX(PI);
+    rotateX(HALF_PI);
+    rotateZ(PI);
 
     scale(0.01);
     noTint();
     imageMode(CENTER);
     image(model, 0, 0);
     popMatrix();
-
     // Draw flight arc if hovered or selected
     if (hovered || selected) {
       drawFlightArc();
@@ -206,5 +207,9 @@ class Airplane {
     }
     endShape();
     popStyle();
+  }
+  
+  PVector getPosition() {
+    return currentPos;
   }
 }

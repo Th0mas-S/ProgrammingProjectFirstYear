@@ -5,6 +5,17 @@ class EarthScreenTracker extends Screen {
   boolean uiHeld = false;
   boolean uiHidden = false;  // Toggle for UI visibility
 
+  // Assumed declarations:
+  // ArrayList<FlightData> allFlights, todaysFlights;
+  // HashSet<String> spawnedFlights;
+  // ArrayList<Airplane> activePlanes;
+  // String lastCheckedDate;
+  // float sphereRadius;
+  // PImage airplaneModel;
+  // HashMap<String, Airport> airportMap;
+  // ArrayList<Star> stars, moreStars, evenMoreStars;
+  // Airplane selectedPlane;
+
   EarthScreenTracker(Earth earth) {
     this.earth = earth;
     calendar = new CalendarDisplay();
@@ -19,7 +30,7 @@ class EarthScreenTracker extends Screen {
     float currentTime = timeSlider.value;
     String currentDate = calendar.getSelectedDate();
     
-    // ✅ Date change: reload today's flights if needed.
+    // Reload today's flights if the date has changed.
     if (!currentDate.equals(lastCheckedDate)) {
       todaysFlights.clear();
       spawnedFlights.clear();
@@ -32,7 +43,7 @@ class EarthScreenTracker extends Screen {
       lastCheckedDate = currentDate;
     }
     
-    // ✅ Remove planes that are no longer active.
+    // Remove planes that are no longer active.
     for (int i = activePlanes.size() - 1; i >= 0; i--) {
       Airplane a = activePlanes.get(i);
       if (currentTime < a.startMinute || currentTime > a.startMinute + a.duration || a.finished) {
@@ -42,7 +53,7 @@ class EarthScreenTracker extends Screen {
       }
     }
     
-    // ✅ Spawn planes that should now be active.
+    // Spawn planes that should now be active.
     for (FlightData flight : todaysFlights) {
       if (currentTime >= flight.minutes && currentTime <= flight.minutes + flight.duration) {
         String flightID = flight.originCode + "_" + flight.destCode + "_" + flight.minutes;
@@ -64,7 +75,7 @@ class EarthScreenTracker extends Screen {
       }
     }
     
-    // 🌌 Stars (always update and display)
+    // Update and display stars.
     for (Star star : stars) {
       star.update(earth);
       star.display();
@@ -78,19 +89,32 @@ class EarthScreenTracker extends Screen {
       star.display();
     }
     
-    // 🌍 Update Earth and draw globe.
+    // Update Earth and draw globe.
     earth.update();
     pushMatrix();
       translate(width / 2, height / 2, 0);
       applyMatrix(earth.rotationMatrix);
       scale(earth.zoomFactor);
       earth.display();
-      // Airplane drawing code commented out:
       
+      // Draw airplanes with alpha transparency.
+      // Disable depth testing to correctly blend transparent PNGs.
+      hint(DISABLE_DEPTH_TEST);
       for (Airplane a : activePlanes) {
         a.update(currentTime);
-        a.display();
+        // Transform the airplane's position using the earth's rotation matrix.
+        // This gives the airplane's position relative to the viewer.
+        PVector transformedPos = new PVector();
+        earth.rotationMatrix.mult(a.getPosition(), transformedPos);
+        // Compute the normalized vector.
+        PVector norm = transformedPos.copy().normalize();
+        // Only display the airplane if its normalized z component exceeds our threshold.
+        // Adjust the threshold (e.g., 0.5) to control how strict the filter is.
+        if (norm.z > 0.5) {  
+          a.display();
+        }
       }
+      hint(ENABLE_DEPTH_TEST);
       
     popMatrix();
     
@@ -131,7 +155,7 @@ class EarthScreenTracker extends Screen {
     fill(255);
     textAlign(CENTER, CENTER);
     textSize(16);
-    text(uiHidden ? "Show UI" : "Hide UI", x + buttonWidth/2, y + buttonHeight/2);
+    text(uiHidden ? "Show UI" : "Hide UI", x + buttonWidth / 2, y + buttonHeight / 2);
   }
   
   // Checks if the mouse is over the hide UI button.
@@ -164,9 +188,15 @@ class EarthScreenTracker extends Screen {
       return;
     }
     
-    // Select one airplane if hovered.
+    // Select one airplane if hovered and visible.
     for (Airplane a : activePlanes) {
-      if (a.isHovered()) {
+      // Transform the airplane's current position to the viewer's coordinate space.
+      PVector transformedPos = new PVector();
+      earth.rotationMatrix.mult(a.getPosition(), transformedPos);
+      // Normalize the transformed position.
+      PVector norm = transformedPos.copy().normalize();
+      // Only consider the airplane if it's sufficiently on the front side.
+      if (norm.z > 0.5 && a.isHovered()) {
         if (selectedPlane != null) selectedPlane.selected = false;
         a.selected = true;
         selectedPlane = a;
