@@ -1,138 +1,67 @@
 import processing.data.Table;
 import processing.data.TableRow;
 
-String selectedAirport = ""; 
-String[] airportCodes = {"LAX", "SEA", "SFO", "ATL", "JFK"}; 
-int buttonWidth = 120, buttonHeight = 40;
+// Global variables
+int screenMode = 0; // 0 = selection screen, 1 = graph screen
+AirportSelector airportSelector;
+GraphScreen graphScreen;
+ProccessData processData; // Our data processor
 
-int totalFlights, departedOnTime, delayedFlights, cancelledFlights;
-boolean dataProcessed = false;
+// Sample airport list (extend as needed)
+String[] airports = {
+  "LAX", "SEA", "SFO", "ATL", "JFK", 
+  "ORD", "DFW", "DEN", "MIA", "BOS",
+  "PHX", "CLT", "LAS", "PHL", "IAH"
+};
 
 void setup() {
   size(800, 600);
   textFont(createFont("Comic Sans MS", 20));
-  drawButtons();
+  
+  // Create the airport selection screen with the list and slider.
+  airportSelector = new AirportSelector(airports);
+  // Load the CSV data once.
+  processData = new ProccessData("flight_data_2017.csv");
 }
 
 void draw() {
-  if (!selectedAirport.equals("") && dataProcessed) {
-    background(255);
-    drawButtons();
-    drawPieChart();
+  background(255);
+  
+  if(screenMode == 0) {
+    airportSelector.display();
+  } else if(screenMode == 1) {
+    graphScreen.display();
   }
-}
-
-void drawButtons() {
-  fill(0);
-  textSize(20);
-  textAlign(CENTER, CENTER);
-  text("Select an Airport", width/2, 50);
-  
-  for (int i = 0; i < airportCodes.length; i++) {
-    int x = 60 + (i * (buttonWidth + 20)); 
-    int y = 100;
-    
-    fill(100, 150, 255);
-    rect(x, y, buttonWidth, buttonHeight, 10); 
-    
-    fill(255);
-    textSize(18);
-    text(airportCodes[i], x + buttonWidth / 2, y + buttonHeight / 2);
-  }
-}
-
-void drawPieChart() {
-  float chartX = width/2;    
-  float chartY = height/2 + 100;  
-  int chartSize = 300;       
-
-  if (totalFlights == 0) {
-    fill(255, 0, 0);
-    text("No flight data found for " + selectedAirport, width/2, height/2);
-    return;
-  }
-  
-  // Calculate angles for each segment
-  float onTimeAngle = map(departedOnTime, 0, totalFlights, 0, TWO_PI);
-  float delayedAngle = map(delayedFlights, 0, totalFlights, 0, TWO_PI);
-  float cancelledAngle = map(cancelledFlights, 0, totalFlights, 0, TWO_PI);
-  
-  float lastAngle = 0;
-  
-  // On-time flights: green
-  fill(0, 255, 0);
-  arc(chartX, chartY, chartSize, chartSize, lastAngle, lastAngle + onTimeAngle);
-  lastAngle += onTimeAngle;
-  
-  // Delayed flights: yellow
-  fill(255, 255, 0);
-  arc(chartX, chartY, chartSize, chartSize, lastAngle, lastAngle + delayedAngle);
-  lastAngle += delayedAngle;
-  
-  // Cancelled flights: red
-  fill(255, 0, 0);
-  arc(chartX, chartY, chartSize, chartSize, lastAngle, lastAngle + cancelledAngle);
-  
-  // Display flight counts
-  fill(0);
-  textSize(16);
-  text("Total Flights: " + totalFlights, chartX, chartY + chartSize/2 + 20);
-  text("On Time: " + departedOnTime, chartX, chartY + chartSize/2 + 40);
-  text("Delayed: " + delayedFlights, chartX, chartY + chartSize/2 + 60);
-  text("Cancelled: " + cancelledFlights, chartX, chartY + chartSize/2 + 80);
 }
 
 void mousePressed() {
-  for (int i = 0; i < airportCodes.length; i++) {
-    int x = 60 + (i * (buttonWidth + 20)); 
-    int y = 100;
-    
-    if (mouseX > x && mouseX < x + buttonWidth && mouseY > y && mouseY < y + buttonHeight) {
-      selectedAirport = airportCodes[i];
-      println("Selected airport: " + selectedAirport);
-      processFlightData();
-      dataProcessed = true;
-      break;
+  if(screenMode == 0) {
+    // Check if an airport was clicked.
+    String selected = airportSelector.handleMousePressed();
+    // Also check for slider clicks.
+    airportSelector.mousePressed();
+    if(selected != null) {
+      // Process data for the selected airport and switch screens.
+      processData.process(selected);
+      graphScreen = new GraphScreen(selected, processData);
+      screenMode = 1;
+    }
+  } else if(screenMode == 1) {
+    // A simple back button in the graph screen (top-left corner).
+    if(mouseX > 10 && mouseX < 90 && mouseY > 10 && mouseY < 40) {
+      screenMode = 0;
     }
   }
 }
 
-void processFlightData() {
-  totalFlights = 0;
-  departedOnTime = 0;
-  delayedFlights = 0;
-  cancelledFlights = 0;
-
-  // Load the CSV file from the data folder.
-  // Ensure your CSV file is in the sketch's "data" folder.
-  Table table = loadTable("flight_data_2017.csv", "header,csv");
-  
-  for (TableRow row : table.rows()) {
-    // Use the correct column names from your CSV
-    String origin = row.getString("origin").trim();
-    if (!origin.equalsIgnoreCase(selectedAirport)) {
-      continue;
-    }
-    
-    totalFlights++;
-    
-    // Determine if the flight was cancelled
-    String cancelledStr = row.getString("cancelled").trim().toLowerCase();
-    if (cancelledStr.equals("true") || cancelledStr.equals("1")) {
-      cancelledFlights++;
-    } else {
-      int minutesLate = row.getInt("minutes_late");
-      if (minutesLate > 0) {
-        delayedFlights++;
-      } else {
-        departedOnTime++;
-      }
-    }
+void mouseDragged() {
+  if(screenMode == 0) {
+    airportSelector.mouseDragged();
   }
-  
-  println("Processed data for " + selectedAirport);
-  println("Total flights: " + totalFlights);
-  println("On Time: " + departedOnTime);
-  println("Delayed: " + delayedFlights);
-  println("Cancelled: " + cancelledFlights);
+}
+
+void mouseReleased() {
+  if(screenMode == 0) {
+    airportSelector.mouseReleased();
+  }
 }
