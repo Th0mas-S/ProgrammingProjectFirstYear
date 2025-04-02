@@ -15,7 +15,6 @@ Earth earth;
 Airport airportOrigin;
 Airport airportDest;
 Airplane airplane;
-FlightInfo flightInfo;
 
 Location origin = new Location(-25.5, 9.6);
 Location destination = new Location(-51.2, 90.2);
@@ -43,11 +42,9 @@ SoundFile audio;
 // setup()
 // ========================
 void setup() {
-  size(1920, 1061, P3D); // ben added this >:( (i know you can't hide from me);
+  size(1920, 1055, P3D); // ben added this >:( (i know you can't hide from me);
   
   //fullScreen(P3D);
-  
-
   
   audio = new SoundFile(this, "audio3.mp3");
 
@@ -97,8 +94,6 @@ void setup() {
   screenManager.switchScreen(mainMenuScreen);
   
   noStroke();
-  
-  flightInfo = new FlightInfo("Miami", "London", "23:05", "11:30", "British Airways", "BA0208");
 }
 
 // ========================
