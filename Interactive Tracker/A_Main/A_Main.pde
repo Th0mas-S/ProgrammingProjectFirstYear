@@ -18,8 +18,6 @@ Earth earth;
 Airport airportOrigin;
 Airport airportDest;
 Airplane airplane;
-FlightInfo flightInfo;
-
 
 Location origin = new Location(-25.5, 9.6); // departure latitude and longitude (loaded from file)        Relative Latitude = -(Actual Latitude) + 0.2617
 Location destination = new Location(-51.2, 90.2); // arrival latitude and longitude (loaded from file)    Relative Longitude = 1.0071(Actual Longitude) + 90.35
@@ -103,15 +101,7 @@ void setup() {
   screenManager.switchScreen(mainMenuScreen);
   
   noStroke();
-  
-   flightInfo = new FlightInfo(
-    "Miami",       // departure location (loaded from file)
-    "London",      // arrival location (loaded from file)
-    "23:05",    // departure time (loaded from file)
-    "11:30",    // arrival time (loaded from file)
-    "British Airways",  // airline (loaded from file)
-    "BA0208"        // flight number (loaded from file)
-  );
+ 
 }
 
 void draw() {
