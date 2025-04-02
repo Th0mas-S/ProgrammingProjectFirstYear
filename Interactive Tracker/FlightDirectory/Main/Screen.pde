@@ -43,7 +43,7 @@ class Screen{
       airList = new AirportList(flights);
       slider = new Slider(width - 60, 150, height - 250);
     }
-     else if (mode == 5) { // Flight Analytics Screen
+     else if (mode == 15) { // Flight Analytics Screen
       back = new Widget(20, height - 100, 15, 100, 50, #DD5341); // Back to Screen 4
       // Initialize graphs here (data will be loaded later)
     }
@@ -199,7 +199,7 @@ class Screen{
     
      else if(screenNum==4){                             
       airList.draw();
-      //airList.checkAirportClick();
+      airList.checkAirportClick();
       slider.draw(); 
       back.draw(); 
      }
@@ -207,7 +207,7 @@ class Screen{
     else if (screenNum == 5) { // Flight Analytics Screen
       if (selectedAirportFlights == null || selectedAirportFlights.isEmpty()) {
         text("Select an airport first", 50, 100);
-        return;
+        //return;
       }
       flightAnalytics.drawDestinationDistribution(flights);
       flightAnalytics.drawAverageDelay(flights);

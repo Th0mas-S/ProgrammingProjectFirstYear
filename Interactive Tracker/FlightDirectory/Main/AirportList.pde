@@ -74,21 +74,26 @@ class AirportList {
   }
 
   void checkAirportClick() {
+      // Only process if the left mouse button is pressed and the mouse isn't over the slider.
+      if (mouseButton != LEFT || screen4.slider.mouseOver()) {
+          return;
+      }
+    
       int itemHeight = 30;
       float scrollPos = screen4.slider.getPercent();
-      int startIndex = (int) (scrollPos * (airportCodes.size() - ((height - 250) / itemHeight)));
-  
+      int startIndex = (int)(scrollPos * (airportCodes.size() - ((height - 250) / itemHeight)));
+      
       for (int i = 0; i < ((height - 250) / itemHeight); i++) {
           int index = startIndex + i;
           if (index >= airportCodes.size()) break;
-  
+    
           float y = 160 + i * itemHeight;
           
-          // Ensure only one click event triggers per item
+          // Only trigger if the click falls inside the airport entry area
           if (mouseX > 100 && mouseX < width - 100 && mouseY > y && mouseY < y + itemHeight) {
               String selectedCode = airportCodes.get(index);
               selectAirport(selectedCode);
-              break; // Stop the loop after selecting one airport
+              break; // Stop processing after a successful selection
           }
       }
   }
