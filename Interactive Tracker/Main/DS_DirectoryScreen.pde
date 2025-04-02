@@ -3,6 +3,8 @@
 import java.util.HashMap;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.Comparator;
 
 String currentDataset = "flight_data_2017.csv";
 
@@ -151,12 +153,17 @@ class DirectoryMenuScreen extends Screen {
 
 class DirectoryFlightInfoScreen extends Screen {
   
+  PImage logo, backdrop;
   Flight flight;
   Widget back;
   int textSize;
 
   DirectoryFlightInfoScreen(Flight currentFlight) {
     //textSize=int((width-110)*0.014);
+    logo = loadImage("Flighthub Logo.png");
+    logo.resize(int(360*1.2), int(240*1.2));
+    backdrop = loadImage("ds_backdrop.png");
+    backdrop.resize(width, height);
     println(currentFlight.date);
     showData(currentFlight);
     back = new Widget(width-160, 160, 2, 100, 50, #DD5341);
@@ -169,8 +176,8 @@ class DirectoryFlightInfoScreen extends Screen {
   }
 
   void draw() {
-      background(#FAA968);
-      image(flightHubLogo, 60, 60);
+      background(backdrop);
+      image(logo, 60, 60);
       stroke(0);
       fill(#2BBAA5);      
       rect(55, 280, width-110, height-335, 15);
@@ -208,14 +215,16 @@ class DirectoryFlightInfoScreen extends Screen {
 
 class DirectoryScreen extends Screen {
   
+  ArrayList<Header> headers;
   int textSize, sliderLength;
   float scrollPercent;
-  Query sortMenu, dateMenu;
+  Query sortMenu, dateMenu, airportMenu;
   Slider slider;
   Search searchbar;
   Widget clear, sort;
+  PImage logo, backdrop;
   
-  boolean sortQuery, dateQuery;
+  boolean sortQuery, dateQuery, airportQuery;
   
   DirectoryScreen() {
       textSize=int((width-110)*0.014);
@@ -227,14 +236,49 @@ class DirectoryScreen extends Screen {
       sort = new Widget(width-610, 160, 6, 100, 50, #028391);                        //current widget = 9
       sortMenu = new Query(#93D3AE, 1);
       dateMenu = new Query(#FAECB6, 2);
+      airportMenu = new Query(#9DCDDE, 3);
+      
+      logo = loadImage("Flighthub Logo.png");
+      logo.resize(int(360*1.2), int(240*1.2));
+      backdrop = loadImage("ds_backdrop.png");
+      backdrop.resize(width, height);
+      
+      headers = new ArrayList<Header>();
+      headers.add( new Header(int(85+(textSize*2.5)), 305, "Date", int(textSize/1.1), 1) );
+      headers.add( new Header(int(85+(textSize*8.7)), 305, "Flight", int(textSize/1.1), 2) );
+      headers.add( new Header(int(85+(textSize*15)), 305, "Route", int(textSize/1.1), 3) );
+      headers.add( new Header(int(85+(textSize*22)), 305, "Scheduled", int(textSize/1.1), 4) );
+      headers.add( new Header(int(85+(textSize*31)), 305, "Actual", int(textSize/1.1), 5) );
+      headers.add( new Header(int(85+(textSize*40)), 305, "Delay", int(textSize/1.1), 6) );
+      headers.add( new Header(int(85+(textSize*47)), 305, "Diverted", int(textSize/1.1), 7) );
+      headers.add( new Header(int(85+(textSize*55)), 305, "Cancelled", int(textSize/1.1), 8) );
+      headers.add( new Header(int(85+(textSize*65)), 305, "Distance", int(textSize/1.1), 9) );
+  }
+  
+  void drawHeaders(){
+    for(int i=0; i<headers.size(); i++){
+      headers.get(i).draw();
+    }
+  }
+  
+  void clearHeaders(){
+    for(int i=0; i<headers.size(); i++){
+      headers.get(i).clicked=false;
+    }
+  }
+  
+  void headersPressed(){
+    for(int i=0; i<headers.size(); i++){
+      headers.get(i).headerPressed();
+    }
   }
   
   void draw() {
-      background(#FACA78);
-      //image(flightHubLogo, 60, 60);
+      background(backdrop);
+      image(logo, 60, 20);
       stroke(100);
       strokeWeight(5);
-      fill(160);      
+      fill(160, 160, 160, 220);      
       rect(55, 280, width-110, height-335, 15);
       
       strokeWeight(1);
@@ -247,34 +291,42 @@ class DirectoryScreen extends Screen {
       stroke(100);
       strokeWeight(5);
       
-      line(90+(textSize*4.791), 280, 90+(textSize*4.791), height-55);
-      line(90+(textSize*8.958), 280, 90+(textSize*8.958), height-55);
-      line(90+(textSize*15), 280, 90+(textSize*15), height-55);
+      line(90+(textSize*5.6), 280, 90+(textSize*5.6), height-55);
+      line(90+(textSize*11.1), 280, 90+(textSize*11.1), height-55);
+      line(90+(textSize*18), 280, 90+(textSize*18), height-55);
       line(90+(textSize*26.25), 280, 90+(textSize*26.25), height-55);
       line(90+(textSize*35.833), 280, 90+(textSize*35.833), height-55);
       line(90+(textSize*43.333), 280, 90+(textSize*43.333), height-55);
       line(90+(textSize*50.833), 280, 90+(textSize*50.833), height-55);
       line(90+(textSize*58.75), 280, 90+(textSize*58.75), height-55);
       
+      drawHeaders();
+      
+      
       slider.draw();
       searchbar.draw();
       clear.draw();
       sort.draw();
+      
+      hint(DISABLE_DEPTH_TEST);
       if(sortQuery) sortMenu.draw();
       if(dateQuery) dateMenu.draw();
+      if(airportQuery) airportMenu.draw();
+      hint(ENABLE_DEPTH_TEST);
       
       menu.draw();
 
   }
   
   void mousePressed() {
-     if(!sortQuery && !dateQuery){
+     if(!sortQuery && !dateQuery && !airportQuery){
       slider.sliderPressed();
       searchbar.searchPressed();
       clear.widgetPressed();
       checkFlights();
       menu.returnPressed();
       sort.widgetPressed();
+      headersPressed();
     }
     else{
       sortMenu.lateness.widgetPressed();
@@ -287,6 +339,12 @@ class DirectoryScreen extends Screen {
       sortMenu.diverted.widgetPressed();
       dateMenu.cancel.widgetPressed();
       sortMenu.cancel.widgetPressed();
+      sortMenu.airport.widgetPressed();
+      
+      airportMenu.airportSelector.origin.widgetPressed();
+      airportMenu.airportSelector.destination.widgetPressed();
+      airportMenu.cancel.widgetPressed();
+      airportMenu.airportSelector.search.searchPressed();
     }
   }
   
@@ -402,277 +460,7 @@ class DirectoryScreen extends Screen {
  
 }
 
-class Widget{
-  int x, y, mode, w, h;
-  int colour;
-  
-  Widget(int x, int y, int mode, int w, int h, int colour){
-    this.x=x;
-    this.y=y;
-    this.mode=mode;
-    this.w=w;
-    this.h=h;
-    this.colour=colour;
-    println(colour+"");
-  }
-  
-  boolean mouseOver(){
-    if(mouseX>x && mouseX<x+w && mouseY>y && mouseY<y+h){
-      return true;
-    }
-    else return false;
-  }
-  
-  void widgetPressed(){
-    if(mouseOver()){
-      if(mode==1){
-        entered=false;
-        directoryScreen.searchbar.search=false;
-        clearInput();
-        clearIndex();
-      }
-      else if(mode==2){
-        screenManager.switchScreen(directoryScreen);
-      }
-      if(mode==3){
-        screenManager.switchScreen(directoryScreen);
-      }
-      if(mode==4){
-        currentScreen=3;
-      }
-      if(mode==5){
-        exit();
-      }
-      if(mode==6){
-        directoryScreen.sortQuery=true;
-      }
-      if(mode==7){
-        directoryScreen.sortByLateness();
-        directoryScreen.sortQuery=false;
-      }
-      if(mode==8){
-        directoryScreen.sortByDistance();
-        directoryScreen.sortQuery=false;
-      }
-      if(mode==9){
-        directoryScreen.sortQuery=false;
-        directoryScreen.dateQuery=true;
-      }
-      if(mode==10){
-        directoryScreen.sortByDate(directoryScreen.dateMenu.selector.date1, directoryScreen.dateMenu.selector.date2);
-        directoryScreen.dateQuery=false;
-      }
-      if(mode==11){
-        directoryScreen.filterCancelled();
-        directoryScreen.sortQuery=false;
-      }
-      if(mode==12){
-        directoryScreen.filterDiverted();
-        directoryScreen.sortQuery=false;
-      }
-      if(mode==13){
-        directoryScreen.dateQuery=false;
-        directoryScreen.sortQuery=false;
-      }
-    }
-  }
-  
-  void draw(){
-    if(mouseOver()) stroke(255);
-    else stroke(0);
-    fill(colour);
-    if(mode==3 || mode==4 || mode==5) strokeWeight(5);
-    else strokeWeight(2);
-    rect(x, y, w, h, 8);
-    textSize(24);
-    if(mode==1){
-      fill(240);
-      text("Clear", x+22, y+33);
-    }
-    else if(mode==2){
-      fill(240);
-      text("Back", x+26, y+33);
-    }
-    else if(mode==3){
-      fill(0);
-      textSize(100);
-      textAlign(CENTER);
-      text("Directory", x+(w/2), y+(h/2)+(100/3));
-      textAlign(LEFT);
-      strokeWeight(1);
-    }
-     else if(mode==4){
-      fill(0);
-      textSize(100);
-      textAlign(CENTER);
-      text("Graphs", x+(w/2), y+(h/2)+(100/3));
-      textAlign(LEFT);
-      strokeWeight(1);
-    }
-    else if(mode==5){
-      fill(0);
-      textSize(100);
-      textAlign(CENTER);
-      text("Exit", x+(w/2), y+(h/2)+(100/3));
-      textAlign(LEFT);
-      strokeWeight(1);
-    }
-    else if(mode==6){
-      fill(240);
-      text("Sort", x+28, y+33);
-    }
-    else if(mode==7){
-      fill(240);
-      textSize(40);
-      textAlign(CENTER);
-      text("Lateness", x+(w/2), y+(h/2)+(40/3));
-      textAlign(LEFT);
-    }
-    else if(mode==8){
-      fill(240);
-      textSize(40);
-      textAlign(CENTER);
-      text("Distance", x+(w/2), y+(h/2)+(40/3));
-      textAlign(LEFT);
-    }
-    else if(mode==9){
-      fill(240);
-      textSize(40);
-      textAlign(CENTER);
-      text("Date", x+(w/2), y+(h/2)+(40/3));
-      textAlign(LEFT);
-    }
-    else if(mode==10){
-      fill(240);
-      textSize(40);
-      textAlign(CENTER);
-      text("Enter", x+(w/2), y+(h/2)+(40/3));
-      textAlign(LEFT);
-    }
-    else if(mode==11){
-      fill(240);
-      textSize(40);
-      textAlign(CENTER);
-      text("Cancelled", x+(w/2), y+(h/2)+(40/3));
-      textAlign(LEFT);
-    }
-    else if(mode==12){
-      fill(20);
-      textSize(40);
-      textAlign(CENTER);
-      text("Diverted", x+(w/2), y+(h/2)+(40/3));
-      textAlign(LEFT);
-    }
-    else if(mode==13){
-      fill(20);
-      textSize(20);
-      textAlign(CENTER);
-      text("Cancel", x+(w/2), y+(h/2)+(20/3));
-      textAlign(LEFT);
-    }
-  }
 
-}
-
-class Return{
-  int x, y, w, h;
-  Return(){
-    x=width-160;
-    y=15;
-    w=100;
-    h=40;
-  }
-  
-  boolean mouseOver(){
-    if(mouseX>x && mouseX<x+w && mouseY>y && mouseY<y+h){
-      return true;
-    }
-    else return false;
-  }
-  
-  void returnPressed(){
-    if(mouseOver()){
-      screenManager.switchScreen(mainMenuScreen);
-    }
-  }
-  
-  void draw(){
-    if(mouseOver()) stroke(255);
-    else stroke(0);
-    fill(#764838);
-    rect(x, y, w, h, 4);
-    stroke(0);
-    fill(230);
-    textSize(26);
-    text("Menu", x+20, y+28);
-  }
-}
-
-class Slider{
-    int x, y, xS, sWidth, sHeight, textX, sliderLength;
-    float yS, number;
-    boolean mouseDown, hover;
-    
-    Slider(int xIn, int yIn, int length){
-      x=xIn;
-      y=yIn;
-      xS=x-10;
-      yS=y+10;
-      sWidth=10;
-      sHeight=30;
-      sliderLength=length;
-      mouseDown=false;
-      hover=false;
-    }
-    
-    boolean mouseOver(){
-      if(mouseX>xS && mouseX<xS+sHeight && mouseY>yS && mouseY<yS+sWidth){
-        return true;
-      }
-      else return false;
-    }
-    
-    void sliderPressed(){
-      if(mouseOver()) mouseDown=true;
-    }
-  
-    void sliderReleased(){
-      mouseDown=false;
-    }
-    
-    void move(){
-      if(mouseDown) yS=mouseY-5;
-      if(yS<y+10) yS=y+10;
-      if(yS>y+sliderLength-20) yS=y+sliderLength-20;
-    }
-    
-    float getPercent(){
-      float percent = (number/(sliderLength-30));
-      if(percent>0.9999) return(0.9999);
-      //println(percent);
-      return(percent);
-    }
-    
-    void scroll(float direction){
-      yS+=direction/arrayIndex.size()*1000;
-      if(yS<y+10) yS=y+10;
-      if(yS>y+sliderLength-20) yS=y+sliderLength-20;
-    }
-    
-    void draw(){
-      move();
-      strokeWeight(2);
-      fill(190);
-      stroke(30);
-      rect(x, y, 10, sliderLength);
-      fill(120);
-      if(hover) stroke(255);
-      else stroke(0);
-      rect(xS, yS, 30, 10);
-      number=(yS-10-y);
-      //println("number("+number+") : sliderLength("+sliderLength+") : yS("+yS+") : yS-y("+(yS-y)+")");
-    }
-}
 
 
 class DateSelector{
@@ -706,76 +494,12 @@ class DateSelector{
 
 }
 
-class Flight{
-  String date;                          //list of all data points stored for each flight
-  String airlineCode;
-  String flightNumber;
-  String origin;
-  String destination;
-  String scheduledDeparture;
-  String actualDeparture;
-  int departureDelay;
-  float flightDistance;
-  String scheduledArrival;
-  String actualArrival;
-  boolean diverted;
-  boolean cancelled;
-  boolean mouseOver;
-  
-  
-  Flight(String date, String airlineCode, String flightNumber, String origin, String destination, String scheduledDeparture, String actualDeparture, int departureDelay, float flightDistance, String scheduledArrival, String actualArrival, boolean diverted, boolean cancelled) {
-    this.date = date;
-    this.airlineCode = airlineCode;                            //setup...
-    this.flightNumber = flightNumber;
-    this.origin = origin;
-    this.destination = destination;
-    this.scheduledDeparture = scheduledDeparture;
-    this.actualDeparture = actualDeparture;
-    this.departureDelay = departureDelay;
-    this.flightDistance = flightDistance;
-    this.scheduledArrival = scheduledArrival;
-    this.actualArrival = actualArrival;
-    this.diverted = diverted;
-    this.cancelled = cancelled;
-  }
-  
-
-  void drawData(int x, int y, int textSize){
-    if(mouseX>x && mouseX<x+width-150 && mouseY>=y-textSize && mouseY<=y+2){
-        mouseOver = true; 
-        noStroke();
-        fill(170);
-        rect(55+4, y-textSize+2, width-110-8, textSize+8, 15);
-    }
-    else mouseOver = false;
-    
-    fill(#3E1607);
-    strokeWeight(1);
-    stroke(0);
-    text(date, x-5, y);
-    text("   " + airlineCode + flightNumber, x+(textSize*4.791), y);
-    text("    " + origin + " -> " + destination, x+(textSize*8.958), y);
-    text("    Scheduled: " + scheduledDeparture + " - " + scheduledArrival, x+(textSize*15), y);
-    text("    Actual: " + actualDeparture + " - " + actualArrival, x+(textSize*26.25), y);
-    text("    Delay: " + departureDelay + " min ", x+(textSize*35.833), y);
-    text("    Diverted: " + diverted, x+(textSize*43.333), y);
-    text("    Cancelled: " + cancelled, x+(textSize*50.833), y);
-    text("    Distance: " + flightDistance + " km", x+(textSize*58.75), y);
-    
-    
-      if(mouseX>x && mouseX<x+width-150 && mouseY>y-textSize && mouseY<y){
-        mouseOver = true;
-      }
-      else mouseOver = false;
-  }
-
-
-}
 
 class Query{
   int x, y, colour, mode;
-  Widget lateness, distance, date, cancelled, diverted, cancel;
+  Widget lateness, distance, date, cancelled, diverted, airport, cancel;
   DateSelector selector;
+  AirportSorter airportSelector;
   
   
   Query(int colour, int mode){
@@ -790,9 +514,13 @@ class Query{
       
       cancelled = new Widget(width/2-(width/10)*2, (y+160)+height/8, 11, width/10, height/16, #028391);
       diverted = new Widget(width/2-width/20, (y+160)+height/8, 12, width/10, height/16, #FAECB6);
+      airport = new Widget(width/2+width/10, (y+160)+height/8, 14, width/10, height/16, #A73838);
     }
     else if(mode==2){
       selector = new DateSelector();
+    }
+    else if(mode==3){
+      airportSelector = new AirportSorter();
     }
     cancel = new Widget(width/2-width/40, (y+160)+height/3, 13, width/20, height/32, #99AAAA);
   }
@@ -811,158 +539,68 @@ class Query{
       date.draw();
       cancelled.draw();
       diverted.draw();
+      airport.draw();
     }
     else if(mode==2){
       selector.draw();
+    }
+    else if(mode==3){
+      airportSelector.draw();
     }
     cancel.draw();
   }
 
 }
 
-class Search{
-  int x, y, textSize, sHeight, sWidth;
-  int animation, mode;
-  boolean search;
+
+class AirportSorter{
+  int x, y;
+  Widget origin, destination;
+  Search search;
+  String airportCode;
+
+
+  AirportSorter(){
+    x=450;
+    y=500;
+    airportCode="code";
+    
+    search = new Search(width/2-280-50, y+height/10, 24, 4);
+    origin = new Widget(width/2-280-50, y+height/4, 15, 200, 100, #01204E);
+    destination = new Widget(width/2+50, y+height/4, 16, 200, 100, #01204E);
+  }
   
-  Search(int x, int y, int textSize, int mode){
-    this.x=x;
-    this.y=y;
-    this.textSize=textSize;
-    this.mode=mode;
-    sHeight=50;
-    sWidth=280;
-    animation=0;
-    clearInput();
+  void sortOrigin(){
+    arrayIndex = new ArrayList<Integer>();          
+    for(int i=0; i<flights.size(); i++){
+      if(flights.get(i).origin.equalsIgnoreCase(airportCode)){ 
+        arrayIndex.add(i);
+      }
+    }                                              
+    println("sorted: "+airportCode);                              
+  }
+  
+  void sortDestination(){
+    arrayIndex = new ArrayList<Integer>();          
+    for(int i=0; i<flights.size(); i++){
+      if(flights.get(i).destination.equalsIgnoreCase(airportCode)){ 
+        arrayIndex.add(i);
+      }
+    }                                              
+    println("sorted: "+airportCode);  
   }
 
-  boolean mouseOver(){
-    if(mouseX>x && mouseX<x+sWidth && mouseY>y && mouseY<y+sHeight){
-      return true;
-    }
-    else return false;
-  }
-  
-  void searchPressed(){                                  //determines if the user clicked on the search bar
-    if(mouseOver()){
-      clearInput();
-      search=true;
-    }
-    else search=false;
-  }
 
   void draw(){
-    if(mouseOver()) stroke(255);
-    else stroke(0);
-    fill(200);
-    rect(x, y, sWidth, sHeight, 8);
+    textSize(40);
+    stroke(0);
     fill(0);
-    textSize(25);
-    if(mode==1){
-      if(!search){                                          //code for showing either "search" or the users currently typed in characters
-        text("Search", x+20, y+33);
-      }
-      else{
-        if(inputText.equals("")){
-          if(animation>35){
-            text("Search_", x+20, y+33);
-            animation++;
-          }
-          else{
-            text("Search", x+20, y+33);
-            animation++;
-          }
-          if(animation>70) animation=0;
-        }
-        else{
-          if(animation>35){
-            text(inputText+"_", x+20, y+33);
-            animation++;
-          }
-          else{
-            text(inputText, x+20, y+33);
-            animation++;
-          }
-          if(animation>70) animation=0;
-        }
-      }
-    }
-    else if(mode==2){
-      if(!search){                                          
-        text(directoryScreen.dateMenu.selector.date1, x+20, y+33);
-      }
-      else{
-        if(inputText.equals("")){
-          if(animation>35){
-            text("_", x+20, y+33);
-            animation++;
-          }
-          else{
-            text("", x+20, y+33);
-            animation++;
-          }
-          if(animation>70) animation=0;
-        }
-        else{
-          if(animation>35){
-            text(inputText+"_", x+20, y+33);
-            animation++;
-          }
-          else{
-            text(inputText, x+20, y+33);
-            animation++;
-          }
-          if(animation>70) animation=0;
-        }
-      }
-    }
-    else if(mode==3){
-      if(!search){                                          
-        text(directoryScreen.dateMenu.selector.date2, x+20, y+33);
-      }
-      else{
-        if(inputText.equals("")){
-          if(animation>35){
-            text("_", x+20, y+33);
-            animation++;
-          }
-          else{
-            text("", x+20, y+33);
-            animation++;
-          }
-          if(animation>70) animation=0;
-        }
-        else{
-          if(animation>35){
-            text(inputText+"_", x+20, y+33);
-            animation++;
-          }
-          else{
-            text(inputText, x+20, y+33);
-            animation++;
-          }
-          if(animation>70) animation=0;
-        }
-      }
-    }
     
-    
-    
-    if(entered && mode==1 && search){                                      //when the user enters (from keyPressed() in main) it calls the search method
-      directoryScreen.search(inputText);                      //with the user input and resets the search bar
-      entered=false;
-      search=false;
-    }
-    if(entered && mode==2 && search){
-      directoryScreen.dateMenu.selector.date1=inputText;
-      entered=false;
-      search=false;
-    }
-    if(entered && mode==3 && search){
-      directoryScreen.dateMenu.selector.date2=inputText;
-      entered=false;
-      search=false;
-    }
+    search.draw();
+    origin.draw();
+    destination.draw();
   }
-    
+
+
+
 }

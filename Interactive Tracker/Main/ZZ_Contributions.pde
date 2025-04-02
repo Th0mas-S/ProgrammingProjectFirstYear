@@ -25,6 +25,12 @@ Week 10:
   - Loaded planes and airports
   - Flight info screen
   
+- Jason Conboy
+  - Updated UI style
+  - Columns headers
+  - Sorting features for headers
+  - Added airport filter
+  
   
 
 Week 9:
