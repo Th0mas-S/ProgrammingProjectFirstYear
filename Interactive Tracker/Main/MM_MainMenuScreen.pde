@@ -88,6 +88,7 @@ class MainMenuScreen extends Screen {
     // Draw UI on top for transperency to work.
     parent.hint(PConstants.DISABLE_DEPTH_TEST);
     drawUI();
+    imageMode(CORNER);
     parent.image(flightHubLogo, 800, -250, 1200, 900);
     parent.hint(PConstants.ENABLE_DEPTH_TEST);
     
@@ -103,15 +104,6 @@ class MainMenuScreen extends Screen {
       a.update();
       a.display();
     }
-  
-  //pushMatrix();
-  //  hint(DISABLE_DEPTH_TEST);  // Disable depth testing so the logo draws on top
-  //  int logoX = 800;  
-  //  int logoY = -250;  
-  //  imageMode(CORNER);
-  //  image(flightHubLogo, logoX, logoY, 1200, 900);
-  //  hint(ENABLE_DEPTH_TEST);
-  //popMatrix();
     parent.popMatrix();
   }
   

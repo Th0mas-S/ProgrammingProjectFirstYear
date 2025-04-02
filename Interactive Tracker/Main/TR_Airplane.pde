@@ -74,8 +74,6 @@ class Airplane {
   void display() {
     if (finished) return;
 
-
-
     PVector travelDir = PVector.sub(end, start).normalize();
     PVector globeNormal = currentPos.copy().normalize();
     PVector right = globeNormal.cross(travelDir).normalize();
@@ -92,8 +90,8 @@ class Airplane {
     applyMatrix(m);
     translate(currentPos.x, currentPos.y, currentPos.z);
     
-    rotateX(HALF_PI);
-    rotateZ(PI);
+    rotateY(PI);
+    rotateX(PI);
 
     scale(0.01);
     noTint();
