@@ -6,20 +6,19 @@ class AirportList {
   ArrayList<String> airportCodes;
   ArrayList<Flight> flights;
   Widget airportBack;
-  //Slider slider; 
-  int screenNum; 
+  int screenNum;
   int textSize;
   int sliderLength;
 
-  
+
   AirportList(ArrayList<Flight> flights) {
     this.flights = flights;
     this.textSize = int((width - 110) * 0.014);
-    
+
     // Initialize airport list
     airportCodes = new ArrayList<>();
     Set<String> uniqueAirports = new HashSet<>();
-    
+
     // Check if flights is initialized
     if (flights != null) {
       for (Flight f : flights) {
@@ -27,7 +26,7 @@ class AirportList {
         uniqueAirports.add(f.destination);
       }
     }
-    
+
     airportCodes.addAll(uniqueAirports);
     Collections.sort(airportCodes);
 
@@ -35,8 +34,8 @@ class AirportList {
     this.airportBack = new Widget(50, height - 100, 2, 100, 50, 0xDD5341); // Fixed color syntax
   }
 
-  void draw() {  
-    background(0xFACA78); 
+  void draw() {
+    background(0xFACA78);
 
     stroke(100);
     strokeWeight(3);
@@ -74,37 +73,31 @@ class AirportList {
     text("Select Airport", 120, 120);
   }
 
-  void checkAirportClick() {    
-    int itemHeight = 30;
-    float scrollPos = screen4.slider.getPercent();
-    int startIndex = (int) (scrollPos * (airportCodes.size() - ((height - 250)/itemHeight)));
-
-    for (int i = 0; i < ((height - 250)/itemHeight); i++) {
-      int index = startIndex + i;
-      if (index >= airportCodes.size()) break;
-
-      float y = 160 + i * itemHeight;
-      if (mouseX > 100 && mouseX < width - 100 && mouseY > y && mouseY < y + itemHeight) {
-        String selectedCode = airportCodes.get(index);
-        selectAirport(selectedCode);
-      }
-
-    // ... existing code to detect clicked airport ...
-    if (mouseX > 100 && mouseY > y && mouseY < y + itemHeight) {
-      String selectedCode = airportCodes.get(index);
-      selectAirport(selectedCode); // Notify main class
-    }
-
-    if (airportBack.mouseOver()) {
-      // Change screen via your main screen controller
-    }
-  }
-}
-}
-
+  void checkAirportClick() {
+      int itemHeight = 30;
+      float scrollPos = screen4.slider.getPercent();
+      int startIndex = (int) (scrollPos * (airportCodes.size() - ((height - 250) / itemHeight)));
   
-//  // Dummy method - implement actual lookup
-  private String getAirportName(String code) {
-    return "Airport Name for " + code;
+      for (int i = 0; i < ((height - 250) / itemHeight); i++) {
+          int index = startIndex + i;
+          if (index >= airportCodes.size()) break;
+  
+          float y = 160 + i * itemHeight;
+          
+          // Ensure only one click event triggers per item
+          if (mouseX > 100 && mouseX < width - 100 && mouseY > y && mouseY < y + itemHeight) {
+              String selectedCode = airportCodes.get(index);
+              selectAirport(selectedCode);
+              break; // Stop the loop after selecting one airport
+          }
+      }
   }
+}
+
+
+
+//  // Dummy method - implement actual lookup
+private String getAirportName(String code) {
+  return "Airport Name for " + code;
+}
 //}

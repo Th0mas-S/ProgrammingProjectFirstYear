@@ -195,10 +195,10 @@ void mousePressed(){
   }
   
    else if(currentScreen==4){
-    screen4.airList.checkAirportClick();
     screen4.slider.sliderPressed();
     screen4.back.widgetPressed();
     menu.returnPressed();
+    //screen4.airList.checkAirportClick();
   }
 
   println("x: "+mouseX+"  y: "+mouseY);     //!for testing!

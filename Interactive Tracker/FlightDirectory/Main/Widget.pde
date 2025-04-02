@@ -73,6 +73,9 @@ class Widget{
      if(mode==14){
        currentScreen=0;
       }
+      if(mode==15){
+       currentScreen=5;
+      }
     }
   }
   

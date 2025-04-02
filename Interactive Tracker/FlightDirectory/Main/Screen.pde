@@ -199,25 +199,19 @@ class Screen{
     
      else if(screenNum==4){                             
       airList.draw();
-      airList.checkAirportClick();
+      //airList.checkAirportClick();
       slider.draw(); 
       back.draw(); 
      }
       
-     else if (screenNum == 5) { // Flight Analytics Screen
-      background(#FACA78);
-      image(logo, 60, 60);
-  
-      // Back button
-      back.draw();
-  
-      // Draw graphs in sections
-      flightAnalytics.drawFlightTraffic(selectedAirportFlights);
-      //selectedAirportFlights
-      flightAnalytics.drawDestinationDistribution(selectedAirportFlights);
-      //selectedAirportFlights
-      flightAnalytics.drawAverageDelay(selectedAirportFlights);
-      flightAnalytics.drawCancellationPie(selectedAirportFlights);
-     }
+    else if (screenNum == 5) { // Flight Analytics Screen
+      if (selectedAirportFlights == null || selectedAirportFlights.isEmpty()) {
+        text("Select an airport first", 50, 100);
+        return;
+      }
+      flightAnalytics.drawDestinationDistribution(flights);
+      flightAnalytics.drawAverageDelay(flights);
+      flightAnalytics.drawCancellationPie(flights);
+    }
   }
 }
