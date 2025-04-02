@@ -24,8 +24,8 @@ float sphereRadius = 650;
 
 ArrayList<Airport> airports = new ArrayList<Airport>();
 HashMap<String, Airport> airportMap = new HashMap<String, Airport>();
-ArrayList<FlightData> allFlights = new ArrayList<FlightData>();
-ArrayList<FlightData> todaysFlights = new ArrayList<FlightData>();
+ArrayList<Flight> allFlights = new ArrayList<Flight>(); // REPLACED WITH flights
+ArrayList<Flight> todaysFlights = new ArrayList<Flight>();
 ArrayList<Airplane> activePlanes = new ArrayList<Airplane>();
 PImage airplaneImg;
 PImage airplaneModel;
@@ -65,9 +65,9 @@ void setup() {
   airportOrigin = new Airport(origin, sphereRadius, 5);
   airportDest = new Airport(destination, sphereRadius, 5);
   
-  loadAirportMetadata();
+  //loadAirportMetadata();
   loadAirportsFromCSV();
-  loadFlightsFromCSV();
+  //loadFlightsFromCSV();
   
   calendar = new CalendarDisplay();
   
@@ -77,6 +77,9 @@ void setup() {
   
   flightHubLogo = loadImage("Flighthub Logo.png");
   
+  initGlobalVariables();
+  clearIndex();
+  
   timeSlider = new TimeSlider(width / 4, 60, width / 2, 30);
   timeSlider.value = 0;
   
@@ -84,8 +87,7 @@ void setup() {
   earthScreenTracker = new EarthScreenTracker(earth);
   //screenManager.switchScreen(earthScreenDirectory);
   
-  initGlobalVariables();
-          clearIndex();
+
   
   mainMenuScreen = new MainMenuScreen(this);
   directoryScreen = new DirectoryScreen();
@@ -203,72 +205,72 @@ void loadAirportsFromCSV() {
   }
 }
 
-void loadFlightsFromCSV() {
-  Table table = loadTable("flight_data_2017.csv", "header");
-  if (table == null) {
-    println("⚠️ Could not load flight_data_2017.csv");
-    return;
-  }
-  int skippedMalformedTime = 0;
-  int skippedBadDuration = 0;
-  int loaded = 0;
+//void loadFlightsFromCSV() {
+//  Table table = loadTable("flight_data_2017.csv", "header");
+//  if (table == null) {
+//    println("⚠️ Could not load flight_data_2017.csv");
+//    return;
+//  }
+//  int skippedMalformedTime = 0;
+//  int skippedBadDuration = 0;
+//  int loaded = 0;
   
-  for (TableRow row : table.rows()) {
-    String origin = row.getString("origin");
-    String destination = row.getString("destination");
-    String actualDeparture = row.getString("actual_departure");
-    String actualArrival = row.getString("actual_arrival");
-    if (origin == null || destination == null || actualDeparture == null || actualArrival == null) {
-      continue;
-    }
-    String[] depParts = split(actualDeparture, " ");
-    String[] arrParts = split(actualArrival, " ");
-    if (depParts.length != 2 || arrParts.length != 2) {
-      skippedMalformedTime++;
-      continue;
-    }
-    String dateStr = depParts[0];
-    String depTimeStr = depParts[1];
-    String arrTimeStr = arrParts[1];
-    String[] depHM = split(depTimeStr, ":");
-    String[] arrHM = split(arrTimeStr, ":");
-    if (depHM.length < 2 || arrHM.length < 2) {
-      skippedMalformedTime++;
-      continue;
-    }
-    int depMin = int(depHM[0]) * 60 + int(depHM[1]);
-    int arrMin = int(arrHM[0]) * 60 + int(arrHM[1]);
-    if (arrMin < depMin) {
-      arrMin += 1440;
-    }
-    int duration = arrMin - depMin;
-    if (duration <= 0) {
-      skippedBadDuration++;
-      continue;
-    }
-    String originCityCountry = airportLocations.get(origin);
-    String destCityCountry = airportLocations.get(destination);
-    if (originCityCountry == null) originCityCountry = origin;
-    if (destCityCountry == null) destCityCountry = destination;
-    String airlineName = row.getString("airline_name");
-    String airlineCode = row.getString("airline_code");
-    String flightNumber = row.getString("flight_number");
+//  for (TableRow row : table.rows()) {
+//    String origin = row.getString("origin");
+//    String destination = row.getString("destination");
+//    String actualDeparture = row.getString("actual_departure");
+//    String actualArrival = row.getString("actual_arrival");
+//    if (origin == null || destination == null || actualDeparture == null || actualArrival == null) {
+//      continue;
+//    }
+//    String[] depParts = split(actualDeparture, " ");
+//    String[] arrParts = split(actualArrival, " ");
+//    if (depParts.length != 2 || arrParts.length != 2) {
+//      skippedMalformedTime++;
+//      continue;
+//    }
+//    String dateStr = depParts[0];
+//    String depTimeStr = depParts[1];
+//    String arrTimeStr = arrParts[1];
+//    String[] depHM = split(depTimeStr, ":");
+//    String[] arrHM = split(arrTimeStr, ":");
+//    if (depHM.length < 2 || arrHM.length < 2) {
+//      skippedMalformedTime++;
+//      continue;
+//    }
+//    int depMin = int(depHM[0]) * 60 + int(depHM[1]);
+//    int arrMin = int(arrHM[0]) * 60 + int(arrHM[1]);
+//    if (arrMin < depMin) {
+//      arrMin += 1440;
+//    }
+//    int duration = arrMin - depMin;
+//    if (duration <= 0) {
+//      skippedBadDuration++;
+//      continue;
+//    }
+//    String originCityCountry = airportLocations.get(origin);
+//    String destCityCountry = airportLocations.get(destination);
+//    if (originCityCountry == null) originCityCountry = origin;
+//    if (destCityCountry == null) destCityCountry = destination;
+//    String airlineName = row.getString("airline_name");
+//    String airlineCode = row.getString("airline_code");
+//    String flightNumber = row.getString("flight_number");
     
-    FlightData flight = new FlightData(
-      origin, destination, dateStr, depMin, duration,
-      originCityCountry, destCityCountry,
-      depTimeStr, arrTimeStr,
-      airlineName, airlineCode, flightNumber
-    );
+//    Flight flight = new Flight(
+//      dateStr, airlineCode, flightNumber, origin, destination,
+//      depTimeStr, arrTimeStr,
+//      depTimeStr, arrTimeStr,
+//      airlineName, airlineCode, flightNumber
+//    );
     
-    allFlights.add(flight);
-    loaded++;
-  }
+//    allFlights.add(flight);
+//    loaded++;
+//  }
   
-  println("✅ Loaded flights: " + loaded);
-  println("❌ Skipped (malformed time): " + skippedMalformedTime);
-  println("❌ Skipped (zero/negative duration): " + skippedBadDuration);
-}
+//  println("✅ Loaded flights: " + loaded);
+//  println("❌ Skipped (malformed time): " + skippedMalformedTime);
+//  println("❌ Skipped (zero/negative duration): " + skippedBadDuration);
+//}
 
 void loadAirportMetadata() {
   Table table = loadTable("airport_data.csv", "header");

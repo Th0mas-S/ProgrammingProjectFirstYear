@@ -17,15 +17,15 @@ class EarthScreenTracker extends Screen {
     // Always update the simulation clock regardless of UI visibility.
     timeSlider.update();
     float currentTime = timeSlider.value;
-    String currentDate = calendar.getSelectedDate();
+    String currentDate = calendar.getSelectedDate2();
     
     // ✅ Date change: reload today's flights if needed.
     if (!currentDate.equals(lastCheckedDate)) {
       todaysFlights.clear();
       spawnedFlights.clear();
       activePlanes.clear();
-      for (FlightData flight : allFlights) {
-        if (flight.dateStr.equals(currentDate)) {
+      for (Flight flight : flights) {
+        if (flight.date.equals(currentDate)) {
           todaysFlights.add(flight);
         }
       }
@@ -43,19 +43,19 @@ class EarthScreenTracker extends Screen {
     }
     
     // ✅ Spawn planes that should now be active.
-    for (FlightData flight : todaysFlights) {
+    for (Flight flight : todaysFlights) {
       if (currentTime >= flight.minutes && currentTime <= flight.minutes + flight.duration) {
-        String flightID = flight.originCode + "_" + flight.destCode + "_" + flight.minutes;
+        String flightID = flight.origin + "_" + flight.destination + "_" + flight.minutes;
         if (!spawnedFlights.contains(flightID)) {
-          Airport origin = airportMap.get(flight.originCode);
-          Airport dest = airportMap.get(flight.destCode);
+          Airport origin = airportMap.get(flight.origin);
+          Airport dest = airportMap.get(flight.destination);
           if (origin != null && dest != null) {
             Airplane airplane = new Airplane(
               origin, dest, sphereRadius, airplaneModel, (float)flight.minutes,
-              flight.originCityCountry, flight.destCityCountry,
-              flight.departureTimeStr, flight.arrivalTimeStr,
+              airportLocations.get(flight.origin), airportLocations.get(flight.destination),
+              flight.scheduledDeparture, flight.scheduledArrival,
               flight.airlineName, flight.airlineCode, flight.flightNumber,
-              flight.dateStr, flight.duration, flight.originCode, flight.destCode
+              flight.date, flight.duration, flight.origin, flight.destination
             );
             activePlanes.add(airplane);
             spawnedFlights.add(flightID);
