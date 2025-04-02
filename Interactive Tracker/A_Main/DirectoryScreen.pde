@@ -208,6 +208,7 @@ class DirectoryFlightInfoScreen extends Screen {
 
 class DirectoryScreen extends Screen {
   
+  ArrayList<Header> headers;
   int textSize, sliderLength;
   float scrollPercent;
   Query sortMenu, dateMenu;
@@ -227,6 +228,18 @@ class DirectoryScreen extends Screen {
       sort = new Widget(width-610, 160, 6, 100, 50, #028391);                        //current widget = 9
       sortMenu = new Query(#93D3AE, 1);
       dateMenu = new Query(#FAECB6, 2);
+      
+      headers = new ArrayList<Header>();
+      headers.add( new Header(int(85+(textSize*2.5)), 307, "Date", int(textSize/1.1), 1) );
+      headers.add( new Header(int(85+(textSize*8.7)), 307, "Flight", int(textSize/1.1), 2) );
+      headers.add( new Header(int(85+(textSize*15)), 307, "Route", int(textSize/1.1), 3) );
+      headers.add( new Header(int(85+(textSize*22)), 307, "Scheduled", int(textSize/1.1), 4) );
+      headers.add( new Header(int(85+(textSize*31)), 307, "Actual", int(textSize/1.1), 5) );
+      headers.add( new Header(int(85+(textSize*40)), 307, "Delay", int(textSize/1.1), 6) );
+      headers.add( new Header(int(85+(textSize*47)), 307, "Diverted", int(textSize/1.1), 7) );
+      headers.add( new Header(int(85+(textSize*55)), 307, "Cancelled", int(textSize/1.1), 8) );
+      headers.add( new Header(int(85+(textSize*65)), 307, "Distance", int(textSize/1.1), 9) );
+      
   }
   
   void draw() {
@@ -256,6 +269,7 @@ class DirectoryScreen extends Screen {
       line(90+(textSize*50.833), 280, 90+(textSize*50.833), height-55);
       line(90+(textSize*58.75), 280, 90+(textSize*58.75), height-55);
       
+      drawHeaders();
       slider.draw();
       searchbar.draw();
       clear.draw();
@@ -317,6 +331,24 @@ class DirectoryScreen extends Screen {
   void mouseMoved() { 
     if(slider.mouseOver()) slider.hover=true;
     else if(!slider.mouseOver()) slider.hover=false;
+  }
+  
+  void drawHeaders(){
+    for(int i=0; i<headers.size(); i++){
+      headers.get(i).draw();
+    }
+  }
+  
+  void clearHeaders(){
+    for(int i=0; i<headers.size(); i++){
+      headers.get(i).clicked=false;
+    }
+  }
+  
+  void headersPressed(){
+    for(int i=0; i<headers.size(); i++){
+      headers.get(i).headerPressed();
+    }
   }
   
     
@@ -965,4 +997,80 @@ class Search{
     }
   }
     
+}
+
+class Header{
+  int mode, x, y, w, h, textSize, opacity;
+  String name, title;
+  boolean clicked, direction;                                            //direction=true  -> sort high to low
+
+  Header(int x, int y, String name, int textSize, int mode){
+    this.mode=mode;
+    this.x=x;
+    this.y=y;
+    this.name=name;
+    this.textSize=textSize;
+    this.title=name;
+    w=120;
+    h=textSize;
+  }
+  
+  boolean mouseOver(){
+    if(mouseX>x-(w/2) && mouseX<x+(w/2) && mouseY>y-(textSize*1/3)-(h/2) && mouseY<y-(textSize*1/3)+(h/2)){
+      return true;
+    }
+    else return false;
+  } 
+  
+  void headerPressed(){
+    if(mouseOver()){
+      //DirectoryScreen.clearHeaders();
+      clicked=true;
+      direction=!direction;
+      if(mode==1) sortByDate();
+    }
+  }
+
+  void draw(){
+    rectMode(CENTER);
+    textAlign(CENTER);
+    if(clicked || mouseOver()) opacity=225;
+    else opacity=0;
+    if(clicked && direction) title=name+"↑";
+    else if(clicked && !direction) title=name+"↓";
+    else title=name;
+    
+    textSize(textSize);
+    noStroke();
+    fill(160, 160, 160, opacity);
+    rect(x, y-(textSize*1/3), w, h, 5);
+    fill(20);
+    text(title, x, y);
+    
+    textAlign(LEFT);
+    rectMode(CORNER);
+  }
+  
+  
+  
+  void sortByDate(){
+    arrayIndex.sort(Integer::compareTo);                              //ascending order
+    if(!direction) arrayIndex.sort(Collections.reverseOrder());        //descending order
+  }
+
+  void sortByFlight(){
+    ArrayList<Flight> inUseFlights = new ArrayList<>();
+    for (int index : arrayIndex) {
+      inUseFlights.add(flights.get(index));
+    }
+
+    //inUseFlights.sort(Comparator.comparingStr(Flight::getFlightCode));
+
+       
+    for (int i = 0; i < arrayIndex.size(); i++) {
+      flights.set(arrayIndex.get(i), inUseFlights.get(i));
+    }
+
+  }
+
 }
