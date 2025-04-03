@@ -16,7 +16,9 @@ class LoadingScreen extends Screen {
   // Loading progress (0 to 1)
   float loadingProgress = 0;
   
-  LoadingScreen() {
+  Thread loadingThread;
+  
+  LoadingScreen(Thread loadingThread) {
     //size(1920, 1055, P3D);
     w = width;
     h = height;
@@ -33,6 +35,8 @@ class LoadingScreen extends Screen {
       float size = random(80, 150);
       clouds[i] = new Cloud(x, y, size, globalCloudColor);
     }
+    
+    this.loadingThread = loadingThread;
   }
   
   void draw() {
@@ -136,6 +140,10 @@ class LoadingScreen extends Screen {
   float loadingTextWidth = textWidth("Loading");
   text(dots[loadingIndex], 950 + loadingTextWidth / 2 + 10, 850);
   hint(ENABLE_DEPTH_TEST);
+  
+  if(!loadingThread.isAlive()) {
+    screenManager.switchScreen(mainMenuScreen);
+  }
   
   }
   

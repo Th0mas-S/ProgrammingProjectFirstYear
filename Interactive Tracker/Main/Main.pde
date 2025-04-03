@@ -51,8 +51,35 @@ void setup() {
   audio = new SoundFile(this, "audio3.mp3");
 
   
+
+  //loadAirportMetadata();
+  //loadAirportsFromCSV();
+  //loadFlightsFromCSV();
+  
+  
+  calendar = new CalendarDisplay();
+  
+  
+  heatMapLayer = new PImage(heatMapWidth, heatMapHeight);
+
+  
+  timeSlider = new TimeSlider(width / 4, 60, width / 2, 30);
+  timeSlider.value = 0;
+  
+  screenManager = new ScreenManager();
+
+  initGlobalVariables();
+
+  Thread loadingThread = new Thread( () -> {
+    
+  airplaneImg = loadImage("Airplane.png");
+  // Use the airplane image as the airplane model
+  airplaneModel = airplaneImg;
+  
+  flightHubLogo = loadImage("Flighthub Logo.png");
+  
   // Initialize near stars (300 - 500 units away)
-    // Initialize stars (300 - 500 units away)
+  // Initialize stars (300 - 500 units away)
   for (int i = 0; i < numStars; i++) {
     stars[i] = new Star(1000, 2500);
   }
@@ -67,40 +94,15 @@ void setup() {
   airportOrigin = new Airport(origin, sphereRadius, 5);
   airportDest = new Airport(destination, sphereRadius, 5);
 
-  //loadAirportMetadata();
-  //loadAirportsFromCSV();
-  //loadFlightsFromCSV();
-  
-  
-  calendar = new CalendarDisplay();
-  
-  airplaneImg = loadImage("Airplane.png");
-  // Use the airplane image as the airplane model
-  airplaneModel = airplaneImg;
-  
-  flightHubLogo = loadImage("Flighthub Logo.png");
-  
-
-  
-  timeSlider = new TimeSlider(width / 4, 60, width / 2, 30);
-  timeSlider.value = 0;
-  
-  screenManager = new ScreenManager();
-  earthScreenTracker = new EarthScreenTracker(earth);
-  //screenManager.switchScreen(earthScreenDirectory);
-
-  initGlobalVariables();
   loadAllAssets();
-  clearIndex();
   
+});
+  
+  
+  screenManager.switchScreen(new LoadingScreen(loadingThread));
+  
+  loadingThread.start();
 
-  
-  mainMenuScreen = new MainMenuScreen(this);
-  screenBetweenScreens = new ScreenBetweenScreens(this);
-  directoryScreen = new DirectoryScreen();
-  heatMapScreen = new HeatMapScreen();
-  
-  screenManager.switchScreen(new LoadingScreen());
   
   noStroke();
 }
@@ -218,5 +220,16 @@ void loadAllAssets() {
   } 
   initializeDictionary(rows); // this can be optimised, good enough for now!
   initializeFlights();
-   
+  
+  clearIndex();
+  
+
+  
+  // initialise screens
+  earthScreenTracker = new EarthScreenTracker(earth);
+  mainMenuScreen = new MainMenuScreen(this);
+  screenBetweenScreens = new ScreenBetweenScreens(this);
+  directoryScreen = new DirectoryScreen();
+  heatMapScreen = new HeatMapScreen();
+
 }
