@@ -105,22 +105,21 @@ import java.util.concurrent.*;
 
 
 
-HashMap<String, Location> loadAirportCoordinates(String filepath) {
-  String[] rows = loadStrings(filepath);
-  HashMap<String, Location> airportLocations = new HashMap<String, Location>();
-  for(int i=1; i<rows.length; i++){
-      String[] data = split(rows[i], ',');
-      // println(data[2] + " " + data[6] + " " + data[7]);
-      airportLocations.put(data[2], new Location(parseFloat(data[6]), parseFloat(data[7])));
-  }
+//HashMap<String, Location> loadAirportCoordinates(String filepath) {
+//  String[] rows = loadStrings(filepath);
+//  HashMap<String, Location> airportLocations = new HashMap<String, Location>();
+//  for(int i=1; i<rows.length; i++){
+//      String[] data = split(rows[i], ',');
+//      // println(data[2] + " " + data[6] + " " + data[7]);
+//      airportLocations.put(data[2], new Location(parseFloat(data[6]), parseFloat(data[7])));
+//  }
   
-  return airportLocations;
-}
+//  return airportLocations;
+//}
 
 class HeatMapScreen extends Screen {
   
   PImage earthImage;
-  HashMap<String, Location> airportLocations;     // probably should make this global seems useful for EarthScreen
   
   final float SCALE = 1; // idk what to call this, this is how big the sqaures are EDIT: sqaure size seems like a good name
   final int heatMapOpacity = 150;
@@ -146,7 +145,6 @@ class HeatMapScreen extends Screen {
   
   HeatMapScreen() {
     earthImage = loadImage("worldmap.png");
-    this.airportLocations = loadAirportCoordinates("airport_data.csv");
     heatMap = new int[heatMapWidth][heatMapHeight];
     
     calendar = new CalendarDisplay();
@@ -326,8 +324,8 @@ class HeatMapScreen extends Screen {
 
 // Flight processing function (each runs on a separate thread)
 void processFlight(Flight f) {
-  Location src = this.airportLocations.get(f.origin);
-  Location des = this.airportLocations.get(f.destination);
+  Location src = airportCoordinates.get(f.origin);
+  Location des = airportCoordinates.get(f.destination);
 
   if (src != null && des != null) {
     PVector pointA = LocationTo3D(src.toRadians());

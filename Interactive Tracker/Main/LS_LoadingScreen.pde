@@ -16,8 +16,8 @@ class LoadingScreen extends Screen {
   // Loading progress (0 to 1)
   float loadingProgress = 0;
   
-  void setup() {
-    size(1920, 1055, P3D);
+  LoadingScreen() {
+    //size(1920, 1055, P3D);
     w = width;
     h = height;
     cols = w / scl;
