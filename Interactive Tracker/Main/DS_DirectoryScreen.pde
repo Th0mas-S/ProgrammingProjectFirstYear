@@ -176,6 +176,7 @@ class DirectoryFlightInfoScreen extends Screen {
   }
 
   void draw() {
+      backdrop.resize(width, height);
       background(backdrop);
       image(logo, 60, 60);
       stroke(0);
@@ -241,7 +242,6 @@ class DirectoryScreen extends Screen {
       logo = loadImage("Flighthub Logo.png");
       logo.resize(int(360*1.2), int(240*1.2));
       backdrop = loadImage("ds_backdrop.png");
-      backdrop.resize(width, height);
       
       headers = new ArrayList<Header>();
       headers.add( new Header(int(85+(textSize*2.5)), 305, "Date", int(textSize/1.1), 1) );
@@ -274,6 +274,8 @@ class DirectoryScreen extends Screen {
   }
   
   void draw() {
+      backdrop.resize(width, height);
+
       background(backdrop);
       image(logo, 60, 20);
       stroke(100);
