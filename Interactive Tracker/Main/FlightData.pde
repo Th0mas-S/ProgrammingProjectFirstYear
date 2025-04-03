@@ -120,6 +120,8 @@ class Flight{
   
   boolean mouseOver;
   
+  String identifier;
+  
   
   Flight(String date, String airlineCode, String airlineName, String flightNumber, String origin, String destination, String scheduledDeparture, String actualDeparture,
   int departureDelay, float flightDistance, String scheduledArrival, String actualArrival, boolean diverted, boolean cancelled, int duration, int minutes) {
@@ -141,11 +143,14 @@ class Flight{
     this.minutes = minutes;
     
     this.cancelled = cancelled;
+    
+    identifier=airlineCode+flightNumber;
+
   }
   
   // Pretty much only used in Flight Directory
   void drawData(int x, int y, int textSize){
-    if(mouseX>x && mouseX<x+width-150 && mouseY>=y-textSize && mouseY<=y+2){
+    if((mouseX>x && mouseX<x+width-150 && mouseY>=y-textSize && mouseY<=y+2) && (!directoryScreen.sortQuery && !directoryScreen.dateQuery && !directoryScreen.airportQuery)){
         mouseOver = true; 
         noStroke();
         fill(170);
@@ -156,15 +161,16 @@ class Flight{
     fill(#3E1607);
     strokeWeight(1);
     stroke(0);
-    text(date, x-5, y);
-    text("   " + airlineCode + flightNumber, x+(textSize*4.791), y);
-    text("    " + origin + " -> " + destination, x+(textSize*8.958), y);
-    text("    Scheduled: " + scheduledDeparture + " - " + scheduledArrival, x+(textSize*15), y);
-    text("    Actual: " + actualDeparture + " - " + actualArrival, x+(textSize*26.25), y);
-    text("    Delay: " + departureDelay + " min ", x+(textSize*35.833), y);
-    text("    Diverted: " + diverted, x+(textSize*43.333), y);
-    text("    Cancelled: " + cancelled, x+(textSize*50.833), y);
-    text("    Distance: " + flightDistance + " km", x+(textSize*58.75), y);
+    textAlign(CENTER);
+    text(date, x+(textSize*2.5), y);
+    text(airlineCode + flightNumber, x+(textSize*8.7), y);
+    text(origin + " -> " + destination, x+(textSize*15), y);
+    text(scheduledDeparture + " - " + scheduledArrival, x+(textSize*22), y);
+    text(actualDeparture + " - " + actualArrival, x+(textSize*31), y);
+    text(departureDelay + " min ", x+(textSize*40), y);
+    text("" + diverted, x+(textSize*47), y);
+    text("" + cancelled, x+(textSize*55), y);
+    text(flightDistance + " km", x+(textSize*65), y);
     
     
       if(mouseX>x && mouseX<x+width-150 && mouseY>y-textSize && mouseY<y){
@@ -172,6 +178,7 @@ class Flight{
       }
       else mouseOver = false;
   }
+
 
 
 }
