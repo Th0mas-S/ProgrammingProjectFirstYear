@@ -140,55 +140,79 @@ class EarthScreenTracker extends Screen {
             mouseY >= timeSlider.y && mouseY <= timeSlider.y + timeSlider.h);
   }
   
-   void mousePressed() {
-    // If the mouse is over the calendar, let it handle the click.
-    if (isOverCalendar()) {
+  void mousePressed() {
+    // First, check if the mouse is over any UI element.
+    boolean uiHover = isOverSliderButtons() || isOverCalendar() || isOverSliderTrack();
+    if (uiHover) {
       uiHeld = true;
-      calendar.mousePressed();
-      return;
-    }
-    
-    // Then, check if the mouse is over the slider buttons or track.
-    if (isOverSliderButtons() || isOverSliderTrack()) {
-      uiHeld = true;
+      // Let the UI (time slider, calendar) handle the press.
       timeSlider.mousePressed();
       return;
     }
     
+    // Let the time slider handle its press.
     timeSlider.mousePressed();
     
     // Check if the ActiveFlightInfo close button was clicked.
     if (activeFlightInfo != null && activeFlightInfo.closeButtonClicked(mouseX, mouseY)) {
       activeFlightInfo.visible = false;
+      // Deselect all planes when the info box is closed.
+      for (Airplane plane : activePlanes) {
+        plane.selected = false;
+      }
+      activeFlightInfo = null;
       return;
     }
     
-    // If none of the UI elements are hovered, process plane selection.
+    // Look for a candidate plane that is hovered.
+    Airplane candidate = null;
     for (Airplane a : activePlanes) {
       PVector transformedPos = new PVector();
       earth.rotationMatrix.mult(a.getPosition(), transformedPos);
       PVector norm = transformedPos.copy().normalize();
       if (norm.z > 0.5 && a.isHovered()) {
-        activeFlightInfo = new ActiveFlightInfo(
-          a.start, a.end, 
-          a.departureLocation, a.arrivalLocation,
-          a.departureTime, a.arrivalTime,
-          a.airlineName, a.airlineCode,
-          a.flightNumber, a.departureDate
-        );
-        // Optionally, you could also mark this plane as selected.
-        a.selected = true;
+        candidate = a;
         break;
       }
     }
     
-    // Also let the calendar handle its own click (if needed).
+    // If a candidate plane was found...
+    if (candidate != null) {
+      // If there's no active flight info (i.e., no plane currently selected) or 
+      // the candidate is different than the current one, then update selection.
+      if (activeFlightInfo == null || !candidate.selected) {
+        // Deselect all planes.
+        for (Airplane plane : activePlanes) {
+          plane.selected = false;
+        }
+        // Mark the candidate as selected.
+        candidate.selected = true;
+        // Create new ActiveFlightInfo for the candidate.
+        activeFlightInfo = new ActiveFlightInfo(
+          candidate.start, candidate.end, 
+          candidate.departureLocation, candidate.arrivalLocation,
+          candidate.departureTime, candidate.arrivalTime,
+          candidate.airlineName, candidate.airlineCode,
+          candidate.flightNumber, candidate.departureDate
+        );
+      }
+      // Otherwise, if the candidate is already selected, do nothing.
+      return;
+    }
+    
+    // Let the calendar process its own mouse press.
     if (calendar.mousePressed()) {
       uiHeld = true;
       return;
     }
     
-    // Finally, if no UI is held, allow globe interaction.
+    // Additional UI checks.
+    if (timeSlider.dragging || isOverSliderButtons() || isOverSliderTrack()) {
+      uiHeld = true;
+      return;
+    }
+    
+    // If no UI is held, allow globe interaction.
     if (mouseButton == LEFT || mouseButton == RIGHT) {
       if (!uiHeld) {
         earth.isDragging = true;
