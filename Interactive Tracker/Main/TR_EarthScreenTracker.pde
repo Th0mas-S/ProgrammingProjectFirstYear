@@ -26,7 +26,7 @@ class EarthScreenTracker extends Screen {
       spawnedFlights.clear();
       activePlanes.clear();
       // Replace FlightData with ActiveFlightInfo in your global lists.
-      for (Flight flight : allFlights) {
+      for (Flight flight : flights) {
         if (flight.date.equals(currentDate)) {
           todaysFlights.add(flight);
         }

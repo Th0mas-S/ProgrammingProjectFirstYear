@@ -25,7 +25,6 @@ float sphereRadius = 650;
 
 ArrayList<Airport> airports = new ArrayList<Airport>();
 HashMap<String, Airport> airportMap = new HashMap<String, Airport>();
-ArrayList<Flight> allFlights = new ArrayList<Flight>(); // REPLACED WITH flights
 ArrayList<Flight> todaysFlights = new ArrayList<Flight>();
 ArrayList<Airplane> activePlanes = new ArrayList<Airplane>();
 PImage airplaneImg;
