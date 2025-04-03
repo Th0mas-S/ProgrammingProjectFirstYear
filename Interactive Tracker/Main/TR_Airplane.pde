@@ -5,8 +5,7 @@ class Airplane {
   boolean finished = false;
   boolean hovered = false;
   boolean selected = false;
-
-  // Changed from PShape to PImage
+  
   PImage model; 
 
   // Flight info fields
@@ -15,7 +14,7 @@ class Airplane {
   String airlineName, airlineCode, flightNumber;
   String departureDate;
   String originCode, destCode;
-
+  
   Airplane(
     Airport origin, Airport dest, float sphereRadius, PImage model, float startMinute,
     String depLoc, String arrLoc, String depTime, String arrTime,
@@ -72,36 +71,37 @@ class Airplane {
   
   void display() {
     if (finished) return;
-
-    PVector travelDir = PVector.sub(end, start).normalize();
-    PVector globeNormal = currentPos.copy().normalize();
-    PVector right = globeNormal.cross(travelDir).normalize();
-    PVector forward = right.cross(globeNormal).normalize();
-
-    PMatrix3D m = new PMatrix3D(
-      forward.x, globeNormal.x, right.x, 0,
-      forward.y, globeNormal.y, right.y, 0,
-      forward.z, globeNormal.z, right.z, 0,
-      0,         0,              0,      1
-    );
-            pushMatrix();
-
-    applyMatrix(m);
-    translate(currentPos.x, currentPos.y, currentPos.z);
-    
-    rotateY(PI);
-    rotateX(PI);
-
-    scale(0.01);
-    noTint();
-    imageMode(CENTER);
-    image(model, 0, 0);
+    pushMatrix();
+      translate(currentPos.x, currentPos.y, currentPos.z);
+      // Orientation calculations:
+      PVector travelDir = PVector.sub(end, start).normalize();
+      PVector globeNormal = currentPos.copy().normalize();
+      PVector right = globeNormal.cross(travelDir).normalize();
+      PVector forward = right.cross(globeNormal).normalize();
+      PMatrix3D m = new PMatrix3D(
+        forward.x, globeNormal.x, right.x, 0,
+        forward.y, globeNormal.y, right.y, 0,
+        forward.z, globeNormal.z, right.z, 0,
+        0,         0,              0,      1
+      );
+      applyMatrix(m);
+      rotateX(HALF_PI);
+      rotateZ(PI);
+      
+      // Instead of scaling the coordinate system, choose a scale factor and use it to resize the model image.
+      float factor = selected ? 0.02 : 0.01;
+      
+      // If selected, apply a dark purple tint.
+      if (selected) {
+        tint(50, 0, 50);
+      } else {
+        noTint();
+      }
+      
+      imageMode(CENTER);
+      // Draw the model at the scaled size, so its position remains unchanged.
+      image(model, 0, 0, model.width * factor, model.height * factor);
     popMatrix();
-
-    // Draw flight arc if hovered or selected
-    if (hovered || selected) {
-      drawFlightArc();
-    }
   }
   
   void displayInfoBoxTopRight() {
@@ -191,19 +191,7 @@ class Airplane {
     return hovered;
   }
   
-  void drawFlightArc() {
-    int segments = 100;
-    pushStyle();
-    stroke(255, 255, 0); // Yellow
-    strokeWeight(2);
-    noFill();
-    beginShape();
-    for (int i = 0; i <= segments; i++) {
-      float t = i / float(segments);
-      PVector point = slerp(t, start.copy().normalize(), end.copy().normalize()).mult(sphereRadius + 10 * sin(PI * t));
-      vertex(point.x, point.y, point.z);
-    }
-    endShape();
-    popStyle();
+  PVector getPosition() {
+    return currentPos;
   }
 }
