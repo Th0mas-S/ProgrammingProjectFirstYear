@@ -91,9 +91,8 @@ class Airplane {
       // Instead of scaling the coordinate system, choose a scale factor and use it to resize the model image.
       float factor = selected ? 0.02 : 0.01;
       
-      // If selected, apply a dark purple tint.
       if (selected) {
-        tint(50, 0, 50);
+        tint(255, 255, 0);
       } else {
         noTint();
       }

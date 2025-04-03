@@ -119,56 +119,52 @@ class ActiveFlightInfo {
            my >= closeY && my <= closeY + closeSize;
   }
   
-void drawFlightArc(float sphereRadius) {
-  // Only draw if both origin and destination are defined.
-  if (origin == null || destination == null) return;
-  
-  // Draw the red arc between origin and destination with depth testing enabled.
-  pushStyle();
-    hint(ENABLE_DEPTH_TEST);
-    stroke(255, 0, 0); // red
-    strokeWeight(2);
-    noFill();
-    beginShape();
-    int segments = 50;
+  void drawFlightArc(float sphereRadius) {
+    // Only draw if both origin and destination are defined.
+    if (origin == null || destination == null) return;
     
-    // Normalize the origin and destination vectors.
-    PVector o = origin.copy().normalize();
-    PVector d = destination.copy().normalize();
-    float dot = constrain(o.dot(d), -1, 1);
-    float theta = acos(dot);
-    float sinTheta = sin(theta);
-    
-    for (int i = 0; i <= segments; i++) {
-      float t = i / (float) segments;
-      PVector point;
-      if (sinTheta < 0.001) {
-        point = o.copy();
-      } else {
-        PVector p1 = PVector.mult(o, sin((1 - t) * theta));
-        PVector p2 = PVector.mult(d, sin(t * theta));
-        point = PVector.add(p1, p2).div(sinTheta);
+    // Draw the red arc between origin and destination.
+    pushStyle();
+      hint(ENABLE_DEPTH_TEST);
+      stroke(255, 0, 0); // red
+      strokeWeight(2);
+      noFill();
+      beginShape();
+      int segments = 50;
+      
+      // Normalize the origin and destination vectors.
+      PVector o = origin.copy().normalize();
+      PVector d = destination.copy().normalize();
+      float dot = constrain(o.dot(d), -1, 1);
+      float theta = acos(dot);
+      float sinTheta = sin(theta);
+      
+      for (int i = 0; i <= segments; i++) {
+        float t = i / (float) segments;
+        PVector point;
+        if (sinTheta < 0.001) {
+          point = o.copy();
+        } else {
+          PVector p1 = PVector.mult(o, sin((1 - t) * theta));
+          PVector p2 = PVector.mult(d, sin(t * theta));
+          point = PVector.add(p1, p2).div(sinTheta);
+        }
+        point.mult(sphereRadius);
+        vertex(point.x, point.y, point.z);
       }
-      point.mult(sphereRadius);
-      vertex(point.x, point.y, point.z);
-    }
-    endShape();
-  popStyle();
-  
-  // Draw a yellow circle at the destination with depth testing enabled.
-  pushStyle();
-    hint(ENABLE_DEPTH_TEST);
+      endShape();
+    popStyle();
+    
     pushMatrix();
       // Calculate destination position on the sphere.
       PVector destPos = destination.copy().normalize().mult(sphereRadius);
       translate(destPos.x, destPos.y, destPos.z);
       
       noStroke();
-      fill(255, 255, 0); // yellow
-      ellipseMode(CENTER);
-      ellipse(0, 0, 10, 10); // 10-pixel diameter circle
+      fill(0, 255, 0);
+      sphereDetail(10);
+      sphere(5);
     popMatrix();
-  popStyle();
-}
+  }
 
 }
