@@ -3,17 +3,17 @@ import processing.sound.*;
 
 class ScreenBetweenScreens extends Screen {
   
-  // Reference to the main sketch (the PApplet).
+
   PApplet parent;
 
-  // Number of stars and the star array.
+
   int numStars = 5000;
   Star[] stars;
 
   // Minimal rotation matrix for star drift.
   PMatrix3D STAR_INERTIA_DELTA;
 
-  // Hover sound logic
+
   SoundFile hoverSound;
   boolean wasHoveringButton = false;
 
@@ -21,46 +21,43 @@ class ScreenBetweenScreens extends Screen {
   float buttonWidth = 700;
   float buttonHeight = 80;
   float gap = 70;
-  float directoryBtnY;
-  float graphsBtnY;
+  float flightsBtnY;
+  float airportBtnY;
   float buttonX;
 
-  // ─────────────────────────────────────────────────────────────────────────────────
-  // Constructor now accepts a PApplet (your main sketch) instead of using `this`.
-  // ─────────────────────────────────────────────────────────────────────────────────
+
   ScreenBetweenScreens(PApplet parent) {
-    // Save the PApplet reference.
+
     this.parent = parent;
 
-    // Prepare the star array.
+
     stars = new Star[numStars];
 
-    // Minimal star rotation for drift.
+
     STAR_INERTIA_DELTA = new PMatrix3D();
     STAR_INERTIA_DELTA.rotateY(0.001);
 
-    // Initialize each Star far out.
+
     for (int i = 0; i < numStars; i++) {
       stars[i] = new Star(500, 3000); 
     }
 
-    // Load the hover sound using the main sketch reference.
+
     hoverSound = new SoundFile(parent, "audio4.mp3");
 
-    // Compute button positions with the parent's dimensions.
+ 
     buttonX = parent.width/2 - buttonWidth/2;
-    directoryBtnY = parent.height/2 - buttonHeight - 10;  // Directory above center
-    graphsBtnY    = directoryBtnY + buttonHeight + gap;   // Graphs below Directory
+    flightsBtnY = parent.height/2 - buttonHeight - 10;  
+    airportBtnY    = flightsBtnY + buttonHeight + gap;   
 
     parent.textSize(20);
   }
 
-  @Override
   void draw() {
-    // Use parent to do drawing calls.
+
     parent.background(0);
 
-    // Update and display each star.
+
     for (int i = 0; i < numStars; i++) {
       stars[i].update();
       stars[i].display();
@@ -72,13 +69,13 @@ class ScreenBetweenScreens extends Screen {
     parent.rect(0, 0, parent.width, parent.height);
 
     // Draw our two hover buttons
-    drawHoverButton(buttonX, directoryBtnY, buttonWidth, buttonHeight, "Directory", 40);
-    drawHoverButton(buttonX, graphsBtnY,    buttonWidth, buttonHeight, "Graphs",    40);
+    drawHoverButton(buttonX, flightsBtnY, buttonWidth, buttonHeight, "Flights", 40);
+    drawHoverButton(buttonX, airportsBtnY,    buttonWidth, buttonHeight, "Airports",    40);
 
     // Check hover state
     boolean currentlyHovering =
-      isMouseOverRect(buttonX, directoryBtnY, buttonWidth, buttonHeight) ||
-      isMouseOverRect(buttonX, graphsBtnY,    buttonWidth, buttonHeight);
+      isMouseOverRect(buttonX, flightsBtnY, buttonWidth, buttonHeight) ||
+      isMouseOverRect(buttonX, airportBtnY,    buttonWidth, buttonHeight);
 
     // If the mouse just entered a button area, play the hover sound once.
     if (currentlyHovering && !wasHoveringButton) {
@@ -93,7 +90,7 @@ class ScreenBetweenScreens extends Screen {
            parent.mouseY > y && parent.mouseY < y + h;
   }
 
-  // Helper that replicates the “grow/shrink on hover” style
+ 
   void drawHoverButton(float x, float y, float w, float h, String label, float baseTextSize) {
     boolean hover = isMouseOverRect(x, y, w, h);
     float scaleFactor = hover ? 1.1 : 1.0;
@@ -115,27 +112,12 @@ class ScreenBetweenScreens extends Screen {
 
   @Override
   void mousePressed() {
-    // Directory button
-    if (isMouseOverRect(buttonX, directoryBtnY, buttonWidth, buttonHeight)) {
-      screenManager.switchScreen(directoryScreen);
+    // flights button
+    if (isMouseOverRect(buttonX, flightsBtnY, buttonWidth, buttonHeight)) {
+      screenManager.switchScreen(flightsScreen);
     }
-    // Graphs button
-    else if (isMouseOverRect(buttonX, graphsBtnY, buttonWidth, buttonHeight)) {
-      parent.println("Graphs button clicked (placeholder)!");
-      // Example:
-      // screenManager.switchScreen(heatMapScreen);
+    // Airports button
+    else if (isMouseOverRect(buttonX, airportBtnY, buttonWidth, buttonHeight)) {;
     }
   }
-
-  // Unused event overrides
-  @Override
-  void mouseDragged() { }
-  @Override
-  void mouseReleased() { }
-  @Override
-  void mouseMoved() { }
-  @Override
-  void mouseWheel(MouseEvent event) { }
-  @Override
-  void keyPressed() { }
 }
