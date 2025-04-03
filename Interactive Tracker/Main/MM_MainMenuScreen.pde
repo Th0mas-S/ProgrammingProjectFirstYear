@@ -202,7 +202,7 @@ class MainMenuScreen extends Screen {
     } else if (isMouseOverRect(startX, secondButtonY, buttonWidth, buttonHeight)) {
       screenManager.switchScreen(heatMapScreen);
     } else if(isMouseOverRect(startX, thirdButtonY, buttonWidth, buttonHeight)) {
-      screenManager.switchScreen(directoryScreen);
+      screenManager.switchScreen(screenBetweenScreens);
     } else if(isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30)){
       // switch screen to directory
     } else if(isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30)) {
