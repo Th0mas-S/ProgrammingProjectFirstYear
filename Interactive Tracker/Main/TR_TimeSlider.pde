@@ -38,8 +38,10 @@ class TimeSlider {
     if (autoPlaying) {
       float delta = millis() - lastUpdateTime;
       value += (delta / 500.0) * speedMultiplier;
-      if (value > 1439) {
-        value = value - 1440;
+      // If the value reaches or exceeds 1439, cap it and pause auto-playing.
+      if (value >= 1439) {
+        value = 1439;
+        autoPlaying = false;
       }
       lastUpdateTime = millis();
     } else {
@@ -98,7 +100,7 @@ class TimeSlider {
     float handleX = map(value, 0, 1439, x, x + w);
     float handleRadius = 20;
     
-    // Check if the handle is grabbed
+    // Check if the handle is grabbed.
     if (dist(mouseX, mouseY, handleX, y + h / 2) < handleRadius) {
       wasAutoPlaying = autoPlaying;
       dragging = true;
@@ -106,7 +108,7 @@ class TimeSlider {
       return;
     }
     
-    // Check if clicking on the slider track (outside the handle)
+    // Check if clicking on the slider track (outside the handle).
     if (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h) {
       value = map(mouseX, x, x + w, 0, 1439);
       dragging = false;
@@ -118,18 +120,25 @@ class TimeSlider {
     float buttonsX = sliderButtons.buttonsX;
     float buttonSize = sliderButtons.buttonSize;
     
-    // Toggle play/pause button hitbox
+    // Toggle play/pause button hitbox.
     float toggleY = sliderButtons.playY;  // singular toggle button’s Y coordinate
     if (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
         mouseY >= toggleY && mouseY <= toggleY + buttonSize) {
-      autoPlaying = !autoPlaying;
-      dragging = false;
-      pauseClicked = !autoPlaying; // if autoPlaying becomes false, mark as paused
+      // If paused at 23:59, reset and start auto-playing.
+      if (!autoPlaying && value >= 1439) {
+        value = 0;
+        autoPlaying = true;
+        pauseClicked = false;
+      } else {
+        autoPlaying = !autoPlaying;
+        dragging = false;
+        pauseClicked = !autoPlaying;
+      }
       lastUpdateTime = millis();
       return;
     }
     
-    // Fast-Forward button hitbox
+    // Fast-Forward button hitbox.
     float ffButtonY = sliderButtons.ffY;
     if (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
         mouseY >= ffButtonY && mouseY <= ffButtonY + buttonSize) {
@@ -138,7 +147,7 @@ class TimeSlider {
       return;
     }
     
-    // Back button hitbox (located just beneath the fast-forward button)
+    // Back button hitbox (located just beneath the fast-forward button).
     float backButtonY = sliderButtons.backY;
     if (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
         mouseY >= backButtonY && mouseY <= backButtonY + buttonSize) {

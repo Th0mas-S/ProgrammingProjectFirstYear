@@ -70,7 +70,7 @@ void initializeFlights(){                                          //initializes
     
     actualArrival = convertDate(arrParts[0]) + " " + arrParts[1];
     actualDeparture = convertDate(depParts[0]) + " " + depParts[1];
-    
+        
     String dateStr = depParts[0];
     String depTimeStr = depParts[1];
     String arrTimeStr = arrParts[1];
@@ -132,11 +132,11 @@ class Flight{
     this.origin = origin;
     this.destination = destination;
     this.scheduledDeparture = scheduledDeparture;
-    this.actualDeparture = cropData(actualDeparture);
+    this.actualDeparture = actualDeparture;
     this.departureDelay = departureDelay;
     this.flightDistance = flightDistance;
     this.scheduledArrival = scheduledArrival;
-    this.actualArrival = cropData(actualArrival);
+    this.actualArrival = actualArrival;
     this.diverted = diverted;
     
     this.duration = duration;
@@ -166,7 +166,7 @@ class Flight{
     text(airlineCode + flightNumber, x+(textSize*8.7), y);
     text(origin + " -> " + destination, x+(textSize*15), y);
     text(scheduledDeparture + " - " + scheduledArrival, x+(textSize*22), y);
-    text(actualDeparture + " - " + actualArrival, x+(textSize*31), y);
+    text(cropData(actualDeparture) + " - " + cropData(actualArrival), x+(textSize*31), y);
     text(departureDelay + " min ", x+(textSize*40), y);
     text("" + diverted, x+(textSize*47), y);
     text("" + cancelled, x+(textSize*55), y);
