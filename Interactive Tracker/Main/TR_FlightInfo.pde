@@ -49,7 +49,7 @@ class ActiveFlightInfo {
 
     String line1 = "From: " + departureLocation;
     String line2 = "To: " + arrivalLocation;
-    String line3 = "Departure: " + departureDate + " " + departureTime;
+    String line3 = "Departure: " + departureTime;
     String line4 = "Arrival: " + arrivalTime;
     String line5 = "Airline: " + airlineName;
     String line6 = "Flight #: " + airlineCode + flightNumber;
