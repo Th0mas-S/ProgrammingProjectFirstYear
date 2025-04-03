@@ -1,23 +1,18 @@
-import processing.core.PApplet;
+import processing.core.PApplet; 
 import processing.sound.*;
 
 class ScreenBetweenScreens extends Screen {
-  
 
   PApplet parent;
-
 
   int numStars = 5000;
   Star[] stars;
 
-  // Minimal rotation matrix for star drift.
   PMatrix3D STAR_INERTIA_DELTA;
-
 
   SoundFile hoverSound;
   boolean wasHoveringButton = false;
 
-  // Button sizes and positions
   float buttonWidth = 700;
   float buttonHeight = 80;
   float gap = 70;
@@ -25,38 +20,39 @@ class ScreenBetweenScreens extends Screen {
   float airportBtnY;
   float buttonX;
 
+  float menuBtnWidth;
+  float menuBtnHeight;
+  float menuBtnX;
+  float menuBtnY;
 
   ScreenBetweenScreens(PApplet parent) {
-
     this.parent = parent;
 
-
     stars = new Star[numStars];
-
-
     STAR_INERTIA_DELTA = new PMatrix3D();
     STAR_INERTIA_DELTA.rotateY(0.001);
-
 
     for (int i = 0; i < numStars; i++) {
       stars[i] = new Star(500, 3000); 
     }
 
-
     hoverSound = new SoundFile(parent, "audio4.mp3");
 
- 
     buttonX = parent.width/2 - buttonWidth/2;
     flightsBtnY = parent.height/2 - buttonHeight - 10;  
-    airportBtnY    = flightsBtnY + buttonHeight + gap;   
+    airportBtnY = flightsBtnY + buttonHeight + gap; 
+
+    menuBtnWidth  = buttonWidth * 0.6; 
+    menuBtnHeight = buttonHeight * 0.6; 
+    menuBtnX      = parent.width/2 - menuBtnWidth/2; 
+    menuBtnY      = airportBtnY + buttonHeight + gap; 
 
     parent.textSize(20);
   }
 
+  @Override
   void draw() {
-
     parent.background(0);
-
 
     for (int i = 0; i < numStars; i++) {
       stars[i].update();
@@ -68,29 +64,27 @@ class ScreenBetweenScreens extends Screen {
     parent.fill(0, 150);
     parent.rect(0, 0, parent.width, parent.height);
 
-    // Draw our two hover buttons
     drawHoverButton(buttonX, flightsBtnY, buttonWidth, buttonHeight, "Flights", 40);
-    drawHoverButton(buttonX, airportBtnY,    buttonWidth, buttonHeight, "Airports",    40);
+    drawHoverButton(buttonX, airportBtnY, buttonWidth, buttonHeight, "Airports", 40);
 
-    // Check hover state
+    drawHoverButton(menuBtnX, menuBtnY, menuBtnWidth, menuBtnHeight, "Menu", 30);
+
     boolean currentlyHovering =
       isMouseOverRect(buttonX, flightsBtnY, buttonWidth, buttonHeight) ||
-      isMouseOverRect(buttonX, airportBtnY,    buttonWidth, buttonHeight);
+      isMouseOverRect(buttonX, airportBtnY, buttonWidth, buttonHeight) ||
+      isMouseOverRect(menuBtnX, menuBtnY, menuBtnWidth, menuBtnHeight);
 
-    // If the mouse just entered a button area, play the hover sound once.
     if (currentlyHovering && !wasHoveringButton) {
       hoverSound.play();
     }
     wasHoveringButton = currentlyHovering;
   }
 
-  // Helper to check if mouse is over a rectangle
   boolean isMouseOverRect(float x, float y, float w, float h) {
     return parent.mouseX > x && parent.mouseX < x + w &&
            parent.mouseY > y && parent.mouseY < y + h;
   }
 
- 
   void drawHoverButton(float x, float y, float w, float h, String label, float baseTextSize) {
     boolean hover = isMouseOverRect(x, y, w, h);
     float scaleFactor = hover ? 1.1 : 1.0;
@@ -112,12 +106,15 @@ class ScreenBetweenScreens extends Screen {
 
   @Override
   void mousePressed() {
-    // flights button
+    // Flights button
     if (isMouseOverRect(buttonX, flightsBtnY, buttonWidth, buttonHeight)) {
       screenManager.switchScreen(directoryScreen);
     }
     // Airports button
-    else if (isMouseOverRect(buttonX, airportBtnY, buttonWidth, buttonHeight)) {;
+    else if (isMouseOverRect(buttonX, airportBtnY, buttonWidth, buttonHeight)) {
+    }
+    else if (isMouseOverRect(menuBtnX, menuBtnY, menuBtnWidth, menuBtnHeight)) {
+      screenManager.switchScreen(mainMenuScreen);
     }
   }
 }
