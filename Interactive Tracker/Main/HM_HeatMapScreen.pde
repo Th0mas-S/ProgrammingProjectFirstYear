@@ -122,7 +122,7 @@ class HeatMapScreen extends Screen {
   PImage earthImage;
   HashMap<String, Location> airportLocations;     // probably should make this global seems useful for EarthScreen
   
-  final float SCALE = 2; // idk what to call this, this is how big the sqaures are EDIT: sqaure size seems like a good name
+  final float SCALE = 1; // idk what to call this, this is how big the sqaures are EDIT: sqaure size seems like a good name
   final int heatMapOpacity = 150;
   final int heatMapWidth = (int)(width / SCALE);
   final int heatMapHeight = (int)(height / SCALE);
@@ -146,7 +146,6 @@ class HeatMapScreen extends Screen {
   
   HeatMapScreen() {
     earthImage = loadImage("worldmap.png");
-    //loadData(4000000);
     this.airportLocations = loadAirportCoordinates("airport_data.csv");
     heatMap = new int[heatMapWidth][heatMapHeight];
     
@@ -335,7 +334,7 @@ void processFlight(Flight f) {
     PVector pointB = LocationTo3D(des.toRadians());
     float angle = acos(pointA.dot(pointB));
 
-    for (float t = 0; t <= 1; t += 0.01) {
+    for (float t = 0; t <= 1; t += 0.001) {
       PVector intermediate = PVector.add(
         PVector.mult(pointA, sin((1 - t) * angle)),
         PVector.mult(pointB, sin(t * angle))
