@@ -104,7 +104,6 @@ class ScreenBetweenScreens extends Screen {
     parent.text(label, currentX + currentW / 2, currentY + currentH / 2);
   }
 
-  @Override
   void mousePressed() {
     // Flights button
     if (isMouseOverRect(buttonX, flightsBtnY, buttonWidth, buttonHeight)) {

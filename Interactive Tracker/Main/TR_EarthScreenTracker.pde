@@ -3,6 +3,8 @@ class EarthScreenTracker extends Screen {
   CalendarDisplay calendar;
   TimeSlider timeSlider;
   boolean uiHeld = false;
+  // NEW: Flag to track if a plane was clicked so that earth dragging is disabled.
+  boolean planeClicked = false;
   
   ActiveFlightInfo activeFlightInfo;
   
@@ -25,7 +27,6 @@ class EarthScreenTracker extends Screen {
       todaysFlights.clear();
       spawnedFlights.clear();
       activePlanes.clear();
-      // Replace FlightData with ActiveFlightInfo in your global lists.
       for (Flight flight : flights) {
         if (flight.date.equals(currentDate)) {
           todaysFlights.add(flight);
@@ -44,7 +45,7 @@ class EarthScreenTracker extends Screen {
       }
     }
     
-    // ✅ Spawn planes that should now be active.
+    // Spawn planes that should now be active.
     for (Flight flight : todaysFlights) {
       if (currentTime >= flight.minutes && currentTime <= flight.minutes + flight.duration) {
         String flightID = flight.origin + "_" + flight.destination + "_" + flight.minutes;
@@ -52,14 +53,13 @@ class EarthScreenTracker extends Screen {
           Airport origin = airportMap.get(flight.origin);
           Airport dest = airportMap.get(flight.destination);
           if (origin != null && dest != null) {
-            
             println(flight.scheduledDeparture, flight.scheduledArrival);
             Airplane airplane = new Airplane(
               origin, dest, sphereRadius, airplaneModel, (float)flight.minutes,
               airportLocations.get(flight.origin), airportLocations.get(flight.destination),
               flight.actualDeparture, flight.actualArrival,
               flight.airlineName, flight.airlineCode, flight.flightNumber,
-             flight.duration, flight.origin, flight.destination
+              flight.duration, flight.origin, flight.destination, flight
             );
             activePlanes.add(airplane);
             spawnedFlights.add(flightID);
@@ -118,7 +118,6 @@ class EarthScreenTracker extends Screen {
       activeFlightInfo.display();
     }
     hint(ENABLE_DEPTH_TEST);
-    
   }
   
   boolean isOverSliderButtons() {
@@ -141,26 +140,34 @@ class EarthScreenTracker extends Screen {
   }
   
   void mousePressed() {
-    // First, check if the mouse is over any UI element.
-    boolean uiHover = isOverSliderButtons() || isOverCalendar() || isOverSliderTrack();
-    if (uiHover) {
+    if (isOverCalendar()) {
       uiHeld = true;
-      // Let the UI (time slider, calendar) handle the press.
+      calendar.mousePressed();
+      return;
+    }
+  
+    if (isOverSliderButtons() || isOverSliderTrack()) {
+      uiHeld = true;
       timeSlider.mousePressed();
       return;
     }
     
-    // Let the time slider handle its press.
     timeSlider.mousePressed();
     
-    // Check if the ActiveFlightInfo close button was clicked.
     if (activeFlightInfo != null && activeFlightInfo.closeButtonClicked(mouseX, mouseY)) {
       activeFlightInfo.visible = false;
-      // Deselect all planes when the info box is closed.
       for (Airplane plane : activePlanes) {
         plane.selected = false;
       }
       activeFlightInfo = null;
+      return;
+    }
+    
+    if (activeFlightInfo != null && activeFlightInfo.moreInfoClicked(mouseX, mouseY)) {
+      noTint();
+      imageMode(CORNER);
+      textAlign(LEFT);
+      screenManager.switchScreen(new DirectoryFlightInfoScreen(activeFlightInfo.flight, this));
       return;
     }
     
@@ -176,57 +183,52 @@ class EarthScreenTracker extends Screen {
       }
     }
     
-    // If a candidate plane was found...
     if (candidate != null) {
-      // If there's no active flight info (i.e., no plane currently selected) or 
-      // the candidate is different than the current one, then update selection.
-      if (activeFlightInfo == null || !candidate.selected) {
-        // Deselect all planes.
-        for (Airplane plane : activePlanes) {
-          plane.selected = false;
-        }
-        // Mark the candidate as selected.
-        candidate.selected = true;
-        // Create new ActiveFlightInfo for the candidate.
-        activeFlightInfo = new ActiveFlightInfo(
-          candidate.start, candidate.end, 
-          candidate.departureLocation, candidate.arrivalLocation,
-          candidate.departureTime, candidate.arrivalTime,
-          candidate.airlineName, candidate.airlineCode,
-          candidate.flightNumber, candidate.departureDate
-        );
+      // Prevent earth dragging when a plane is clicked.
+      planeClicked = true;
+      
+      // Deselect all planes and select the candidate.
+      for (Airplane plane : activePlanes) {
+        plane.selected = false;
       }
-      // Otherwise, if the candidate is already selected, do nothing.
+      candidate.selected = true;
+      
+      // Create ActiveFlightInfo using the candidate's Flight object.
+      activeFlightInfo = new ActiveFlightInfo(
+        candidate.flight,
+        candidate.start, candidate.end, 
+        candidate.departureLocation, candidate.arrivalLocation,
+        candidate.departureTime, candidate.arrivalTime,
+        candidate.airlineName, candidate.airlineCode,
+        candidate.flightNumber, candidate.departureDate
+      );
       return;
     }
     
-    // Let the calendar process its own mouse press.
     if (calendar.mousePressed()) {
       uiHeld = true;
       return;
     }
     
-    // Additional UI checks.
     if (timeSlider.dragging || isOverSliderButtons() || isOverSliderTrack()) {
       uiHeld = true;
       return;
     }
     
-    // If no UI is held, allow globe interaction.
-    if (mouseButton == LEFT || mouseButton == RIGHT) {
-      if (!uiHeld) {
-        earth.isDragging = true;
-        earth.inertiaAngle = 0;
-        cursor(MOVE);
-        if (mouseButton == LEFT && !(keyPressed && keyCode == CONTROL)) {
-          earth.lastArcball = getArcballVector(mouseX, mouseY);
-        }
+    // Only allow earth dragging if no plane was clicked.
+    if (!uiHeld && !planeClicked) {
+      earth.isDragging = true;
+      earth.inertiaAngle = 0;
+      cursor(MOVE);
+      if (mouseButton == LEFT && !(keyPressed && keyCode == CONTROL)) {
+        earth.lastArcball = getArcballVector(mouseX, mouseY);
       }
     }
   }
   
   void mouseDragged() {
-    if (timeSlider.dragging || uiHeld) return;
+    // Prevent dragging if a plane was clicked.
+    if (planeClicked || timeSlider.dragging || uiHeld) return;
     
     if (mouseButton == LEFT || mouseButton == RIGHT) {
       if (mouseButton == RIGHT || (mouseButton == LEFT && keyPressed && keyCode == CONTROL)) {
@@ -256,6 +258,8 @@ class EarthScreenTracker extends Screen {
     timeSlider.mouseReleased();
     earth.isDragging = false;
     uiHeld = false;
+    // Reset the planeClicked flag when the mouse is released.
+    planeClicked = false;
     cursor(ARROW);
   }
   

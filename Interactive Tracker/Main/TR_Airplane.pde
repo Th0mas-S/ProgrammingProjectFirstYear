@@ -15,11 +15,16 @@ class Airplane {
   String departureDate;
   String originCode, destCode;
   
+  // NEW: Store the associated Flight object.
+  Flight flight;
+  
   Airplane(
     Airport origin, Airport dest, float sphereRadius, PImage model, float startMinute,
     String depLoc, String arrLoc, String depTime, String arrTime,
     String airlineName, String airlineCode, String flightNumber,
-    int duration, String originCode, String destCode
+    int duration, String originCode, String destCode,
+    // NEW: Add Flight as a parameter
+    Flight flight
   ) {
     this.start = origin.getPosition();
     this.end = dest.getPosition();
@@ -38,6 +43,12 @@ class Airplane {
     this.airlineName = airlineName;
     this.airlineCode = airlineCode;
     this.flightNumber = flightNumber;
+    
+    // Optionally set departureDate if needed.
+    // this.departureDate = departureDate; // If available
+    
+    // NEW: Assign the Flight object.
+    this.flight = flight;
   }
 
   void update(float currentMinute) {

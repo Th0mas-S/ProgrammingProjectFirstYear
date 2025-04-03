@@ -121,7 +121,7 @@ class TimeSlider {
     float buttonSize = sliderButtons.buttonSize;
     
     // Toggle play/pause button hitbox.
-    float toggleY = sliderButtons.playY;  // singular toggle button’s Y coordinate
+    float toggleY = sliderButtons.playY;  // singular toggle button's Y coordinate
     if (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
         mouseY >= toggleY && mouseY <= toggleY + buttonSize) {
       // If paused at 23:59, reset and start auto-playing.

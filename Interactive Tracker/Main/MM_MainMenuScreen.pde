@@ -63,7 +63,7 @@ class MainMenuScreen extends Screen {
     }
     
     // Initialize the Earth model (ensure "Earth.obj" and "Surface2k.png" are in the data folder)
-    earth = new EarthMenu("Earth.obj", "Surface2k.png");
+    earth = new EarthMenu("Earth.obj", "Surface4k.png");
     
     // Initialize the airplanes list and add airplanes
     airplanes = new ArrayList<AirplaneMenu>();
@@ -89,6 +89,7 @@ class MainMenuScreen extends Screen {
     parent.hint(PConstants.DISABLE_DEPTH_TEST);
     drawUI();
     imageMode(CORNER);
+    noTint();
     parent.image(flightHubLogo, 800, -250, 1200, 900);
     parent.hint(PConstants.ENABLE_DEPTH_TEST);
     

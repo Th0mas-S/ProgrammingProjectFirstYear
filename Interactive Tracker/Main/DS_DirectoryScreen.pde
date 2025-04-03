@@ -132,8 +132,9 @@ class DirectoryFlightInfoScreen extends Screen {
   Flight flight;
   Widget back;
   int textSize;
+  Screen previousScreen;
 
-  DirectoryFlightInfoScreen(Flight currentFlight) {
+  DirectoryFlightInfoScreen(Flight currentFlight, Screen previousScreen) {
     //textSize=int((width-110)*0.014);
     logo = loadImage("Flighthub Logo.png");
     logo.resize(int(360*1.2), int(240*1.2));
@@ -143,6 +144,8 @@ class DirectoryFlightInfoScreen extends Screen {
     showData(currentFlight);
     back = new Widget(width-160, 160, 2, 100, 50, #DD5341);
     textSize=int((width-110)*0.014);
+    
+    this.previousScreen = previousScreen;
 
   }
   
@@ -184,7 +187,9 @@ class DirectoryFlightInfoScreen extends Screen {
   }
   
   void mousePressed() {
-    back.widgetPressed();
+    if(back.mouseOver()) {
+      screenManager.switchScreen(previousScreen);
+    }
   }
 
 }
@@ -423,7 +428,7 @@ class DirectoryScreen extends Screen {
       for(int i=int((arrayIndex.size()*(slider.getPercent()))); (i<arrayIndex.size() && counter<(height-335-55)/(textSize+3)); i++){
         if(flights.get(arrayIndex.get(i)).mouseOver) {
           Flight f = flights.get(arrayIndex.get(i));
-          screenManager.switchScreen(new DirectoryFlightInfoScreen(f));
+          screenManager.switchScreen(new DirectoryFlightInfoScreen(f, this));
         }
         
         counter++;
