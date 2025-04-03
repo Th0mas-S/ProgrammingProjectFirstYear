@@ -64,8 +64,8 @@ void setup() {
   earth = new Earth("Earth.obj", "Surface2k.png");
   airportOrigin = new Airport(origin, sphereRadius, 5);
   airportDest = new Airport(destination, sphereRadius, 5);
-  
-  //loadAirportMetadata();
+
+  loadAirportMetadata();
   loadAirportsFromCSV();
   //loadFlightsFromCSV();
   
@@ -77,8 +77,7 @@ void setup() {
   
   flightHubLogo = loadImage("Flighthub Logo.png");
   
-  initGlobalVariables();
-  clearIndex();
+
   
   timeSlider = new TimeSlider(width / 4, 60, width / 2, 30);
   timeSlider.value = 0;
@@ -86,8 +85,10 @@ void setup() {
   screenManager = new ScreenManager();
   earthScreenTracker = new EarthScreenTracker(earth);
   //screenManager.switchScreen(earthScreenDirectory);
-  
 
+  initGlobalVariables();
+  clearIndex();
+  
   
   mainMenuScreen = new MainMenuScreen(this);
   directoryScreen = new DirectoryScreen();

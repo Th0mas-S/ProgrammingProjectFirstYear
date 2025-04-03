@@ -33,6 +33,73 @@
 //  }
 //}
 
+void initializeFlights(){                                          //initializes an array of fight objects which each
+  String[] rows = loadStrings(currentDataset);          //contain all the data for an individual flight
+  
+  int skippedBadDuration = 0;
+  int skippedMalformedTime = 0;
+  
+  for(int i=1; i<rows.length; i++){
+    String[] data = split(rows[i], ',');
+   
+    String date = convertDate(data[0]);
+    String airlineName = data[1];
+    String airlineCode = data[2];
+    String flightNumber = data[3];
+    String origin = data[4];
+    String destination = data[5];
+    String scheduledDeparture = cropData(data[6]);
+    String actualDeparture = data[8];
+    int departureDelay = int(data[10]);
+    float flightDistance = float(data[11]);
+    String scheduledArrival = cropData(data[7]);
+    String actualArrival = data[9];
+    
+    //println(data[13]+" "+(data[13].equals("True") ? "T":"F")+" : "+data[12]+" "+(data[12].equals("True") ? "T":"F"));
+    boolean diverted = (data[13].equals("True"));
+    boolean cancelled = (data[12].equals("True"));
+    
+    
+    String[] depParts = split(data[8], " ");
+    String[] arrParts = split(data[9], " ");
+    if (depParts.length != 2 || arrParts.length != 2) {
+      skippedMalformedTime++;
+      continue;
+    }
+   
+    
+    actualArrival = convertDate(arrParts[0]) + " " + arrParts[1];
+    actualDeparture = convertDate(depParts[0]) + " " + depParts[1];
+    
+    String dateStr = depParts[0];
+    String depTimeStr = depParts[1];
+    String arrTimeStr = arrParts[1];
+    String[] depHM = split(depTimeStr, ":");
+    String[] arrHM = split(arrTimeStr, ":");
+    if (depHM.length < 2 || arrHM.length < 2) {
+      skippedMalformedTime++;
+      continue;
+    }
+    int depMin = int(depHM[0]) * 60 + int(depHM[1]);
+    int arrMin = int(arrHM[0]) * 60 + int(arrHM[1]);
+    if (arrMin < depMin) {
+      arrMin += 1440;
+    }
+    int duration = arrMin - depMin;
+    if (duration <= 0) {
+      skippedBadDuration++;
+      continue;
+    }
+
+    flights.add(new Flight(date, airlineCode, airlineName, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, flightDistance, scheduledArrival, actualArrival, diverted, cancelled, duration, depMin));
+  }
+  println("flights loaded ("+flights.size()+")");
+  println("skipped due to malformed time (" + skippedMalformedTime + ")");
+  println("skipped due to bad duration (" + skippedBadDuration + ")");
+
+  initialized=true;                    //stop loading screen when done and print screen0
+}
+
 class Flight{
   String date;                          //list of all data points stored for each flight
   String airlineCode;
@@ -63,11 +130,11 @@ class Flight{
     this.origin = origin;
     this.destination = destination;
     this.scheduledDeparture = scheduledDeparture;
-    this.actualDeparture = actualDeparture;
+    this.actualDeparture = cropData(actualDeparture);
     this.departureDelay = departureDelay;
     this.flightDistance = flightDistance;
     this.scheduledArrival = scheduledArrival;
-    this.actualArrival = actualArrival;
+    this.actualArrival = cropData(actualArrival);
     this.diverted = diverted;
     
     this.duration = duration;

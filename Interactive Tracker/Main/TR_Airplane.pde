@@ -19,7 +19,7 @@ class Airplane {
   Airplane(
     Airport origin, Airport dest, float sphereRadius, PImage model, float startMinute,
     String depLoc, String arrLoc, String depTime, String arrTime,
-    String airlineName, String airlineCode, String flightNumber, String departureDate,
+    String airlineName, String airlineCode, String flightNumber,
     int duration, String originCode, String destCode
   ) {
     this.start = origin.getPosition();
@@ -39,7 +39,6 @@ class Airplane {
     this.airlineName = airlineName;
     this.airlineCode = airlineCode;
     this.flightNumber = flightNumber;
-    this.departureDate = departureDate;
   }
 
   void update(float currentMinute) {
@@ -118,7 +117,7 @@ class Airplane {
 
     String line1 = "From: " + departureLocation;
     String line2 = "To: " + arrivalLocation;
-    String line3 = "Departure: " + departureDate + " " + departureTime;
+    String line3 = "Departure: " + departureTime;
     String line4 = "Arrival: " + arrivalTime;
     String line5 = "Airline: " + airlineName;
     String line6 = "Flight #: " + airlineCode + flightNumber;
