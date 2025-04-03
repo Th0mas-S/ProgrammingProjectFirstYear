@@ -7,6 +7,7 @@ ScreenManager  screenManager;
 //EarthScreenDirectory  earthScreenDirectory;
 EarthScreenTracker  earthScreenTracker;
 MainMenuScreen mainMenuScreen;
+ScreenBetweenScreens screenBetweenScreens;
 
 HeatMapScreen heatMapScreen;
 DirectoryScreen directoryScreen;
@@ -91,6 +92,7 @@ void setup() {
   
   
   mainMenuScreen = new MainMenuScreen(this);
+  screenBetweenScreens = new ScreenBetweenScreens(this);
   directoryScreen = new DirectoryScreen();
   heatMapScreen = new HeatMapScreen();
   
