@@ -70,7 +70,7 @@ class ScreenBetweenScreens extends Screen {
 
     // Draw our two hover buttons
     drawHoverButton(buttonX, flightsBtnY, buttonWidth, buttonHeight, "Flights", 40);
-    drawHoverButton(buttonX, airportsBtnY,    buttonWidth, buttonHeight, "Airports",    40);
+    drawHoverButton(buttonX, airportBtnY,    buttonWidth, buttonHeight, "Airports",    40);
 
     // Check hover state
     boolean currentlyHovering =
@@ -114,7 +114,7 @@ class ScreenBetweenScreens extends Screen {
   void mousePressed() {
     // flights button
     if (isMouseOverRect(buttonX, flightsBtnY, buttonWidth, buttonHeight)) {
-      screenManager.switchScreen(flightsScreen);
+      screenManager.switchScreen(directoryScreen);
     }
     // Airports button
     else if (isMouseOverRect(buttonX, airportBtnY, buttonWidth, buttonHeight)) {;
