@@ -178,7 +178,7 @@ class DirectoryFlightInfoScreen extends Screen {
   void draw() {
       backdrop.resize(width, height);
       background(backdrop);
-      image(logo, 60, 60);
+      image(logo, 60, 10);
       stroke(0);
       fill(#2BBAA5);      
       rect(55, 280, width-110, height-335, 15);
@@ -277,7 +277,7 @@ class DirectoryScreen extends Screen {
       backdrop.resize(width, height);
 
       background(backdrop);
-      image(logo, 60, 20);
+      image(logo, 60, 10);
       stroke(100);
       strokeWeight(5);
       fill(160, 160, 160, 220);      
@@ -359,8 +359,8 @@ class DirectoryScreen extends Screen {
     else if(key == BACKSPACE && inputText.length() > 0) {
       inputText = inputText.substring(0, inputText.length()-1);
     } 
-    else if(keyCode != SHIFT && key != BACKSPACE){
-      inputText += key;
+    else if(keyCode != SHIFT && key != BACKSPACE && keyCode != 20 && keyCode != CONTROL && keyCode != ALT && keyCode != TAB){
+      inputText += key;                                      // code is now aman and darragh proof thank god
     }
   }
   
