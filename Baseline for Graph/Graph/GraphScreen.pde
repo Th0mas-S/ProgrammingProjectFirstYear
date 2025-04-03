@@ -2,50 +2,36 @@
 // GraphScreen class: handles drawing all graph views.
 class GraphScreen {
   String airport;
-  ProccessData data;
+  ProcessData data;
 
-  // Store pre-calculated data to avoid recalculation (optional but good practice)
-  // Example: You could add Maps/Arrays here to store results from ProccessData
-
-  GraphScreen(String airport, ProccessData data) {
+  GraphScreen(String airport, ProcessData data) {
     this.airport = airport;
     this.data = data;
-    // Optional: Trigger detailed data processing here if moved from draw methods
-    // e.g., data.calculateHourlyTraffic(airport);
-    //      data.calculateDestinations(airport); etc.
   }
 
-  // --- Common Drawing Elements ---
   void drawBackButton() {
-    fill(180); // Lighter back button
+    fill(180);
     rect(10, 10, 80, 30, 5);
     fill(0);
-    textSize(14); // Slightly smaller back button text
+    textSize(14);
     textAlign(CENTER, CENTER);
-    text("Back", 10 + 40, 10 + 15);
+    text("Back", 50, 25);
   }
 
   void drawScreenTitle(String title) {
       fill(0);
       textSize(20);
-      textAlign(CENTER, TOP); // Align title top-center
-      text(title, width / 2, 15); // Position title near the top
+      textAlign(CENTER, TOP);
+      text(title, width / 2, 15);
   }
-
-
-  // --- Display Methods for Each Screen Mode ---
 
   void displayOverview() {
     drawBackButton();
-    drawScreenTitle("Flight Data Overview for " + airport + ". Click on Graph to expand");
-
-    // Draw the four graphs in their quadrants using the predefined coordinates
-    drawFlightTrafficChart(q1x, q1y, q1w, q1h, false); // false = not detail view
+    drawScreenTitle("Flight Data Overview for " + airport);
+    drawFlightTrafficChart(q1x, q1y, q1w, q1h, false);
     drawDestinationDistribution(q2x, q2y, q2w, q2h, false);
     drawAverageDelayPerAirline(q3x, q3y, q3w, q3h, false);
     drawCancellationsDiversionsChart(q4x, q4y, q4w, q4h, false);
-
-    // Add hint text
     fill(100);
     textSize(12);
     textAlign(CENTER, CENTER);
@@ -55,8 +41,7 @@ class GraphScreen {
   void displayTrafficDetail() {
     drawBackButton();
     drawScreenTitle("Hourly Flight Traffic for " + airport);
-    // Draw the graph larger, occupying most of the screen
-    drawFlightTrafficChart(50, 80, width - 100, height - 130, true); // true = detail view
+    drawFlightTrafficChart(50, 80, width - 100, height - 130, true);
   }
 
   void displayDestinationDetail() {
@@ -76,7 +61,6 @@ class GraphScreen {
     drawScreenTitle("Cancellations & Diversions for " + airport);
     drawCancellationsDiversionsChart(50, 80, width - 100, height - 130, true);
   }
-
 
   // --- Graph Drawing Methods (Modified slightly for flexibility) ---
   // Added boolean isDetailView to potentially adjust drawing
@@ -532,7 +516,5 @@ class GraphScreen {
     fill(0);
     float divertedPercent = (total > 0) ? (divertedCount / (float)total) * 100 : 0;
     text("Diverted: " + divertedCount + " (" + nf(divertedPercent, 1, 1) + "%)", legendX + legendSpacing + 5, legendY + 2.5f*legendSpacing + 10);
-
-
   }
 }
