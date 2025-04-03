@@ -67,6 +67,7 @@ class Header{
 
   void sortFlightsInUse(ArrayList<Flight> flights, ArrayList<Integer> arrayIndex) {
         // Sort arrayIndex based on the identifier of corresponding flights
+        
         arrayIndex.sort(Comparator.comparing(index -> flights.get(index).identifier));
         if(!direction) Collections.reverse(arrayIndex); 
   }

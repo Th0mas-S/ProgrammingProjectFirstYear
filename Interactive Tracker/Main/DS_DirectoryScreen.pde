@@ -128,7 +128,7 @@ class DirectoryMenuScreen extends Screen {
 
 class DirectoryFlightInfoScreen extends Screen {
   
-  PImage logo, backdrop;
+  PImage logo, backdrop, airlineLogo;
   Flight flight;
   Widget back;
   int textSize;
@@ -144,6 +144,8 @@ class DirectoryFlightInfoScreen extends Screen {
     showData(currentFlight);
     back = new Widget(width-160, 160, 2, 100, 50, #DD5341);
     textSize=int((width-110)*0.014);
+    airlineLogo=loadImage(("airlines-logos/"+currentFlight.airlineCode+".png"));
+
     
     this.previousScreen = previousScreen;
 
@@ -182,6 +184,12 @@ class DirectoryFlightInfoScreen extends Screen {
       text("Date:  "+flight.date, i, j+textSize+10);     
       text("Cancelled:  "+(flight.cancelled ? "Yes":"No"), i+width/2, j+textSize*9);
       text("Diverted:  "+(flight.diverted ? "Yes":"No"), i+width/2, j+textSize*10+20);
+      
+      noStroke();
+      fill(255);
+      rect(i+(width*2/3)-10, j+(textSize*12)-10, 300+20, 150+20, 6);
+      image(airlineLogo, i+(width*2/3), j+textSize*12);
+
       
       back.draw();
   }
