@@ -3,19 +3,9 @@ class EarthScreenTracker extends Screen {
   CalendarDisplay calendar;
   TimeSlider timeSlider;
   boolean uiHeld = false;
-  boolean uiHidden = false;  // Toggle for UI visibility
-
-  // Assumed declarations:
-  // ArrayList<FlightData> allFlights, todaysFlights;
-  // HashSet<String> spawnedFlights;
-  // ArrayList<Airplane> activePlanes;
-  // String lastCheckedDate;
-  // float sphereRadius;
-  // PImage airplaneModel;
-  // HashMap<String, Airport> airportMap;
-  // ArrayList<Star> stars, moreStars, evenMoreStars;
-  // Airplane selectedPlane;
-
+  
+  ActiveFlightInfo activeFlightInfo;
+  
   EarthScreenTracker(Earth earth) {
     this.earth = earth;
     calendar = new CalendarDisplay();
@@ -25,7 +15,7 @@ class EarthScreenTracker extends Screen {
   void draw() {
     background(0);
     
-    // Always update the simulation clock regardless of UI visibility.
+    // Update simulation clock.
     timeSlider.update();
     float currentTime = timeSlider.value;
     String currentDate = calendar.getSelectedDate();
@@ -35,6 +25,7 @@ class EarthScreenTracker extends Screen {
       todaysFlights.clear();
       spawnedFlights.clear();
       activePlanes.clear();
+      // Replace FlightData with ActiveFlightInfo in your global lists.
       for (FlightData flight : allFlights) {
         if (flight.dateStr.equals(currentDate)) {
           todaysFlights.add(flight);
@@ -62,7 +53,7 @@ class EarthScreenTracker extends Screen {
           Airport dest = airportMap.get(flight.destCode);
           if (origin != null && dest != null) {
             Airplane airplane = new Airplane(
-              origin, dest, sphereRadius, airplaneModel, (float)flight.minutes,
+              origin, dest, sphereRadius, airplaneModel, (float) flight.minutes,
               flight.originCityCountry, flight.destCityCountry,
               flight.departureTimeStr, flight.arrivalTimeStr,
               flight.airlineName, flight.airlineCode, flight.flightNumber,
@@ -97,128 +88,112 @@ class EarthScreenTracker extends Screen {
       scale(earth.zoomFactor);
       earth.display();
       
-      // Draw airplanes with alpha transparency.
-      // Disable depth testing to correctly blend transparent PNGs.
+      // Draw airplanes with depth test disabled for blending.
       hint(DISABLE_DEPTH_TEST);
       for (Airplane a : activePlanes) {
         a.update(currentTime);
-        // Transform the airplane's position using the earth's rotation matrix.
-        // This gives the airplane's position relative to the viewer.
+        // Transform airplane position to viewer space.
         PVector transformedPos = new PVector();
         earth.rotationMatrix.mult(a.getPosition(), transformedPos);
-        // Compute the normalized vector.
         PVector norm = transformedPos.copy().normalize();
-        // Only display the airplane if its normalized z component exceeds our threshold.
-        // Adjust the threshold (e.g., 0.5) to control how strict the filter is.
         if (norm.z > 0.5) {  
           a.display();
         }
       }
-      hint(ENABLE_DEPTH_TEST);
       
-    popMatrix();
-    
-    // Only draw additional UI elements if UI is not hidden.
-    if (!uiHidden) {
-      hint(DISABLE_DEPTH_TEST);
-      timeSlider.display();
-      calendar.display();
-      if (selectedPlane != null) {
-        selectedPlane.displayInfoBoxTopRight();
+      // Draw the flight arc if an airplane is selected and its flight info is visible.
+      if (activeFlightInfo != null && activeFlightInfo.visible) {
+        activeFlightInfo.drawFlightArc(sphereRadius);
       }
       hint(ENABLE_DEPTH_TEST);
-    }
+    popMatrix();
     
-    // Always draw the Hide UI button in the bottom right.
-    drawHideUIButton();
+    // Draw additional UI elements if UI is not hidden.
+    hint(DISABLE_DEPTH_TEST);
+    timeSlider.display();
+    calendar.display();
+    if (activeFlightInfo != null && activeFlightInfo.visible) {
+      activeFlightInfo.display();
+    }
+    hint(ENABLE_DEPTH_TEST);
+    
   }
   
-  // Draws the hide/show UI button in the bottom right corner.
-  void drawHideUIButton() {
-    int buttonWidth = 120;
-    int buttonHeight = 40;
-    int margin = 20;
-    int x = width - buttonWidth - margin;
-    int y = height - buttonHeight - margin;
-    
-    boolean over = (mouseX >= x && mouseX <= x + buttonWidth && mouseY >= y && mouseY <= y + buttonHeight);
-    if (over) {
-      fill(100, 150, 255);
-      stroke(255);
-      strokeWeight(2);
-    } else {
-      fill(150);
-      noStroke();
-    }
-    rect(x, y, buttonWidth, buttonHeight, 5);
-    
-    fill(255);
-    textAlign(CENTER, CENTER);
-    textSize(16);
-    text(uiHidden ? "Show UI" : "Hide UI", x + buttonWidth / 2, y + buttonHeight / 2);
+  boolean isOverSliderButtons() {
+    float bx = timeSlider.sliderButtons.buttonsX;
+    float by = timeSlider.sliderButtons.playY;
+    float bWidth = timeSlider.sliderButtons.buttonSize;
+    float bHeight = (timeSlider.sliderButtons.backY + timeSlider.sliderButtons.buttonSize) - by;
+    return (mouseX >= bx && mouseX <= bx + bWidth &&
+            mouseY >= by && mouseY <= by + bHeight);
   }
   
-  // Checks if the mouse is over the hide UI button.
-  boolean isOverHideUIButton() {
-    int buttonWidth = 120;
-    int buttonHeight = 40;
-    int margin = 20;
-    int x = width - buttonWidth - margin;
-    int y = height - buttonHeight - margin;
-    return (mouseX >= x && mouseX <= x + buttonWidth && mouseY >= y && mouseY <= y + buttonHeight);
+  boolean isOverCalendar() {
+    return (mouseX >= calendar.x && mouseX <= calendar.x + calendar.w &&
+            mouseY >= calendar.y && mouseY <= calendar.y + calendar.h);
+  }
+  
+  boolean isOverSliderTrack() {
+    return (mouseX >= timeSlider.x && mouseX <= timeSlider.x + timeSlider.w &&
+            mouseY >= timeSlider.y && mouseY <= timeSlider.y + timeSlider.h);
   }
   
   void mousePressed() {
-    // Check if the Hide UI button is clicked.
-    if (isOverHideUIButton()) {
-      uiHidden = !uiHidden;
+    // Check if the mouse is over any UI element.
+    boolean uiHover = isOverSliderButtons() || isOverCalendar() || isOverSliderTrack();
+    if (uiHover) {
+      uiHeld = true;
+      // Let the UI (time slider, calendar) handle the press.
+      timeSlider.mousePressed();
       return;
     }
     
-    // Even if UI is hidden, allow globe interaction; otherwise, process UI events.
-    if (uiHidden) {
-      return;
-    }
-    
+    // Otherwise, process UI mouse press first.
     timeSlider.mousePressed();
     
-    if (selectedPlane != null && selectedPlane.closeButtonClicked(mouseX, mouseY)) {
-      selectedPlane.selected = false;
-      selectedPlane = null;
+    // Check if the ActiveFlightInfo close button was clicked.
+    if (activeFlightInfo != null && activeFlightInfo.closeButtonClicked(mouseX, mouseY)) {
+      activeFlightInfo.visible = false;
       return;
     }
     
-    // Select one airplane if hovered and visible.
+    // Select an airplane if hovered and visible.
     for (Airplane a : activePlanes) {
-      // Transform the airplane's current position to the viewer's coordinate space.
       PVector transformedPos = new PVector();
       earth.rotationMatrix.mult(a.getPosition(), transformedPos);
-      // Normalize the transformed position.
       PVector norm = transformedPos.copy().normalize();
-      // Only consider the airplane if it's sufficiently on the front side.
       if (norm.z > 0.5 && a.isHovered()) {
-        if (selectedPlane != null) selectedPlane.selected = false;
+        // Deselect all other planes.
+        for (Airplane b : activePlanes) {
+          b.selected = false;
+        }
+        // Mark this plane as selected.
         a.selected = true;
-        selectedPlane = a;
+        
+        activeFlightInfo = new ActiveFlightInfo(
+          a.start, a.end, 
+          a.departureLocation, a.arrivalLocation,
+          a.departureTime, a.arrivalTime,
+          a.airlineName, a.airlineCode,
+          a.flightNumber, a.departureDate
+        );
         break;
       }
     }
     
+    // Also let the calendar process its own mouse press.
     if (calendar.mousePressed()) {
       uiHeld = true;
       return;
     }
     
-    if (isOverCalendar()) {
-      uiHeld = true;
-      return;
-    }
-    
+    // Additional UI checks.
     if (timeSlider.dragging || isOverSliderButtons() || isOverSliderTrack()) {
       uiHeld = true;
       return;
     }
     
+    // If no UI is held, allow globe interaction.
     if (mouseButton == LEFT || mouseButton == RIGHT) {
       if (!uiHeld) {
         earth.isDragging = true;
@@ -276,25 +251,6 @@ class EarthScreenTracker extends Screen {
       earth.rotationMatrix = new PMatrix3D();
       earth.zoomFactor = 0.8;
     }
-  }
-  
-  boolean isOverSliderButtons() {
-    float bx = timeSlider.sliderButtons.buttonsX;
-    float by = timeSlider.sliderButtons.playY;
-    float bWidth = timeSlider.sliderButtons.buttonSize;
-    float bHeight = (timeSlider.sliderButtons.backY + timeSlider.sliderButtons.buttonSize) - by;
-    return (mouseX >= bx && mouseX <= bx + bWidth &&
-            mouseY >= by && mouseY <= by + bHeight);
-  }
-  
-  boolean isOverCalendar() {
-    return (mouseX >= calendar.x && mouseX <= calendar.x + calendar.w &&
-            mouseY >= calendar.y && mouseY <= calendar.y + calendar.h);
-  }
-  
-  boolean isOverSliderTrack() {
-    return (mouseX >= timeSlider.x && mouseX <= timeSlider.x + timeSlider.w &&
-            mouseY >= timeSlider.y && mouseY <= timeSlider.y + timeSlider.h);
   }
   
   String minutesToTimeString(int minutes) {

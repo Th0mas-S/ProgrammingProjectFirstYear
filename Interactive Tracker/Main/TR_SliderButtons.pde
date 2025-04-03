@@ -29,17 +29,20 @@ class SliderButtons {
     } else {
       noStroke();
     }
-    if (isPlaying) {
-      fill(100, 150, 255); // blue background when playing
-    } else {
+    
+    // When paused (isPlaying == false), display grey background (for play button).
+    // When playing (isPlaying == true), display blue background (for pause button).
+    if (!isPlaying) {
       fill(150); // grey background when paused
+    } else {
+      fill(100, 150, 255); // blue background when playing
     }
     rect(buttonsX, playY, buttonSize, buttonSize, 5);
     noStroke();
     fill(255);
     
-    if (isPlaying) {
-      // When playing, display play symbol (triangle)
+    if (!isPlaying) {
+      // Paused: display play symbol (triangle).
       float pt1x = buttonsX + 15;
       float pt1y = playY + 15;
       float pt2x = buttonsX + 15;
@@ -48,7 +51,7 @@ class SliderButtons {
       float pt3y = playY + buttonSize / 2;
       triangle(pt1x, pt1y, pt2x, pt2y, pt3x, pt3y);
     } else {
-      // When paused, display pause symbol: two vertical bars
+      // Playing: display pause symbol: two vertical bars.
       float barWidth = 12;
       float barHeight = 30;
       float barY = playY + (buttonSize - barHeight) / 2;
@@ -56,7 +59,7 @@ class SliderButtons {
       rect(buttonsX + buttonSize - 15 - barWidth, barY, barWidth, barHeight);
     }
     
-    // Fast-Forward Button
+    // Fast-Forward Button (unchanged)
     boolean ffHover = (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
                         mouseY >= ffY && mouseY <= ffY + buttonSize);
     if (ffHover) {
@@ -88,7 +91,7 @@ class SliderButtons {
     float f6y = ffY + buttonSize / 2;
     triangle(f4x, f4y, f5x, f5y, f6x, f6y);
     
-    // Back Button
+    // Back Button (unchanged)
     boolean backHover = (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
                           mouseY >= backY && mouseY <= backY + buttonSize);
     if (backHover) {
@@ -108,12 +111,10 @@ class SliderButtons {
     float arrowHeadX = buttonsX + 15;               // left end where arrow head begins
     float centerY = backY + buttonSize / 2;
     line(arrowTailX, centerY, arrowHeadX, centerY); // horizontal line
-    
-    // Draw arrow head: two diagonal lines from the left end of the line
     line(arrowHeadX, centerY, arrowHeadX + 10, centerY - 10);
     line(arrowHeadX, centerY, arrowHeadX + 10, centerY + 10);
     
-    // Display speed multiplier on the fast-forward button
+    // Display speed multiplier on the fast-forward button.
     String speedText = "x" + nf(speedMultiplier, 0, 1);
     pushStyle();
       textAlign(RIGHT, BOTTOM);
