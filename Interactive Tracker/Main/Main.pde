@@ -13,6 +13,8 @@ CreditsScreen creditsScreen;
 HeatMapScreen heatMapScreen;
 DirectoryScreen directoryScreen;
 
+LoadingScreen loadingScreen;
+
 Earth earth;
 Airport airportOrigin;
 Airport airportDest;
@@ -33,6 +35,8 @@ PImage airplaneModel;
 HashSet<String> spawnedFlights = new HashSet<String>();
 HashMap<String, String> airportLocations = new HashMap<String, String>();
 
+HashMap<String, Location> airportCoordinates = new HashMap<String, Location>();
+
 String lastCheckedDate = "";
 Airplane selectedPlane = null;
 
@@ -50,54 +54,95 @@ void setup() {
   audio = new SoundFile(this, "audio3.mp3");
 
   
-  // Initialize near stars (300 - 500 units away)
-    // Initialize stars (300 - 500 units away)
-  for (int i = 0; i < numStars; i++) {
-    stars[i] = new Star(1000, 2500);
-  }
-  for (int i = 0; i < numMoreStars; i++) {
-    moreStars[i] = new Star(1500, 3000);
-  }
-  for (int i = 0; i < numEvenMoreStars; i++) {
-    evenMoreStars[i] = new Star(2000, 3500);
-  }
-  
-  earth = new Earth("Earth.obj", "Surface4k.png");
-  airportOrigin = new Airport(origin, sphereRadius, 5);
-  airportDest = new Airport(destination, sphereRadius, 5);
 
-  loadAirportMetadata();
-  loadAirportsFromCSV();
+  //loadAirportMetadata();
+  //loadAirportsFromCSV();
   //loadFlightsFromCSV();
   
+  
   calendar = new CalendarDisplay();
-  
-  airplaneImg = loadImage("Airplane.png");
-  // Use the airplane image as the airplane model
-  airplaneModel = airplaneImg;
-  
-  flightHubLogo = loadImage("Flighthub Logo.png");
-  
-
   
   timeSlider = new TimeSlider(width / 4, 60, width / 2, 30);
   timeSlider.value = 0;
   
   screenManager = new ScreenManager();
-  earthScreenTracker = new EarthScreenTracker(earth);
-  //screenManager.switchScreen(earthScreenDirectory);
 
   initGlobalVariables();
-  clearIndex();
   
+  // this is all the stuff that will happen in the background while the loading screen is being shown
+  Thread loadingThread = new Thread( () -> {
+    float loadingStart = millis();
+    float start = millis();
+    
+    loadingScreen.setLoadingProgress(0.001);
+    
+    airplaneImg = loadImage("Airplane.png");
+    // Use the airplane image as the airplane model
+    airplaneModel = airplaneImg;
+    
+
+
+    flightHubLogo = loadImage("Flighthub Logo.png");
+    println("Loading Airplane and FlightHub image took " +  (millis() - start) + "ms");
+    loadingScreen.setLoadingProgress(0.02);
+    start = millis();
+
+    
+    // Initialize near stars (300 - 500 units away)
+    // Initialize stars (300 - 500 units away)
+    for (int i = 0; i < numStars; i++) {
+      stars[i] = new Star(1000, 2500);
+    }
+    for (int i = 0; i < numMoreStars; i++) {
+      moreStars[i] = new Star(1500, 3000);
+    }
+    for (int i = 0; i < numEvenMoreStars; i++) {
+      evenMoreStars[i] = new Star(2000, 3500);
+    }
+    
+    earth = new Earth("Earth.obj", "Surface2k.png");
+    airportOrigin = new Airport(origin, sphereRadius, 5);
+    airportDest = new Airport(destination, sphereRadius, 5);
+    
+    println("Loading Earth took " + (millis() - start) + "ms");
+    start = millis();
+    
+    loadAllAssets();
+    
+    println("Loading csv files took: " + (millis() - start) + "ms"); // around here should be 50%
+    start = millis();
+    
+    earthScreenTracker = new EarthScreenTracker(earth);
+    println("Creating EarthScreen Tracker " + (millis() - start) + "ms");
+    start = millis();
+
+    mainMenuScreen = new MainMenuScreen(this);
+    creditsScreen = new CreditsScreen(this);
+
+    screenBetweenScreens = new ScreenBetweenScreens(this);
+    println("Creating MainMenuScreen Tracker " + (millis() - start) + "ms");
+    start = millis();
+    loadingScreen.setLoadingProgress(loadingScreen.loadingDone + 0.05);
+
+    
+    directoryScreen = new DirectoryScreen();
+    println("Creating Directory Tracker " + (millis() - start) + "ms");
+    start = millis();
+    loadingScreen.setLoadingProgress(loadingScreen.loadingDone + 0.01);
+
+
+    heatMapScreen = new HeatMapScreen();
+    println("Creating HeatMap Tracker " + (millis() - start) + "ms");
+    start = millis();
+    loadingScreen.setLoadingProgress(1);
+
+    println("Total loading took approx " + (millis() - loadingStart) + "ms");
+  });
   
-  mainMenuScreen = new MainMenuScreen(this);
-  screenBetweenScreens = new ScreenBetweenScreens(this);
-  creditsScreen = new CreditsScreen(this);
-  directoryScreen = new DirectoryScreen();
-  heatMapScreen = new HeatMapScreen();
+  loadingScreen = new LoadingScreen(loadingThread);
+  loadingThread.start(); // start loading the data  
+  screenManager.switchScreen(loadingScreen);
   
-  screenManager.switchScreen(mainMenuScreen);
   
   noStroke();
 }
@@ -184,107 +229,46 @@ void multiplyP3DMatrixScalar(PMatrix3D mat, float s) {
   mat.m30 *= s;  mat.m31 *= s;  mat.m32 *= s;  mat.m33 *= s;
 }
 
-void loadAirportsFromCSV() {
-  HashSet<String> usedCodes = new HashSet<String>();
-  Table flightTable = loadTable("flight_data_2017.csv", "header");
-  for (TableRow row : flightTable.rows()) {
-    String origin = row.getString("origin");
-    String dest = row.getString("destination");
-    if (origin != null) usedCodes.add(origin.trim());
-    if (dest != null) usedCodes.add(dest.trim());
-  }
-  
-  Table coordTable = loadTable("airport_data.csv", "header");
-  for (TableRow row : coordTable.rows()) {
-    String code = row.getString("IATA Code").trim();
-    if (!usedCodes.contains(code)) continue;
-    float lat = row.getFloat("latitude");
-    float lon = row.getFloat("longitude");
-    float relLat = -lat + 0.2617;
-    float relLon = 1.0071 * lon + 90.35;
-    Location loc = new Location(relLat, relLon);
-    Airport airport = new Airport(loc, sphereRadius, 5);
-    airports.add(airport);
-    airportMap.put(code, airport);
-  }
-}
 
-//void loadFlightsFromCSV() {
-//  Table table = loadTable("flight_data_2017.csv", "header");
-//  if (table == null) {
-//    println("⚠️ Could not load flight_data_2017.csv");
-//    return;
-//  }
-//  int skippedMalformedTime = 0;
-//  int skippedBadDuration = 0;
-//  int loaded = 0;
-  
-//  for (TableRow row : table.rows()) {
-//    String origin = row.getString("origin");
-//    String destination = row.getString("destination");
-//    String actualDeparture = row.getString("actual_departure");
-//    String actualArrival = row.getString("actual_arrival");
-//    if (origin == null || destination == null || actualDeparture == null || actualArrival == null) {
-//      continue;
-//    }
-//    String[] depParts = split(actualDeparture, " ");
-//    String[] arrParts = split(actualArrival, " ");
-//    if (depParts.length != 2 || arrParts.length != 2) {
-//      skippedMalformedTime++;
-//      continue;
-//    }
-//    String dateStr = depParts[0];
-//    String depTimeStr = depParts[1];
-//    String arrTimeStr = arrParts[1];
-//    String[] depHM = split(depTimeStr, ":");
-//    String[] arrHM = split(arrTimeStr, ":");
-//    if (depHM.length < 2 || arrHM.length < 2) {
-//      skippedMalformedTime++;
-//      continue;
-//    }
-//    int depMin = int(depHM[0]) * 60 + int(depHM[1]);
-//    int arrMin = int(arrHM[0]) * 60 + int(arrHM[1]);
-//    if (arrMin < depMin) {
-//      arrMin += 1440;
-//    }
-//    int duration = arrMin - depMin;
-//    if (duration <= 0) {
-//      skippedBadDuration++;
-//      continue;
-//    }
-//    String originCityCountry = airportLocations.get(origin);
-//    String destCityCountry = airportLocations.get(destination);
-//    if (originCityCountry == null) originCityCountry = origin;
-//    if (destCityCountry == null) destCityCountry = destination;
-//    String airlineName = row.getString("airline_name");
-//    String airlineCode = row.getString("airline_code");
-//    String flightNumber = row.getString("flight_number");
-    
-//    Flight flight = new Flight(
-//      dateStr, airlineCode, flightNumber, origin, destination,
-//      depTimeStr, arrTimeStr,
-//      depTimeStr, arrTimeStr,
-//      airlineName, airlineCode, flightNumber
-//    );
-    
-//    allFlights.add(flight);
-//    loaded++;
-//  }
-  
-//  println("✅ Loaded flights: " + loaded);
-//  println("❌ Skipped (malformed time): " + skippedMalformedTime);
-//  println("❌ Skipped (zero/negative duration): " + skippedBadDuration);
-//}
 
-void loadAirportMetadata() {
-  Table table = loadTable("airport_data.csv", "header");
-  for (TableRow row : table.rows()) {
-    String iata = row.getString("IATA Code");
-    String city = row.getString("City");
-    String country = row.getString("Country");
-    if (iata != null && city != null && country != null) {
-      String location = city + ", " + country;
-      airportLocations.put(iata.trim(), location);
-    }
-  }
+void loadAllAssets() {
+  String[] rows = loadStrings("airport_data.csv");
+  float start = millis();
+  for(int i=1; i<rows.length; i++){
+      String[] data = split(rows[i], ',');
+      
+      String iata = data[2];
+      String city = data[3];
+      String country = data[4];
+      float lat = parseFloat(data[6]);
+      float lon = parseFloat(data[7]);
+      
+      // heatmap
+      airportCoordinates.put(iata, new Location(lat, lon));
+      
+      if (iata != null && city != null && country != null) {
+        String location = city + ", " + country;
+        airportLocations.put(iata.trim(), location);
+      }
+      
+      float relLat = -lat + 0.2617;
+      float relLon = 1.0071 * lon + 90.35;
+      Location loc = new Location(relLat, relLon);
+      Airport airport = new Airport(loc, sphereRadius, 5);
+      airports.add(airport);
+      airportMap.put(iata, airport);
+  } 
+  println("Loading Airport Data took " +  (millis() - start) + "ms");
+  
+  start = millis();
+  initializeDictionary(rows); // this can be optimised, good enough for now!
+  println("Initialising dictionary took" +  (millis() - start) + "ms");
+  
+  start = millis();
+  initializeFlights();
+  println("Initialising flights took " +  (millis() - start) + "ms");
+
+  
+  clearIndex();
+
 }

@@ -39,6 +39,8 @@ void initializeFlights(){                                          //initializes
   int skippedBadDuration = 0;
   int skippedMalformedTime = 0;
   
+  float startLoadingPercent = loadingScreen.loadingDone;
+  
   for(int i=1; i<rows.length; i++){
     String[] data = split(rows[i], ',');
    
@@ -92,6 +94,8 @@ void initializeFlights(){                                          //initializes
     }
 
     flights.add(new Flight(date, airlineCode, airlineName, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, flightDistance, scheduledArrival, actualArrival, diverted, cancelled, duration, depMin));
+    if(i % 100 == 0)
+      loadingScreen.setLoadingProgress(startLoadingPercent + (((float)i / (float)rows.length) / 2)); // this is 50% of the loading time
   }
   println("flights loaded ("+flights.size()+")");
   println("skipped due to malformed time (" + skippedMalformedTime + ")");

@@ -105,27 +105,33 @@ import java.util.concurrent.*;
 
 
 
-HashMap<String, Location> loadAirportCoordinates(String filepath) {
-  String[] rows = loadStrings(filepath);
-  HashMap<String, Location> airportLocations = new HashMap<String, Location>();
-  for(int i=1; i<rows.length; i++){
-      String[] data = split(rows[i], ',');
-      // println(data[2] + " " + data[6] + " " + data[7]);
-      airportLocations.put(data[2], new Location(parseFloat(data[6]), parseFloat(data[7])));
-  }
+//HashMap<String, Location> loadAirportCoordinates(String filepath) {
+//  String[] rows = loadStrings(filepath);
+//  HashMap<String, Location> airportLocations = new HashMap<String, Location>();
+//  for(int i=1; i<rows.length; i++){
+//      String[] data = split(rows[i], ',');
+//      // println(data[2] + " " + data[6] + " " + data[7]);
+//      airportLocations.put(data[2], new Location(parseFloat(data[6]), parseFloat(data[7])));
+//  }
   
-  return airportLocations;
-}
+//  return airportLocations;
+//}
+
+
+
+
 
 class HeatMapScreen extends Screen {
   
   PImage earthImage;
-  HashMap<String, Location> airportLocations;     // probably should make this global seems useful for EarthScreen
   
   final float SCALE = 1; // idk what to call this, this is how big the sqaures are EDIT: sqaure size seems like a good name
   final int heatMapOpacity = 150;
-  final int heatMapWidth = (int)(width / SCALE);
-  final int heatMapHeight = (int)(height / SCALE);
+  int heatMapWidth = (int)(width / SCALE);
+  int heatMapHeight = (int)(height / SCALE);
+
+  PGraphics heatMapLayer;
+
   int[][] heatMap;
     
   int medianIntensity = 0;
@@ -136,7 +142,6 @@ class HeatMapScreen extends Screen {
   float startX, startY;
   boolean isDragging = false;
   
-  PGraphics heatMapLayer;
   
   CalendarDisplay calendar;
   Button backButton;
@@ -146,8 +151,9 @@ class HeatMapScreen extends Screen {
   
   HeatMapScreen() {
     earthImage = loadImage("worldmap.png");
-    this.airportLocations = loadAirportCoordinates("airport_data.csv");
     heatMap = new int[heatMapWidth][heatMapHeight];
+    
+    heatMapLayer = createGraphics(width, height);
     
     calendar = new CalendarDisplay();
     
@@ -172,6 +178,7 @@ class HeatMapScreen extends Screen {
     bs.text = "OKAY";
     bs.onClick = () -> {
       generateHeatMap();
+      generateHeatMapLayer();
     };
     
     confirmButton = bs.build();
@@ -292,9 +299,12 @@ class HeatMapScreen extends Screen {
   }
 
   // Wait for all tasks to complete
+  float futuresDone = 0;
+  float startLoadingDone = loadingScreen.loadingDone;
   for (Future<Void> future : futures) {
     try {
       future.get();
+      loadingScreen.setLoadingProgress(startLoadingDone + (futuresDone++ / (float)futures.size()) * 0.37); // approximately 37% of the waiting time
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -319,15 +329,12 @@ class HeatMapScreen extends Screen {
          medianIntensity = tempList.get((tempList.size() + 1) / 2);
      }
    
-       
-     generateHeatMapLayer();
-
 }
 
 // Flight processing function (each runs on a separate thread)
 void processFlight(Flight f) {
-  Location src = this.airportLocations.get(f.origin);
-  Location des = this.airportLocations.get(f.destination);
+  Location src = airportCoordinates.get(f.origin);
+  Location des = airportCoordinates.get(f.destination);
 
   if (src != null && des != null) {
     PVector pointA = LocationTo3D(src.toRadians());

@@ -39,11 +39,10 @@ String cropData(String dataIn){                 //used for initializing flights
   return(mess[1]);
 }
 
-void initializeDictionary(){                                //call once on startup
+void initializeDictionary(String[] readIn){                                //call once on startup
   airportCode = new ArrayList<String>();                    //initializes dictionarys for airport and airline codes
   airportName = new ArrayList<String>();
   airportAddress = new ArrayList<String>();
-  String[] readIn = loadStrings("airport_data.csv");
   for(int i=1; i<readIn.length; i++){
     String[] row = split(readIn[i], ",");
     airportCode.add(row[2]);
@@ -101,8 +100,8 @@ void initGlobalVariables() {
     arrayIndex = new ArrayList<Integer>();
     currentScreen=0;                                                  //default to start screen
     menu = new Return();
-    initializeFlights();
-    initializeDictionary();
+    //initializeFlights();
+    //initializeDictionary();
 }
 
 

@@ -14,10 +14,13 @@ class LoadingScreen extends Screen {
   color globalCloudColor = color(255, 182, 193);
   
   // Loading progress (0 to 1)
-  float loadingProgress = 0;
+  float loadingProgress = 0; // displayed loading progress for lerping
+  float loadingDone = 0; // actual loading done
   
-  void setup() {
-    size(1920, 1055, P3D);
+  Thread loadingThread;
+  
+  LoadingScreen(Thread loadingThread) {
+    //size(1920, 1055, P3D);
     w = width;
     h = height;
     cols = w / scl;
@@ -33,6 +36,8 @@ class LoadingScreen extends Screen {
       float size = random(80, 150);
       clouds[i] = new Cloud(x, y, size, globalCloudColor);
     }
+    
+    this.loadingThread = loadingThread;
   }
   
   void draw() {
@@ -97,9 +102,11 @@ class LoadingScreen extends Screen {
     hint(ENABLE_DEPTH_TEST);
     
     // For demonstration, gradually increase loadingProgress until it reaches 1.
-    if (loadingProgress < 1) {
-      loadingProgress = min(1, loadingProgress + 0.005);
-    }
+    //if (loadingProgress < 1) {
+    //  loadingProgress = min(1, loadingProgress + 0.005);
+    //}
+    loadingProgress += 0.005;
+    loadingProgress = min(loadingProgress, loadingDone);
     
   // --- Display Loading Bar ---
   hint(DISABLE_DEPTH_TEST);
@@ -137,11 +144,17 @@ class LoadingScreen extends Screen {
   text(dots[loadingIndex], 950 + loadingTextWidth / 2 + 10, 850);
   hint(ENABLE_DEPTH_TEST);
   
+  if(!loadingThread.isAlive()) {
+    heatMapScreen.generateHeatMapLayer(); // needs to be done on the drawing thread, will cause the loading screen to stall
+    screenManager.switchScreen(mainMenuScreen);
+  }
+  
   }
   
   // Method to externally set the loading bar's progress (0 to 1)
   void setLoadingProgress(float p) {
-    loadingProgress = constrain(p, 0, 1);
+    loadingDone = constrain(p, 0, 1);
+    
   }
   
   // Change cloud color with 'c' key
