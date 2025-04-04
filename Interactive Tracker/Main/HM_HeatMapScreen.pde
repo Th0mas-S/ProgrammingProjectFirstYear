@@ -118,18 +118,19 @@ import java.util.concurrent.*;
 //}
 
 
-final float SCALE = 1; // idk what to call this, this is how big the sqaures are EDIT: sqaure size seems like a good name
-final int heatMapOpacity = 150;
-int heatMapWidth = (int)(width / SCALE);
-int heatMapHeight = (int)(height / SCALE);
 
-PImage heatMapLayer;
 
 
 class HeatMapScreen extends Screen {
   
   PImage earthImage;
   
+  final float SCALE = 1; // idk what to call this, this is how big the sqaures are EDIT: sqaure size seems like a good name
+  final int heatMapOpacity = 150;
+  int heatMapWidth = (int)(width / SCALE);
+  int heatMapHeight = (int)(height / SCALE);
+
+  PGraphics heatMapLayer;
 
   int[][] heatMap;
     
@@ -151,6 +152,8 @@ class HeatMapScreen extends Screen {
   HeatMapScreen() {
     earthImage = loadImage("worldmap.png");
     heatMap = new int[heatMapWidth][heatMapHeight];
+    
+    heatMapLayer = createGraphics(width, height);
     
     calendar = new CalendarDisplay();
     
@@ -175,6 +178,7 @@ class HeatMapScreen extends Screen {
     bs.text = "OKAY";
     bs.onClick = () -> {
       generateHeatMap();
+      generateHeatMapLayer();
     };
     
     confirmButton = bs.build();
@@ -295,9 +299,12 @@ class HeatMapScreen extends Screen {
   }
 
   // Wait for all tasks to complete
+  float futuresDone = 0;
+  float startLoadingDone = loadingScreen.loadingDone;
   for (Future<Void> future : futures) {
     try {
       future.get();
+      loadingScreen.setLoadingProgress(startLoadingDone + (futuresDone++ / (float)futures.size()) * 0.37); // approximately 37% of the waiting time
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -322,7 +329,6 @@ class HeatMapScreen extends Screen {
          medianIntensity = tempList.get((tempList.size() + 1) / 2);
      }
    
-     generateHeatMapLayer();
 }
 
 // Flight processing function (each runs on a separate thread)
@@ -362,42 +368,27 @@ void processFlight(Flight f) {
   
   void generateHeatMapLayer() {
     
-    //heatMapLayer = createGraphics(width, height);
-    //heatMapLayer.beginDraw();
-    //heatMapLayer.noStroke();
+    heatMapLayer = createGraphics(width, height);
+    heatMapLayer.beginDraw();
+    heatMapLayer.noStroke();
   
 
     
-    //for(int x = 0; x < heatMapWidth; x++) {
-    //  for (int y = 0; y < heatMapHeight; y++) {
-    //    int intesity = heatMap[x][y];
+    for(int x = 0; x < heatMapWidth; x++) {
+      for (int y = 0; y < heatMapHeight; y++) {
+        int intesity = heatMap[x][y];
         
-    //    if (intesity > 0) {
+        if (intesity > 0) {
           
-    //      color intesityColor = getIntensityColor(intesity);
-    //      heatMapLayer.fill(intesityColor);
-    //      heatMapLayer.rect(x * SCALE, y * SCALE, SCALE, SCALE);
+          color intesityColor = getIntensityColor(intesity);
+          heatMapLayer.fill(intesityColor);
+          heatMapLayer.rect(x * SCALE, y * SCALE, SCALE, SCALE);
          
-    //    }
-    //  }
-    //}
-    
-    //heatMapLayer.endDraw();
-    heatMapLayer = new PImage((int)(width / SCALE), (int)(height / SCALE));
-    heatMapLayer.loadPixels();
-
-    for (int x = 0; x < heatMapWidth; x++) {
-        for (int y = 0; y < heatMapHeight; y++) {
-            int intensity = heatMap[x][y];
-
-            if (intensity > 0) {
-                color intensityColor = getIntensityColor(intensity);
-                heatMapLayer.pixels[y * heatMapWidth + x] = intensityColor;
-            }
         }
+      }
     }
-
-    heatMapLayer.updatePixels();
+    
+    heatMapLayer.endDraw();
     
   }
   

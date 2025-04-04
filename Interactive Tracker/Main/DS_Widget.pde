@@ -11,7 +11,7 @@ class Widget{
     this.w=w;
     this.h=h;
     this.colour=colour;
-    println(colour+"");
+    //println(colour+"");
   }
   
   boolean mouseOver(){

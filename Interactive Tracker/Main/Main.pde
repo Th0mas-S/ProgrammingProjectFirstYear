@@ -12,6 +12,8 @@ ScreenBetweenScreens screenBetweenScreens;
 HeatMapScreen heatMapScreen;
 DirectoryScreen directoryScreen;
 
+LoadingScreen loadingScreen;
+
 Earth earth;
 Airport airportOrigin;
 Airport airportDest;
@@ -59,50 +61,86 @@ void setup() {
   
   calendar = new CalendarDisplay();
   
-  
-  heatMapLayer = new PImage(heatMapWidth, heatMapHeight);
-
-  
   timeSlider = new TimeSlider(width / 4, 60, width / 2, 30);
   timeSlider.value = 0;
   
   screenManager = new ScreenManager();
 
   initGlobalVariables();
-
+  
+  // this is all the stuff that will happen in the background while the loading screen is being shown
   Thread loadingThread = new Thread( () -> {
+    float loadingStart = millis();
+    float start = millis();
     
-  airplaneImg = loadImage("Airplane.png");
-  // Use the airplane image as the airplane model
-  airplaneModel = airplaneImg;
-  
-  flightHubLogo = loadImage("Flighthub Logo.png");
-  
-  // Initialize near stars (300 - 500 units away)
-  // Initialize stars (300 - 500 units away)
-  for (int i = 0; i < numStars; i++) {
-    stars[i] = new Star(1000, 2500);
-  }
-  for (int i = 0; i < numMoreStars; i++) {
-    moreStars[i] = new Star(1500, 3000);
-  }
-  for (int i = 0; i < numEvenMoreStars; i++) {
-    evenMoreStars[i] = new Star(2000, 3500);
-  }
-  
-  earth = new Earth("Earth.obj", "Surface2k.png");
-  airportOrigin = new Airport(origin, sphereRadius, 5);
-  airportDest = new Airport(destination, sphereRadius, 5);
+    loadingScreen.setLoadingProgress(0.001);
+    
+    airplaneImg = loadImage("Airplane.png");
+    // Use the airplane image as the airplane model
+    airplaneModel = airplaneImg;
+    
 
-  loadAllAssets();
-  
-});
-  
-  
-  screenManager.switchScreen(new LoadingScreen(loadingThread));
-  
-  loadingThread.start();
 
+    flightHubLogo = loadImage("Flighthub Logo.png");
+    println("Loading Airplane and FlightHub image took " +  (millis() - start) + "ms");
+    loadingScreen.setLoadingProgress(0.02);
+    start = millis();
+
+    
+    // Initialize near stars (300 - 500 units away)
+    // Initialize stars (300 - 500 units away)
+    for (int i = 0; i < numStars; i++) {
+      stars[i] = new Star(1000, 2500);
+    }
+    for (int i = 0; i < numMoreStars; i++) {
+      moreStars[i] = new Star(1500, 3000);
+    }
+    for (int i = 0; i < numEvenMoreStars; i++) {
+      evenMoreStars[i] = new Star(2000, 3500);
+    }
+    
+    earth = new Earth("Earth.obj", "Surface2k.png");
+    airportOrigin = new Airport(origin, sphereRadius, 5);
+    airportDest = new Airport(destination, sphereRadius, 5);
+    
+    println("Loading Earth took " + (millis() - start) + "ms");
+    start = millis();
+    
+    loadAllAssets();
+    
+    println("Loading csv files took: " + (millis() - start) + "ms"); // around here should be 50%
+    start = millis();
+    
+    earthScreenTracker = new EarthScreenTracker(earth);
+    println("Creating EarthScreen Tracker " + (millis() - start) + "ms");
+    start = millis();
+
+    mainMenuScreen = new MainMenuScreen(this);
+
+    screenBetweenScreens = new ScreenBetweenScreens(this);
+    println("Creating MainMenuScreen Tracker " + (millis() - start) + "ms");
+    start = millis();
+    loadingScreen.setLoadingProgress(loadingScreen.loadingDone + 0.05);
+
+    
+    directoryScreen = new DirectoryScreen();
+    println("Creating Directory Tracker " + (millis() - start) + "ms");
+    start = millis();
+    loadingScreen.setLoadingProgress(loadingScreen.loadingDone + 0.01);
+
+
+    heatMapScreen = new HeatMapScreen();
+    println("Creating HeatMap Tracker " + (millis() - start) + "ms");
+    start = millis();
+    loadingScreen.setLoadingProgress(1);
+
+    println("Total loading took approx " + (millis() - loadingStart) + "ms");
+  });
+  
+  loadingScreen = new LoadingScreen(loadingThread);
+  loadingThread.start(); // start loading the data  
+  screenManager.switchScreen(loadingScreen);
+  
   
   noStroke();
 }
@@ -193,7 +231,7 @@ void multiplyP3DMatrixScalar(PMatrix3D mat, float s) {
 
 void loadAllAssets() {
   String[] rows = loadStrings("airport_data.csv");
-  
+  float start = millis();
   for(int i=1; i<rows.length; i++){
       String[] data = split(rows[i], ',');
       
@@ -218,18 +256,17 @@ void loadAllAssets() {
       airports.add(airport);
       airportMap.put(iata, airport);
   } 
+  println("Loading Airport Data took " +  (millis() - start) + "ms");
+  
+  start = millis();
   initializeDictionary(rows); // this can be optimised, good enough for now!
+  println("Initialising dictionary took" +  (millis() - start) + "ms");
+  
+  start = millis();
   initializeFlights();
-  
-  clearIndex();
-  
+  println("Initialising flights took " +  (millis() - start) + "ms");
 
   
-  // initialise screens
-  earthScreenTracker = new EarthScreenTracker(earth);
-  mainMenuScreen = new MainMenuScreen(this);
-  screenBetweenScreens = new ScreenBetweenScreens(this);
-  directoryScreen = new DirectoryScreen();
-  heatMapScreen = new HeatMapScreen();
+  clearIndex();
 
 }

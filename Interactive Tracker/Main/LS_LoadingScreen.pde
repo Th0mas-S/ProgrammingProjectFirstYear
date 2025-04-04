@@ -14,7 +14,8 @@ class LoadingScreen extends Screen {
   color globalCloudColor = color(255, 182, 193);
   
   // Loading progress (0 to 1)
-  float loadingProgress = 0;
+  float loadingProgress = 0; // displayed loading progress for lerping
+  float loadingDone = 0; // actual loading done
   
   Thread loadingThread;
   
@@ -101,9 +102,11 @@ class LoadingScreen extends Screen {
     hint(ENABLE_DEPTH_TEST);
     
     // For demonstration, gradually increase loadingProgress until it reaches 1.
-    if (loadingProgress < 1) {
-      loadingProgress = min(1, loadingProgress + 0.005);
-    }
+    //if (loadingProgress < 1) {
+    //  loadingProgress = min(1, loadingProgress + 0.005);
+    //}
+    loadingProgress += 0.005;
+    loadingProgress = min(loadingProgress, loadingDone);
     
   // --- Display Loading Bar ---
   hint(DISABLE_DEPTH_TEST);
@@ -142,6 +145,7 @@ class LoadingScreen extends Screen {
   hint(ENABLE_DEPTH_TEST);
   
   if(!loadingThread.isAlive()) {
+    heatMapScreen.generateHeatMapLayer(); // needs to be done on the drawing thread, will cause the loading screen to stall
     screenManager.switchScreen(mainMenuScreen);
   }
   
@@ -149,7 +153,8 @@ class LoadingScreen extends Screen {
   
   // Method to externally set the loading bar's progress (0 to 1)
   void setLoadingProgress(float p) {
-    loadingProgress = constrain(p, 0, 1);
+    loadingDone = constrain(p, 0, 1);
+    
   }
   
   // Change cloud color with 'c' key
