@@ -1,6 +1,6 @@
 class DirectoryFlightInfoScreen extends Screen {
   
-  PImage logo, backdrop, airlineLogo;
+  PImage logo, backdrop, airlineLogo, tab;
   Flight flight;
   Widget back;
   int textSize;
@@ -10,6 +10,8 @@ class DirectoryFlightInfoScreen extends Screen {
     //textSize=int((width-110)*0.014);
     logo = loadImage("Flighthub Logo.png");
     logo.resize(int(360*1.9), int(240*1.9));
+    tab = loadImage("ds_tab.png");
+    
     backdrop = loadImage("ds_backdrop.png");
     backdrop.resize(width, height);
     showData(currentFlight);
@@ -30,22 +32,26 @@ class DirectoryFlightInfoScreen extends Screen {
       backdrop.resize(width, height);
       background(backdrop);
       
-      noStroke();
-      fill(100, 100, 100, 230);
-      rect(58, 63, 531, 131, 10);
+      //noStroke();
+      //fill(100, 100, 100, 230);
+      //rect(58, 63, 531, 131, 10);
       
       stroke(100);
       strokeWeight(5);
       fill(160, 160, 160, 220);      
       rect(58, 63-15, 531+23, 131+30, 13);        //logo border
+      imageMode(CORNER);
       image(logo, 20, -100);
+      imageMode(CORNER);
       
       
       stroke(0);
-      fill(#2BBAA5);      
+      fill(0);      
       rect(55, 280, width-110, height-335, 15);
+      tab.resize(width-110-10, height-335-10);
+      image(tab, 60, 285);
       textSize(textSize);
-      fill(0);
+      fill(255);
       int i = 140;
       int j = 430+((textSize*3+3));
       
@@ -77,6 +83,7 @@ class DirectoryFlightInfoScreen extends Screen {
   }
   
   void mousePressed() {
+    println("x: "+mouseX+"  y: "+mouseY);
     if(back.mouseOver()) {
       screenManager.switchScreen(previousScreen);
     }

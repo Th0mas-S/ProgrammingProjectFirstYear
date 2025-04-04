@@ -178,8 +178,10 @@ class DirectoryScreen extends Screen {
       fill(160, 160, 160, 220);      
       rect(55, 280, width-110, height-335, 15);
       
+      imageMode(CORNER);
       rect(58, 63-15, 531+23, 131+30, 13);        //logo border
       image(logo, 20, -100);
+      imageMode(CORNER);
       
       strokeWeight(1);
       stroke(0);
