@@ -34,7 +34,13 @@ class DirectoryFlightInfoScreen extends Screen {
       fill(100, 100, 100, 230);
       rect(58, 63, 531, 131, 10);
       
+      stroke(100);
+      strokeWeight(5);
+      fill(160, 160, 160, 220);      
+      rect(58, 63-15, 531+23, 131+30, 13);        //logo border
       image(logo, 20, -100);
+      
+      
       stroke(0);
       fill(#2BBAA5);      
       rect(55, 280, width-110, height-335, 15);

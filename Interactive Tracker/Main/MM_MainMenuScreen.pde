@@ -182,11 +182,11 @@ class MainMenuScreen extends Screen {
     } else if(isMouseOverRect(startX, thirdButtonY, buttonWidth, buttonHeight)) {
       screenManager.switchScreen(screenBetweenScreens);
     } else if(isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30)){
-<<<<<<< Updated upstream
+//<<<<<<< Updated upstream
       screenManager.switchScreen(creditsScreen);
-=======
+//=======
       // switch screen to directory or credits as needed
->>>>>>> Stashed changes
+//>>>>>>> Stashed changes
     } else if(isMouseOverRect(exitX, fourthButtonY, exitWidth, buttonHeight - 30)) {
       parent.exit();
     }
