@@ -139,7 +139,6 @@ class DirectoryFlightInfoScreen extends Screen {
     logo.resize(int(360*1.2), int(240*1.2));
     backdrop = loadImage("ds_backdrop.png");
     backdrop.resize(width, height);
-    println(currentFlight.date);
     showData(currentFlight);
     back = new Widget(width-160, 160, 2, 100, 50, #DD5341);
     textSize=int((width-110)*0.014);
@@ -388,7 +387,6 @@ class DirectoryScreen extends Screen {
   
   void printArray(){                                //prints all the Flight data from each Flight in flights array that is selected by index array
     int counter=0;
-    println(arrayIndex.size());
     for(int i=int((arrayIndex.size()*(slider.getPercent()))); (i<arrayIndex.size() && counter<(height-335-55)/(textSize+3)); i++){
       flights.get(arrayIndex.get(i)).drawData(85, 310+((textSize+3)*counter)+int(height*0.02), textSize);
       counter++;

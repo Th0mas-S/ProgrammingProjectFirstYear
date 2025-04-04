@@ -53,7 +53,6 @@ class EarthScreenTracker extends Screen {
           Airport origin = airportMap.get(flight.origin);
           Airport dest = airportMap.get(flight.destination);
           if (origin != null && dest != null) {
-            println(flight.scheduledDeparture, flight.scheduledArrival);
             Airplane airplane = new Airplane(
               origin, dest, sphereRadius, airplaneModel, (float)flight.minutes,
               airportLocations.get(flight.origin), airportLocations.get(flight.destination),
