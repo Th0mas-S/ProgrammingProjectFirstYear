@@ -124,7 +124,7 @@ class LoadingScreen extends Screen {
   rectMode(CORNER);
   noStroke();
   fill(12, 190, 12);
-  rect(839, 880, filledWidth - 8, barHeight);
+  rect(839, 880, filledWidth, barHeight);
   hint(ENABLE_DEPTH_TEST);
   
   // --- Display Loading Text ---
