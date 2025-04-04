@@ -52,7 +52,7 @@ class EarthScreenTracker extends Screen {
         if (!spawnedFlights.contains(flightID)) {
           Airport origin = airportMap.get(flight.origin);
           Airport dest = airportMap.get(flight.destination);
-          if (origin != null && dest != null) {
+          if (origin != null && dest != null && !flight.cancelled) {
             Airplane airplane = new Airplane(
               origin, dest, sphereRadius, airplaneModel, (float)flight.minutes,
               airportLocations.get(flight.origin), airportLocations.get(flight.destination),

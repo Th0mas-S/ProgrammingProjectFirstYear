@@ -66,34 +66,39 @@ void initializeFlights(){                                          //initializes
     String[] arrParts = split(data[9], " ");
     if (depParts.length != 2 || arrParts.length != 2) {
       skippedMalformedTime++;
-      continue;
+      //continue;
     }
    
+   int duration = 0;
+   int minutes = 0;
+    if(!cancelled) {
+      actualArrival = convertDate(arrParts[0]) + " " + arrParts[1];
+      actualDeparture = convertDate(depParts[0]) + " " + depParts[1];
+          
+      String dateStr = depParts[0];
+      String depTimeStr = depParts[1];
+      String arrTimeStr = arrParts[1];
+      String[] depHM = split(depTimeStr, ":");
+      String[] arrHM = split(arrTimeStr, ":");
+      if (depHM.length < 2 || arrHM.length < 2) {
+        skippedMalformedTime++;
+        continue;
+      }
+      int depMin = int(depHM[0]) * 60 + int(depHM[1]);
+      minutes = depMin;
+      int arrMin = int(arrHM[0]) * 60 + int(arrHM[1]);
+      if (arrMin < depMin) {
+        arrMin += 1440;
+      }
+      duration = arrMin - depMin;
+      if (duration <= 0) {
+        skippedBadDuration++;
+        continue;
+      }
+    }
     
-    actualArrival = convertDate(arrParts[0]) + " " + arrParts[1];
-    actualDeparture = convertDate(depParts[0]) + " " + depParts[1];
-        
-    String dateStr = depParts[0];
-    String depTimeStr = depParts[1];
-    String arrTimeStr = arrParts[1];
-    String[] depHM = split(depTimeStr, ":");
-    String[] arrHM = split(arrTimeStr, ":");
-    if (depHM.length < 2 || arrHM.length < 2) {
-      skippedMalformedTime++;
-      continue;
-    }
-    int depMin = int(depHM[0]) * 60 + int(depHM[1]);
-    int arrMin = int(arrHM[0]) * 60 + int(arrHM[1]);
-    if (arrMin < depMin) {
-      arrMin += 1440;
-    }
-    int duration = arrMin - depMin;
-    if (duration <= 0) {
-      skippedBadDuration++;
-      continue;
-    }
 
-    flights.add(new Flight(date, airlineCode, airlineName, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, flightDistance, scheduledArrival, actualArrival, diverted, cancelled, duration, depMin));
+    flights.add(new Flight(date, airlineCode, airlineName, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, flightDistance, scheduledArrival, actualArrival, diverted, cancelled, duration, minutes));
     if(i % 100 == 0)
       loadingScreen.setLoadingProgress(startLoadingPercent + (((float)i / (float)rows.length) / 2)); // this is 50% of the loading time
   }
