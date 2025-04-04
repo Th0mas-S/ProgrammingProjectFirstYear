@@ -148,6 +148,7 @@ class MainMenuScreen extends Screen {
     }
     parent.image(muteIcon, centerX, centerY, iconWidth, iconHeight);
     parent.noTint();
+    imageMode(CORNER);
   }
   
   void drawHoverButton(float x, float y, float w, float h, String label, float baseTextSize) {
