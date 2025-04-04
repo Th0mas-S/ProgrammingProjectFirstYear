@@ -19,32 +19,43 @@ PImage flightHubLogo;
 
 class MainMenuScreen extends Screen {
 
-  // New variables for hover sound
+  // New variables for hover sound.
   SoundFile hoverSound;
   boolean wasHoveringButton = false;
   
-  // Reference to the main PApplet
+  // Reference to the main PApplet.
   PApplet parent;
   
   EarthMenu earth;
   ArrayList<AirplaneMenu> airplanes; 
-
-  // Global variables for stars.
-  // (star arrays and numbers defined outside or elsewhere remain unchanged)
   
   PImage flightHubLogo;
+  
+  // New variable for the mute icon.
+  PImage muteIcon;
+  
+  // Toggle state for the mute icon.
+  boolean muteToggled = false;
 
   MainMenuScreen(PApplet parent) {
     this.parent = parent;
-    audio.loop();
+    
+    // Start the main menu audio (audio3) from the global variable only if not muted.
+    if (!muteToggled) {
+      audio.loop();
+    }
+    
     flightHubLogo = parent.loadImage("Flighthub Logo.png");
+    
+    // Load the mute icon.
+    muteIcon = parent.loadImage("Mute.png");
 
     // Load the hover sound (ensure "audio4.mp3" is in your data folder)
     hoverSound = new SoundFile(parent, "audio4.mp3");
 
     parent.noStroke();
     
-    // Initialize stars with different radii for depth
+    // Initialize stars with different radii for depth.
     for (int i = 0; i < numStars; i++) {
       stars[i] = new Star(1000, 2500);
     }
@@ -59,7 +70,7 @@ class MainMenuScreen extends Screen {
     earth = new EarthMenu("Earth.obj", "Surface4k.png");
     
     // Initialize the airplanes list and add airplanes.
-    // The airplanes are now placed on a sphere 3 units larger than the Earth model's radius.
+    // The airplanes are now placed on a sphere 3 units larger than the Earth's radius.
     airplanes = new ArrayList<AirplaneMenu>();
     for (int i = 0; i < numAirplanes; i++) {
       airplanes.add(new AirplaneMenu(earthRadius + 3, "Airplane.obj", "AirplaneTexture.png"));
@@ -68,6 +79,11 @@ class MainMenuScreen extends Screen {
   
   void draw() {
     parent.background(0);
+    
+    // Ensure that if muted, the main menu audio is not playing.
+    if (muteToggled && audio.isPlaying()) {
+      audio.stop();
+    }
     
     // Draw stars from the various star arrays.
     Star[][] starArrays = { stars, moreStars, evenMoreStars };
@@ -81,6 +97,8 @@ class MainMenuScreen extends Screen {
     // Draw UI on top so transparency works.
     parent.hint(PConstants.DISABLE_DEPTH_TEST);
     drawUI();
+    
+    // Draw the FlightHub logo.
     imageMode(CORNER);
     noTint();
     parent.image(flightHubLogo, 800, -250, 1200, 900);
@@ -88,17 +106,48 @@ class MainMenuScreen extends Screen {
     
     // Draw the Earth and airplanes.
     parent.pushMatrix();
-    earth.slowRotate();
-    parent.translate(0, parent.height);
-    parent.scale(1.5);
-    earth.display();
-    
-    // Update and display each airplane.
-    for (AirplaneMenu a : airplanes) {
-      a.update();
-      a.display();
-    }
+      earth.slowRotate();
+      parent.translate(0, parent.height);
+      parent.scale(1.5);
+      earth.display();
+      for (AirplaneMenu a : airplanes) {
+        a.update();
+        a.display();
+      }
     parent.popMatrix();
+    
+    // Draw the mute icon in the top right corner with hover effect and toggle behavior.
+    int margin = 20;
+    float baseScale = 0.03;
+    float hoverScaleFactor = 1.15;
+    
+    // Calculate base dimensions (at base scale).
+    float baseIconWidth = muteIcon.width * baseScale;
+    float baseIconHeight = muteIcon.height * baseScale;
+    // Compute the center of the icon at its base size so that its top-right corner is margin from the screen.
+    float centerX = parent.width - margin - (baseIconWidth / 2);
+    float centerY = margin + (baseIconHeight / 2);
+    
+    // Determine the base rectangle for the icon in CENTER mode.
+    float baseLeft = centerX - baseIconWidth / 2;
+    float baseTop = centerY - baseIconHeight / 2;
+    boolean isOverMute = (parent.mouseX >= baseLeft && parent.mouseX <= baseLeft + baseIconWidth &&
+                          parent.mouseY >= baseTop && parent.mouseY <= baseTop + baseIconHeight);
+    
+    // Apply hover scaling.
+    float currentScale = isOverMute ? baseScale * hoverScaleFactor : baseScale;
+    float iconWidth = muteIcon.width * currentScale;
+    float iconHeight = muteIcon.height * currentScale;
+    
+    // Use CENTER mode so enlargement occurs around the center.
+    parent.imageMode(PConstants.CENTER);
+    if (muteToggled) {
+      parent.tint(70, 70, 70);  // Grey tint when muted.
+    } else {
+      parent.noTint();
+    }
+    parent.image(muteIcon, centerX, centerY, iconWidth, iconHeight);
+    parent.noTint();
   }
   
   void drawHoverButton(float x, float y, float w, float h, String label, float baseTextSize) {
@@ -137,7 +186,7 @@ class MainMenuScreen extends Screen {
     float exitX = startX * 1.275f - 10;
     float exitWidth = buttonWidth / 2 + 20;
     
-    // Check for hover state and play sound if needed.
+    // Check for hover state and play sound if needed, but only if not muted.
     boolean currentlyHovering = 
       isMouseOverRect(startX, startY, buttonWidth, buttonHeight) ||
       isMouseOverRect(startX, secondButtonY, buttonWidth, buttonHeight) ||
@@ -145,7 +194,7 @@ class MainMenuScreen extends Screen {
       isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30) ||
       isMouseOverRect(exitX, fourthButtonY, exitWidth, buttonHeight - 30);
       
-    if (currentlyHovering && !wasHoveringButton) {
+    if (currentlyHovering && !wasHoveringButton && !muteToggled) {
       hoverSound.play();
     }
     wasHoveringButton = currentlyHovering;
@@ -163,6 +212,30 @@ class MainMenuScreen extends Screen {
   }
   
   void mousePressed() {
+    // Check if mouse pressed on mute icon first.
+    int margin = 20;
+    float baseScale = 0.3;
+    float baseIconWidth = muteIcon.width * baseScale;
+    float baseIconHeight = muteIcon.height * baseScale;
+    // Compute the center as in draw().
+    float centerX = parent.width - margin - (baseIconWidth / 2);
+    float centerY = margin + (baseIconHeight / 2);
+    float baseLeft = centerX - baseIconWidth / 2;
+    float baseTop = centerY - baseIconHeight / 2;
+    boolean isOverMute = (parent.mouseX >= baseLeft && parent.mouseX <= baseLeft + baseIconWidth &&
+                          parent.mouseY >= baseTop && parent.mouseY <= baseTop + baseIconHeight);
+    if (isOverMute) {
+      muteToggled = !muteToggled;
+      // If muting, stop all audio; if unmuting, restart the main menu audio.
+      if (muteToggled) {
+        audio.stop();
+        hoverSound.stop();
+      } else {
+        audio.loop();
+      }
+      return;
+    }
+    
     // Calculate button positions.
     float startX = parent.width - (buttonWidth - 10);
     float startY = parent.height / 2.5f;
@@ -179,8 +252,8 @@ class MainMenuScreen extends Screen {
       screenManager.switchScreen(heatMapScreen);
     } else if(isMouseOverRect(startX, thirdButtonY, buttonWidth, buttonHeight)) {
       screenManager.switchScreen(screenBetweenScreens);
-    } else if(isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30)){
-      screenManager.switchScreen(creditsScreen);
+    } else if(isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30)) {
+      // Stop audio before switching to the credits screen.
       audio.stop();
       screenManager.switchScreen(creditsScreen);
     } else if(isMouseOverRect(exitX, fourthButtonY, exitWidth, buttonHeight - 30)) {

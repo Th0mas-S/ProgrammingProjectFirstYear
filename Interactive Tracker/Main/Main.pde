@@ -32,6 +32,7 @@ ArrayList<Flight> todaysFlights = new ArrayList<Flight>();
 ArrayList<Airplane> activePlanes = new ArrayList<Airplane>();
 PImage airplaneImg;
 PImage airplaneModel;
+PImage flightHubLogoCredits;
 HashSet<String> spawnedFlights = new HashSet<String>();
 HashMap<String, String> airportLocations = new HashMap<String, String>();
 
@@ -82,6 +83,7 @@ void setup() {
 
 
     flightHubLogo = loadImage("Flighthub Logo.png");
+    flightHubLogoCredits = loadImage("FlightHubLogoCredits.png");
     println("Loading Airplane and FlightHub image took " +  (millis() - start) + "ms");
     loadingScreen.setLoadingProgress(0.02);
     start = millis();
@@ -99,7 +101,7 @@ void setup() {
       evenMoreStars[i] = new Star(2000, 3500);
     }
     
-    earth = new Earth("Earth.obj", "Surface2k.png");
+    earth = new Earth("Earth.obj", "Surface16k.png");
     airportOrigin = new Airport(origin, sphereRadius, 5);
     airportDest = new Airport(destination, sphereRadius, 5);
     

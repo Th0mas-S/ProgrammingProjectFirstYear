@@ -112,7 +112,7 @@ class CreditsScreen extends Screen {
         
         // Draw the logo at the current scale.
         parent.imageMode(PConstants.CENTER);
-        parent.image(flightHubLogo, 0, 0, flightHubLogo.width * logoScale, flightHubLogo.height * logoScale);
+        parent.image(flightHubLogoCredits, 0, 0, flightHubLogoCredits.width * logoScale, flightHubLogoCredits.height * logoScale);
         parent.imageMode(PConstants.CORNER);
       parent.popMatrix();
     }
