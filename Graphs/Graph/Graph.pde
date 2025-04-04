@@ -32,13 +32,6 @@ float q3x, q3y, q3w, q3h;
 float q4x, q4y, q4w, q4h;
 
 void setup() {
-<<<<<<< Updated upstream
-  size(800, 600);
-  textFont(createFont("Arial", 18)); // Base font
-  
-  // Load CSV data
-  processData = new ProcessData("flight_data_2017.csv"); 
-=======
   size(1920, 1055, P3D);
   textFont(createFont("Arial", 18));
 
@@ -70,7 +63,6 @@ void setup() {
 
   // Load flight data
   processData = new ProcessData("flight_data_2017.csv");
->>>>>>> Stashed changes
   if (processData.table == null) {
     println("Error: flight_data_2017.csv not loaded. Check file in data folder.");
     exit();
