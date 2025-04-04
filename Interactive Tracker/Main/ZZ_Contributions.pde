@@ -1,5 +1,29 @@
 /*
 
+Week 11:
+- Darragh O' Toole
+  - Buttons sounds
+  - Background music
+  - Screen to choose which directory to go to
+  - A LOT Bug fixes
+
+- Aman Pathak
+  - Loaded data properly and only once
+  - Intergrated loading screen and proper loading bar
+  - Merged Jason's screen and other updates to the code throughout the project
+  - Broke stuff when merging other people code
+  - Fixed codebase
+  - A LOT Bug fixes
+  
+- Ben Murphy
+  - Linked the "more info" button to specfic flight directory
+  - Updated interactive tracker
+  - A LOT Bug Fixes
+  
+- Thomas Shanahan
+  - Created Credits screen
+  - Bug Fixes
+
 Week 10:
 
 - Darragh O' Toole
@@ -63,29 +87,4 @@ Week 8:
   
 -Ben Murphy
   - Modelled and Textured Globe in Blender
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 */
