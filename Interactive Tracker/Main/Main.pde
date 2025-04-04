@@ -40,7 +40,6 @@ HashMap<String, Location> airportCoordinates = new HashMap<String, Location>();
 String lastCheckedDate = "";
 Airplane selectedPlane = null;
 
-
 SoundFile audio;
 
 // ========================
@@ -117,7 +116,7 @@ void setup() {
     start = millis();
 
     mainMenuScreen = new MainMenuScreen(this);
-    creditsScreen = new CreditsScreen(this);
+    creditsScreen = new CreditsScreen(this, audio);
 
     screenBetweenScreens = new ScreenBetweenScreens(this);
     println("Creating MainMenuScreen Tracker " + (millis() - start) + "ms");

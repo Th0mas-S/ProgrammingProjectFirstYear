@@ -4,7 +4,6 @@ float altitudeOffset = 500;
 float earthRadius = 200;
 int numAirplanes = 2;
 
-
 // Global constant for Y-axis
 final PVector Y_AXIS = new PVector(0, 1, 0);
 
@@ -17,7 +16,6 @@ boolean globalShootingStarActiveMenu = false;
 int globalNextShootingStarTimeMenu = 0;
 
 PImage flightHubLogo;
-
 
 class MainMenuScreen extends Screen {
 
@@ -182,11 +180,9 @@ class MainMenuScreen extends Screen {
     } else if(isMouseOverRect(startX, thirdButtonY, buttonWidth, buttonHeight)) {
       screenManager.switchScreen(screenBetweenScreens);
     } else if(isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30)){
-//<<<<<<< Updated upstream
       screenManager.switchScreen(creditsScreen);
-//=======
-      // switch screen to directory or credits as needed
-//>>>>>>> Stashed changes
+      audio.stop();
+      screenManager.switchScreen(creditsScreen);
     } else if(isMouseOverRect(exitX, fourthButtonY, exitWidth, buttonHeight - 30)) {
       parent.exit();
     }
