@@ -173,15 +173,13 @@ class DirectoryScreen extends Screen {
       backdrop.resize(width, height);
       background(backdrop);
       
-      noStroke();
-      fill(100, 100, 100, 230);
-      rect(58, 63, 531, 131, 10);
-      
-      image(logo, 20, -100);
       stroke(100);
       strokeWeight(5);
       fill(160, 160, 160, 220);      
       rect(55, 280, width-110, height-335, 15);
+      
+      rect(58, 63-15, 531+23, 131+30, 13);        //logo border
+      image(logo, 20, -100);
       
       strokeWeight(1);
       stroke(0);
