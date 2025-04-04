@@ -31,22 +31,17 @@ class MainMenuScreen extends Screen {
   EarthMenu earth;
   ArrayList<AirplaneMenu> airplanes; 
 
-  // Global variables for stars
-  //int numStars = 300;
-  //int numMoreStars = 200;
-  //int numEvenMoreStars = 1000;
+  // Global variables for stars.
+  // (star arrays and numbers defined outside or elsewhere remain unchanged)
   
-  //Star[] stars = new Star[numStars];
-  //Star[] moreStars = new Star[numMoreStars];
-  //Star[] evenMoreStars = new Star[numEvenMoreStars];
+  PImage flightHubLogo;
 
-  // Modified constructor to accept a PApplet reference
   MainMenuScreen(PApplet parent) {
     this.parent = parent;
     audio.loop();
     flightHubLogo = parent.loadImage("Flighthub Logo.png");
 
-    // Load the hover sound (make sure "audio4.mp3" is in your data folder)
+    // Load the hover sound (ensure "audio4.mp3" is in your data folder)
     hoverSound = new SoundFile(parent, "audio4.mp3");
 
     parent.noStroke();
@@ -62,21 +57,21 @@ class MainMenuScreen extends Screen {
       evenMoreStars[i] = new Star(2000, 3500);
     }
     
-    // Initialize the Earth model (ensure "Earth.obj" and "Surface2k.png" are in the data folder)
+    // Initialize the Earth model.
     earth = new EarthMenu("Earth.obj", "Surface4k.png");
     
-    // Initialize the airplanes list and add airplanes
+    // Initialize the airplanes list and add airplanes.
+    // The airplanes are now placed on a sphere 3 units larger than the Earth model's radius.
     airplanes = new ArrayList<AirplaneMenu>();
     for (int i = 0; i < numAirplanes; i++) {
-      airplanes.add(new AirplaneMenu(earthRadius, "Airplane.obj", "AirplaneTexture.png"));
+      airplanes.add(new AirplaneMenu(earthRadius + 3, "Airplane.obj", "AirplaneTexture.png"));
     }
-  
   }
   
   void draw() {
     parent.background(0);
     
-    // Draw stars (using an array of star arrays to reduce duplicate loops)
+    // Draw stars from the various star arrays.
     Star[][] starArrays = { stars, moreStars, evenMoreStars };
     for (Star[] starArray : starArrays) {
       for (Star star : starArray) {
@@ -85,7 +80,7 @@ class MainMenuScreen extends Screen {
       }
     }
     
-    // Draw UI on top for transperency to work.
+    // Draw UI on top so transparency works.
     parent.hint(PConstants.DISABLE_DEPTH_TEST);
     drawUI();
     imageMode(CORNER);
@@ -128,22 +123,13 @@ class MainMenuScreen extends Screen {
     parent.text(label, currentX + currentW / 2, currentY + currentH / 2);
   }
   
-  // these are member variables, i put them down here for now because they are relevant to the drawUI function
+  // Button dimensions and positioning variables.
   float buttonWidth = 700;
   float buttonHeight = 80;
   float gap = 70;
-  // The following values are calculated based on parent's dimensions in drawUI:
-  // float startX = parent.width - (buttonWidth - 10);
-  // float startY = parent.height / 2.5;
-  // float secondButtonY = startY + buttonHeight + gap;
-  // float thirdButtonY = secondButtonY + buttonHeight + gap;
-  // float fourthButtonY = thirdButtonY + buttonHeight + gap;
-  // float creditsWidth = buttonWidth / 2 - 50;
-  // float exitX = startX * 1.275 - 10;
-  // float exitWidth = buttonWidth / 2 + 20;
   
   void drawUI() {
-    // Calculate button positions based on parent's dimensions
+    // Calculate button positions based on parent's dimensions.
     float startX = parent.width - (buttonWidth - 10);
     float startY = parent.height / 2.5f;
     float secondButtonY = startY + buttonHeight + gap;
@@ -153,8 +139,7 @@ class MainMenuScreen extends Screen {
     float exitX = startX * 1.275f - 10;
     float exitWidth = buttonWidth / 2 + 20;
     
-    // --- NEW CODE TO DETECT HOVER AND PLAY SOUND ---
-    // Check if the mouse is over any button
+    // Check for hover state and play sound if needed.
     boolean currentlyHovering = 
       isMouseOverRect(startX, startY, buttonWidth, buttonHeight) ||
       isMouseOverRect(startX, secondButtonY, buttonWidth, buttonHeight) ||
@@ -162,20 +147,12 @@ class MainMenuScreen extends Screen {
       isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30) ||
       isMouseOverRect(exitX, fourthButtonY, exitWidth, buttonHeight - 30);
       
-    // If the mouse just entered a button, play the hover sound
     if (currentlyHovering && !wasHoveringButton) {
       hoverSound.play();
     }
-    // Update flag for next frame
     wasHoveringButton = currentlyHovering;
-    // --------------------------------------------------
     
-    // Draw the title.
-    //parent.textAlign(PConstants.CENTER, PConstants.CENTER);
-    //parent.textSize(50);
-    //parent.fill(255);
-    //parent.text("FLIGHTHUB", parent.width - 400, parent.height / 2 - 250);
-    
+    // Draw the buttons.
     drawHoverButton(startX, startY, buttonWidth, buttonHeight, "Globe", 40);
     drawHoverButton(startX, secondButtonY, buttonWidth, buttonHeight, "Heatmap", 40);
     drawHoverButton(startX, thirdButtonY, buttonWidth, buttonHeight, "Directory", 40);
@@ -188,7 +165,7 @@ class MainMenuScreen extends Screen {
   }
   
   void mousePressed() {
-    // Calculate button positions based on parent's dimensions
+    // Calculate button positions.
     float startX = parent.width - (buttonWidth - 10);
     float startY = parent.height / 2.5f;
     float secondButtonY = startY + buttonHeight + gap;
@@ -205,7 +182,11 @@ class MainMenuScreen extends Screen {
     } else if(isMouseOverRect(startX, thirdButtonY, buttonWidth, buttonHeight)) {
       screenManager.switchScreen(screenBetweenScreens);
     } else if(isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30)){
+<<<<<<< Updated upstream
       screenManager.switchScreen(creditsScreen);
+=======
+      // switch screen to directory or credits as needed
+>>>>>>> Stashed changes
     } else if(isMouseOverRect(exitX, fourthButtonY, exitWidth, buttonHeight - 30)) {
       parent.exit();
     }
