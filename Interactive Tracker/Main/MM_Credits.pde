@@ -28,7 +28,6 @@ class CreditsScreen extends Screen {
   float creditsY;
   
   // -- Logo Variables --
-  PImage flightHubLogo;
   int logoStartTime;       // Start time of the program (for tracking 3 seconds)
   float logoScale = 0.5;   // Initial (smaller) scale for the logo
   boolean shrinking = false; // Whether the logo is currently shrinking
@@ -63,7 +62,7 @@ class CreditsScreen extends Screen {
     fill(255);
   
     // Load the FlightHub logo image (ensure "FlighthubLogo.png" is in the "data" folder).
-    flightHubLogo = loadImage("image.png");
+    //flightHubLogo = loadImage("image.png");
     
     // Center images by default.
     imageMode(CENTER);
