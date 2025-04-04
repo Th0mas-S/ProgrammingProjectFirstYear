@@ -105,100 +105,10 @@ void initGlobalVariables() {
 }
 
 
+//  ----------------------------------
+//  | Main Airplane Directory Screen |
+//  ----------------------------------
 
-class DirectoryMenuScreen extends Screen {
-  
-  Widget directory, graphs, exitButton;
-
-  
-  DirectoryMenuScreen() {
-     directory = new Widget((width/2)-(width/8), height/3, 3, width/4, 200, #028391);
-     graphs = new Widget((width/2)-(width/8), int((height/3)*1.6), 4, width/4, 200, #F9A822);
-     exitButton = new Widget((width/2)-(width/8), int((height/3)*2.2), 5, width/4, 200, #F57F5B);
-  }
-}
-
-// THIS IS USELESS NOW
-//void showFlight(Flight currentFlight){        //tells screen2 what sppecific flight to display
-//  println(currentFlight.date);
-//  screen2.showData(currentFlight);
-//  currentScreen=2;                            //sets currentScreen to 2 to show screen2
-//}
-
-class DirectoryFlightInfoScreen extends Screen {
-  
-  PImage logo, backdrop, airlineLogo;
-  Flight flight;
-  Widget back;
-  int textSize;
-  Screen previousScreen;
-
-  DirectoryFlightInfoScreen(Flight currentFlight, Screen previousScreen) {
-    //textSize=int((width-110)*0.014);
-    logo = loadImage("Flighthub Logo.png");
-    logo.resize(int(360*1.2), int(240*1.2));
-    backdrop = loadImage("ds_backdrop.png");
-    backdrop.resize(width, height);
-    showData(currentFlight);
-    back = new Widget(width-160, 160, 2, 100, 50, #DD5341);
-    textSize=int((width-110)*0.014);
-    airlineLogo=loadImage(("airlines-logos/"+currentFlight.airlineCode+".png"));
-
-    
-    this.previousScreen = previousScreen;
-
-  }
-  
-  void showData(Flight currentFlight){
-    flight = currentFlight;
-  }
-
-  void draw() {
-      backdrop.resize(width, height);
-      background(backdrop);
-      image(logo, 60, 10);
-      stroke(0);
-      fill(#2BBAA5);      
-      rect(55, 280, width-110, height-335, 15);
-      textSize(textSize);
-      fill(0);
-      int i = 140;
-      int j = 430+((textSize*3+3));
-      
-      text("Origin:                "+getAirport(flight.origin)+" / "+flight.origin, i, j+textSize*9);
-      text("From:      "+getAirportAddress(flight.origin), i, j-textSize*5);
-      text("Destination:     "+getAirport(flight.destination)+" / "+flight.destination, i, j+textSize*10+10);
-      text("To:            "+getAirportAddress(flight.destination), i, j-textSize*4+10);
-      
-      text("Scheduled Departure:    "+flight.scheduledDeparture, i+width/2, j-textSize*5);
-      text("Scheduled Arrival:            "+flight.scheduledArrival, i+width/2, j-textSize*4+10);
-      text("Actual Departure:             "+flight.actualDeparture, i+width/2, j-textSize*2+30);
-      text("Actual Arrival:                     "+flight.actualArrival, i+width/2, j-textSize+40);
-      text("Delayed:    "+flight.departureDelay+"mins", i+width/2, j+textSize*4+20);
-      text("Flight Distance:  "+flight.flightDistance+"km", i, j+textSize*4+30);
-      
-      text("Flight Number:  "+flight.airlineCode+" "+flight.flightNumber, i, j);
-      text("Carrier:  "+getCarrier(flight.airlineCode), i, j+textSize*2+20);
-      text("Date:  "+flight.date, i, j+textSize+10);     
-      text("Cancelled:  "+(flight.cancelled ? "Yes":"No"), i+width/2, j+textSize*9);
-      text("Diverted:  "+(flight.diverted ? "Yes":"No"), i+width/2, j+textSize*10+20);
-      
-      noStroke();
-      fill(255);
-      rect(i+(width*2/3)-10, j+(textSize*12)-10, 300+20, 150+20, 6);
-      image(airlineLogo, i+(width*2/3), j+textSize*12);
-
-      
-      back.draw();
-  }
-  
-  void mousePressed() {
-    if(back.mouseOver()) {
-      screenManager.switchScreen(previousScreen);
-    }
-  }
-
-}
 
 class DirectoryScreen extends Screen {
   
@@ -219,14 +129,14 @@ class DirectoryScreen extends Screen {
       sliderLength=height-335-55-40;
       slider = new Slider(width-28, height-55-(sliderLength/2)-(height-335)/2, sliderLength);
       searchbar = new Search(width-340, 160, textSize, 1);
-      clear = new Widget(width-480, 160, 1, 100, 50, #F96635);
+      clear = new Widget(width-480, 160, 1, 100, 50, #EA5F5F);
       sort = new Widget(width-610, 160, 6, 100, 50, #028391);                        //current widget = 9
       sortMenu = new Query(#93D3AE, 1);
-      dateMenu = new Query(#FAECB6, 2);
+      dateMenu = new Query(#9DCDDE, 2);
       airportMenu = new Query(#9DCDDE, 3);
       
       logo = loadImage("Flighthub Logo.png");
-      logo.resize(int(360*1.2), int(240*1.2));
+      logo.resize(int(360*1.9), int(240*1.9));
       backdrop = loadImage("ds_backdrop.png");
       
       headers = new ArrayList<Header>();
@@ -261,9 +171,13 @@ class DirectoryScreen extends Screen {
   
   void draw() {
       backdrop.resize(width, height);
-
       background(backdrop);
-      image(logo, 60, 10);
+      
+      noStroke();
+      fill(100, 100, 100, 230);
+      rect(58, 63, 531, 131, 10);
+      
+      image(logo, 20, -100);
       stroke(100);
       strokeWeight(5);
       fill(160, 160, 160, 220);      
@@ -289,8 +203,7 @@ class DirectoryScreen extends Screen {
       line(90+(textSize*58.75), 280, 90+(textSize*58.75), height-55);
       
       drawHeaders();
-      
-      
+      strokeWeight(4);
       slider.draw();
       searchbar.draw();
       clear.draw();
@@ -303,10 +216,11 @@ class DirectoryScreen extends Screen {
       hint(ENABLE_DEPTH_TEST);
       
       menu.draw();
-
+      strokeWeight(1);
   }
   
   void mousePressed() {
+     //println("x: "+mouseX+"  y: "+mouseY);
      if(!sortQuery && !dateQuery && !airportQuery){
       slider.sliderPressed();
       searchbar.searchPressed();
@@ -320,14 +234,15 @@ class DirectoryScreen extends Screen {
       sortMenu.lateness.widgetPressed();
       sortMenu.distance.widgetPressed();
       sortMenu.date.widgetPressed();
-      dateMenu.selector.search1.searchPressed();
-      dateMenu.selector.search2.searchPressed();
-      dateMenu.selector.done.widgetPressed();
-      sortMenu.cancelled.widgetPressed();
-      sortMenu.diverted.widgetPressed();
-      dateMenu.cancel.widgetPressed();
       sortMenu.cancel.widgetPressed();
       sortMenu.airport.widgetPressed();
+      sortMenu.cancelled.widgetPressed();
+      sortMenu.diverted.widgetPressed();
+      
+      dateMenu.cancel.widgetPressed();
+      dateMenu.selector.search1.searchPressed();
+      dateMenu.selector.search2.searchPressed();
+      dateMenu.selector.done.widgetPressed();     
       
       airportMenu.airportSelector.origin.widgetPressed();
       airportMenu.airportSelector.destination.widgetPressed();
@@ -445,149 +360,4 @@ class DirectoryScreen extends Screen {
   //  flight = currentFlight;
   //}
  
-}
-
-
-
-
-class DateSelector{
-  int x, y;
-  String date1, date2;
-  Widget done;
-  Search search1, search2;
-
-  DateSelector(){
-    x=450;
-    y=500;
-    date1="01/01/2017";
-    date2="31/12/2017";
-    
-    search1 = new Search(width/2-280-50, y+height/10, 24, 2);
-    search2 = new Search(width/2+50, y+height/10, 24, 3);
-    done = new Widget(width/2-100, y+height/4, 10, 200, 100, #01204E);
-  }
-
-
-  void draw(){
-    textSize(40);
-    stroke(0);
-    fill(0);
-    text(":", width/2-3, y+height/10+(33));
-    search1.draw();
-    search2.draw();
-    done.draw();
-  }
-
-
-}
-
-
-class Query{
-  int x, y, colour, mode;
-  Widget lateness, distance, date, cancelled, diverted, airport, cancel;
-  DateSelector selector;
-  AirportSorter airportSelector;
-  
-  
-  Query(int colour, int mode){
-    x=500;
-    y=400;
-    this.colour=colour;
-    this.mode=mode;
-    if(mode==1){
-      lateness = new Widget(width/2-(width/10)*2, y+160, 7, width/10, height/16, #F57F5B);
-      distance = new Widget(width/2-width/20, y+160, 8, width/10, height/16, #764838);
-      date = new Widget(width/2+width/10, y+160, 9, width/10, height/16, #FAA968);
-      
-      cancelled = new Widget(width/2-(width/10)*2, (y+160)+height/8, 11, width/10, height/16, #028391);
-      diverted = new Widget(width/2-width/20, (y+160)+height/8, 12, width/10, height/16, #FAECB6);
-      airport = new Widget(width/2+width/10, (y+160)+height/8, 14, width/10, height/16, #A73838);
-    }
-    else if(mode==2){
-      selector = new DateSelector();
-    }
-    else if(mode==3){
-      airportSelector = new AirportSorter();
-    }
-    cancel = new Widget(width/2-width/40, (y+160)+height/3, 13, width/20, height/32, #99AAAA);
-  }
-
-
-  void draw(){
-    strokeWeight(4);
-    stroke(0);
-    fill(colour);
-    rect(x, y, width-2*x, height-y-100, 6);
-    
-    strokeWeight(2);
-    if(mode==1){
-      lateness.draw();
-      distance.draw();
-      date.draw();
-      cancelled.draw();
-      diverted.draw();
-      airport.draw();
-    }
-    else if(mode==2){
-      selector.draw();
-    }
-    else if(mode==3){
-      airportSelector.draw();
-    }
-    cancel.draw();
-  }
-
-}
-
-
-class AirportSorter{
-  int x, y;
-  Widget origin, destination;
-  Search search;
-  String airportCode;
-
-
-  AirportSorter(){
-    x=450;
-    y=500;
-    airportCode="code";
-    
-    search = new Search(width/2-280-50, y+height/10, 24, 4);
-    origin = new Widget(width/2-280-50, y+height/4, 15, 200, 100, #01204E);
-    destination = new Widget(width/2+50, y+height/4, 16, 200, 100, #01204E);
-  }
-  
-  void sortOrigin(){
-    arrayIndex = new ArrayList<Integer>();          
-    for(int i=0; i<flights.size(); i++){
-      if(flights.get(i).origin.equalsIgnoreCase(airportCode)){ 
-        arrayIndex.add(i);
-      }
-    }                                              
-    println("sorted: "+airportCode);                              
-  }
-  
-  void sortDestination(){
-    arrayIndex = new ArrayList<Integer>();          
-    for(int i=0; i<flights.size(); i++){
-      if(flights.get(i).destination.equalsIgnoreCase(airportCode)){ 
-        arrayIndex.add(i);
-      }
-    }                                              
-    println("sorted: "+airportCode);  
-  }
-
-
-  void draw(){
-    textSize(40);
-    stroke(0);
-    fill(0);
-    
-    search.draw();
-    origin.draw();
-    destination.draw();
-  }
-
-
-
 }

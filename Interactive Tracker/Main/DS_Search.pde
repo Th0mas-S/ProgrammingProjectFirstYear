@@ -30,6 +30,7 @@ class Search{
   }
 
   void draw(){
+    strokeWeight(3);
     if(mouseOver()) stroke(255);
     else stroke(0);
     fill(200);

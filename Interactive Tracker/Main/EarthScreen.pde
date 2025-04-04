@@ -115,7 +115,7 @@
 //    earth.zoomFactor = constrain(earth.zoomFactor, 0.1, 1.3);
 //  }
   
-//  void keyPressed() {
+//  void keyPressed() {9
 //    if (key == ' ') {
 //      earth.rotationMatrix = new PMatrix3D();
 //      earth.zoomFactor = 0.8;
