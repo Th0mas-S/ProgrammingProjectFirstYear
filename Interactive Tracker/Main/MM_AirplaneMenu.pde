@@ -35,10 +35,10 @@ class AirplaneMenu {
     float dt = (now - lastUpdateTime) / 1000.0;
     lastUpdateTime = now;
     
+    // Smoothly increment the angle and wrap it around when exceeding TWO_PI.
     angle += orbitSpeed * dt;
     if (angle >= TWO_PI) {
-      angle = random(TWO_PI);
-      tiltAngle = random(TWO_PI);
+      angle -= TWO_PI;
     }
     
     float offset = 20 * sin(angle * 2.0);
