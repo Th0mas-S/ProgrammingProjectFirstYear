@@ -86,7 +86,7 @@ class Widget{
         directoryScreen.airportQuery=false;
       }
       if(mode==17){
-        screenManager.switchScreen(earthScreenDirectory);
+        // handled in flightInfo screen
       }
     }
   }
