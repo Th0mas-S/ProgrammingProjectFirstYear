@@ -33,18 +33,19 @@
 //  }
 //}
 
-void initializeFlights(){                                          //initializes an array of fight objects which each
-  String[] rows = loadStrings(currentDataset);          //contain all the data for an individual flight
-  
+void initializeFlights(){
+  String[] rows = loadStrings(currentDataset);
   int skippedBadDuration = 0;
   int skippedMalformedTime = 0;
-  
   float startLoadingPercent = loadingScreen.loadingDone;
   
-  for(int i=1; i<rows.length; i++){
+  for (int i = 1; i < rows.length; i++){
     String[] data = split(rows[i], ',');
-   
-    String date = convertDate(data[0]);
+    
+    String scheduledDate = convertDate(data[0]); // Scheduled flight date.
+    // Initially use the scheduled date.
+    String date = scheduledDate;
+    
     String airlineName = data[1];
     String airlineCode = data[2];
     String flightNumber = data[3];
@@ -57,25 +58,29 @@ void initializeFlights(){                                          //initializes
     String scheduledArrival = cropData(data[7]);
     String actualArrival = data[9];
     
-    //println(data[13]+" "+(data[13].equals("True") ? "T":"F")+" : "+data[12]+" "+(data[12].equals("True") ? "T":"F"));
     boolean diverted = (data[13].equals("True"));
     boolean cancelled = (data[12].equals("True"));
-    
     
     String[] depParts = split(data[8], " ");
     String[] arrParts = split(data[9], " ");
     if (depParts.length != 2 || arrParts.length != 2) {
       skippedMalformedTime++;
-      //continue;
+      // Optionally continue here.
     }
-   
-   int duration = 0;
-   int minutes = 0;
-    if(!cancelled) {
-      actualArrival = convertDate(arrParts[0]) + " " + arrParts[1];
+    
+    int duration = 0;
+    int minutes = 0;
+    if (!cancelled) {
+      // Build proper actual departure/arrival strings.
       actualDeparture = convertDate(depParts[0]) + " " + depParts[1];
-          
-      String dateStr = depParts[0];
+      actualArrival = convertDate(arrParts[0]) + " " + arrParts[1];
+      
+      // Use the actual departure date if it differs from the scheduled date.
+      String actualDepDate = convertDate(depParts[0]);
+      if (!actualDepDate.equals(scheduledDate)) {
+        date = actualDepDate;
+      }
+      
       String depTimeStr = depParts[1];
       String arrTimeStr = arrParts[1];
       String[] depHM = split(depTimeStr, ":");
@@ -84,8 +89,11 @@ void initializeFlights(){                                          //initializes
         skippedMalformedTime++;
         continue;
       }
+      // Use the actual departure time (in minutes from midnight).
       int depMin = int(depHM[0]) * 60 + int(depHM[1]);
       minutes = depMin;
+      
+      // Calculate arrival minutes. If arrival time is before departure, assume it’s on the next day.
       int arrMin = int(arrHM[0]) * 60 + int(arrHM[1]);
       if (arrMin < depMin) {
         arrMin += 1440;
@@ -97,16 +105,17 @@ void initializeFlights(){                                          //initializes
       }
     }
     
-
-    flights.add(new Flight(date, airlineCode, airlineName, flightNumber, origin, destination, scheduledDeparture, actualDeparture, departureDelay, flightDistance, scheduledArrival, actualArrival, diverted, cancelled, duration, minutes));
-    if(i % 100 == 0)
-      loadingScreen.setLoadingProgress(startLoadingPercent + (((float)i / (float)rows.length) / 2)); // this is 50% of the loading time
+    flights.add(new Flight(date, airlineCode, airlineName, flightNumber, origin, destination,
+                           scheduledDeparture, actualDeparture, departureDelay, flightDistance,
+                           scheduledArrival, actualArrival, diverted, cancelled, duration, minutes));
+    if (i % 100 == 0)
+      loadingScreen.setLoadingProgress(startLoadingPercent + (((float)i / (float)rows.length) / 2));
   }
-  println("flights loaded ("+flights.size()+")");
+  println("flights loaded (" + flights.size() + ")");
   println("skipped due to malformed time (" + skippedMalformedTime + ")");
   println("skipped due to bad duration (" + skippedBadDuration + ")");
-
-  initialized=true;                    //stop loading screen when done and print screen0
+  
+  initialized = true;
 }
 
 class Flight{

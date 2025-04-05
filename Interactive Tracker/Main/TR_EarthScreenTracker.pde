@@ -3,7 +3,7 @@ class EarthScreenTracker extends Screen {
   CalendarDisplay calendar;
   TimeSlider timeSlider;
   boolean uiHeld = false;
-  // NEW: Flag to track if a plane was clicked so that earth dragging is disabled.
+  // Flag to track if a plane was clicked so that earth dragging is disabled.
   boolean planeClicked = false;
   
   ActiveFlightInfo activeFlightInfo;
@@ -35,7 +35,7 @@ class EarthScreenTracker extends Screen {
       lastCheckedDate = currentDate;
     }
     
-    // Remove planes that are no longer active.
+    // Remove airplanes that are no longer active.
     for (int i = activePlanes.size() - 1; i >= 0; i--) {
       Airplane a = activePlanes.get(i);
       if (currentTime < a.startMinute || currentTime > a.startMinute + a.duration || a.finished) {
@@ -45,7 +45,7 @@ class EarthScreenTracker extends Screen {
       }
     }
     
-    // Spawn planes that should now be active.
+    // Spawn airplanes for flights whose time range covers the current time.
     for (Flight flight : todaysFlights) {
       if (currentTime >= flight.minutes && currentTime <= flight.minutes + flight.duration) {
         String flightID = flight.origin + "_" + flight.destination + "_" + flight.minutes;
@@ -92,6 +92,15 @@ class EarthScreenTracker extends Screen {
       // Draw airplanes with depth test disabled for blending.
       hint(DISABLE_DEPTH_TEST);
       for (Airplane a : activePlanes) {
+        // If this airplane's flight matches the persistent selected flight, mark it as selected.
+        if (activeFlightInfo != null &&
+            a.flight.identifier.equals(activeFlightInfo.flight.identifier) &&
+            a.flight.date.equals(activeFlightInfo.flight.date)) {
+          a.selected = true;
+        } else {
+          a.selected = false;
+        }
+        
         a.update(currentTime);
         // Transform airplane position to viewer space.
         PVector transformedPos = new PVector();
