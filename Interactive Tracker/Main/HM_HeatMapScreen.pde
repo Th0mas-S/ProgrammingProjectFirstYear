@@ -1,22 +1,18 @@
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.*;
 
 class HeatMapScreen extends Screen {
-  
+
   PImage earthImage;
-  
-  final float SCALE = 1; // idk what to call this, this is how big the sqaures are EDIT: sqaure size seems like a good name
+  final float SCALE = 1; // square size
   final int heatMapOpacity = 150;
   int heatMapWidth = (int)(width / SCALE);
   int heatMapHeight = (int)(height / SCALE);
 
   PGraphics heatMapLayer;
-
   int[][] heatMap;
-    
   int medianIntensity = 0;
   
   float scaleFactor = 1.0;
@@ -25,96 +21,129 @@ class HeatMapScreen extends Screen {
   float startX, startY;
   boolean isDragging = false;
   
-  
   CalendarDisplay calendar;
-  Button backButton;
-  Button confirmButton;
+  CustomButton backButton;
+  CustomButton confirmButton;
+  CustomButton toggleUIButton; 
   
 
+  boolean hideUI = false;
   
   HeatMapScreen() {
     earthImage = loadImage("worldmap.png");
     heatMap = new int[heatMapWidth][heatMapHeight];
-    
     heatMapLayer = createGraphics(width, height);
     
     calendar = new CalendarDisplay();
-    
     generateHeatMap();
-    ButtonSettings bs = new ButtonSettings();
-    bs.x = width - 200;
-    bs.y = height - 100;
-    bs.w = 200;
-    bs.h = 100;
-    bs.col = color(0, 0, 255);
-    bs.textColor = color(255);
-    bs.text = "BACK";
-    bs.onClick = () -> {
-      screenManager.switchScreen(mainMenuScreen);
-    };
-    backButton = bs.build();
     
-    bs = bs.copy();
+
+    int buttonsY = (int)(calendar.y + calendar.h + 10);
     
-    bs.x = width - 200;
-    bs.y = 0;
-    bs.text = "OKAY";
-    bs.onClick = () -> {
+
+    CustomButtonSettings bsConfirm = new CustomButtonSettings();
+    bsConfirm.x = (int)(calendar.x);
+    bsConfirm.y = buttonsY;
+    bsConfirm.w = (int)(calendar.w / 2) - 5;
+    bsConfirm.h = 50;
+    bsConfirm.col = color(128, 128, 128, 200);
+    bsConfirm.textColor = color(255);
+    bsConfirm.text = "CONFIRM";
+    bsConfirm.onClick = () -> {
       generateHeatMap();
       generateHeatMapLayer();
     };
+    confirmButton = bsConfirm.build();
     
-    confirmButton = bs.build();
+
+    CustomButtonSettings bsBack = new CustomButtonSettings();
+    bsBack.x = (int)(calendar.x + (calendar.w / 2) + 5);
+    bsBack.y = buttonsY;
+    bsBack.w = (int)(calendar.w / 2) - 5;
+    bsBack.h = 50;
+    bsBack.col = color(128, 128, 128, 200); 
+    bsBack.textColor = color(255);
+    bsBack.text = "BACK";
+    bsBack.onClick = () -> {
+      screenManager.switchScreen(mainMenuScreen);
+    };
+    backButton = bsBack.build();
     
+
+    CustomButtonSettings bsToggle = new CustomButtonSettings();
+    bsToggle.x = width - 200 - 20;  
+    bsToggle.y = height - 50 - 20;  
+    bsToggle.w = 200;
+    bsToggle.h = 50;
+    bsToggle.col = color(128, 128, 128, 200); 
+    bsToggle.textColor = color(255);
+    bsToggle.text = "HIDE UI";
+    bsToggle.onClick = () -> {
+      hideUI = !hideUI;
+      toggleUIButton.text = hideUI ? "SHOW UI" : "HIDE UI";
+    };
+    toggleUIButton = bsToggle.build();
   }
   
   void draw() {
     background(0);
-
+    
     pushMatrix();
     translate(offsetX, offsetY);
     scale(scaleFactor);
-
     image(earthImage, 0, 0, width, height);
     image(heatMapLayer, 0, 0);
     popMatrix();
     
-
-    
     drawLegend();
-    calendar.display();
+    
+    if (!hideUI) {
+      calendar.display();
+      backButton.draw();
+      confirmButton.draw();
+    }
     
     drawIntensityTab();
-      
-     float zoomedWidth = width * scaleFactor;
-     float zoomedHeight = height * scaleFactor;
     
-     // Clamp offsetX and offsetY so edges stay within the canvas
-     offsetX = constrain(offsetX, width - zoomedWidth, 0);
-     offsetY = constrain(offsetY, height - zoomedHeight, 0);
-     
-     backButton.draw();
-     confirmButton.draw();
+    float zoomedWidth = width * scaleFactor;
+    float zoomedHeight = height * scaleFactor;
+    offsetX = constrain(offsetX, width - zoomedWidth, 0);
+    offsetY = constrain(offsetY, height - zoomedHeight, 0);
+    
+    // Always draw the toggle button.
+    toggleUIButton.draw();
   }
   
+
   void drawIntensityTab() {
     int zoomedMouseX = (int)(((mouseX - offsetX) / scaleFactor) / SCALE);
     int zoomedMouseY = (int)(((mouseY - offsetY) / scaleFactor) / SCALE);
     
-    int[][] offsets = { // specifies relative positions for getting the surrounding intensities
-      {0, 0}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}
+    int[][] offsets = {
+      {0, 0}, {1, 0}, {1, -1}, {0, -1},
+      {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}
     }; 
     
     int intensity = 0;
-    
-    for(int[] coordinate : offsets) {
-      intensity += heatMap[zoomedMouseX + coordinate[0]][zoomedMouseY + coordinate[1]];
+    for (int[] coordinate : offsets) {
+      int idx = zoomedMouseX + coordinate[0];
+      int idy = zoomedMouseY + coordinate[1];
+      if (idx >= 0 && idx < heatMapWidth && idy >= 0 && idy < heatMapHeight) {
+        intensity += heatMap[idx][idy];
+      }
     }
     
+    int x, y;
+    if (!hideUI) {
+      // Original position when UI is visible.
+      x = (int)calendar.x + 10;
+      y = (int)(calendar.y + calendar.h + 50) + 40;
+    } else {
+      // Moved to top left when UI is hidden.
+      x = 20;
+      y = 20;
+    }
     
-    int x = (int)calendar.x;
-    int y = (int)(calendar.y + calendar.h + 50);
-
     stroke(135, 206, 235, 150);
     strokeWeight(5);
     fill(128, 128, 128, 50);
@@ -128,163 +157,120 @@ class HeatMapScreen extends Screen {
   }
   
   void drawLegend() {
-    
     int legendXpos = 0;
     int legendYpos = height - 150;
-    
     stroke(135, 206, 235, 150);
     strokeWeight(5);
     fill(128, 128, 128, 50);
     rect(legendXpos, legendYpos, 250, 150);
     textSize(20);
-
-    
     noStroke();
-    
     fill(0, 0, 255);
     rect(legendXpos + 10, legendYpos + 10, 20, 20);
     fill(255);
-    textAlign(CORNER);
+    textAlign(LEFT);
     text("Low intensity", legendXpos + 50, legendYpos + 25);
-    
     fill(255, 255, 0);
     rect(legendXpos + 10, legendYpos + 40, 20, 20);
     fill(255);
     text("Median intensity", legendXpos + 50, legendYpos + 55); 
-    
     fill(255, 0, 0);
     rect(legendXpos + 10, legendYpos + 70, 20, 20);
     fill(255);
     text("High intensity", legendXpos + 50, legendYpos + 85); 
   }
   
-  
-  // multi threading is like 10 seconds faster on my laptop
   void generateHeatMap() {
-  // Reset heatmap
-  //for (int x = 0; x < heatMapWidth; x++) {
-  //  for (int y = 0; y < heatMapHeight; y++) {
-  //    heatMap[x][y] = 0;
-  //  }
-  //}
-  
-  heatMap = new int[heatMapWidth][heatMapHeight];
-
-  // Create a thread pool
-  int numThreads = Runtime.getRuntime().availableProcessors(); // Use all CPU cores
-  ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-
-  // Submit flight calculations as parallel tasks
-  List<Future<Void>> futures = new ArrayList<>();
-  
-  ArrayList<Flight> filteredFlights = new ArrayList<Flight>();
-  
-  for(Flight f : flights) {
-  
-    if(f.date.equals(calendar.getSelectedDate2())) {
-      filteredFlights.add(f);    
+    heatMap = new int[heatMapWidth][heatMapHeight];
+    int numThreads = Runtime.getRuntime().availableProcessors();
+    ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+    List<Future<Void>> futures = new ArrayList<>();
+    
+    ArrayList<Flight> filteredFlights = new ArrayList<Flight>();
+    for (Flight f : flights) {
+      if (f.date.equals(calendar.getSelectedDate2())) {
+        filteredFlights.add(f);    
+      }
     }
-  }
-
-  for (Flight f : filteredFlights) {
-    futures.add(executor.submit(() -> {
-      processFlight(f);
-      return null;
-    }));
-  }
-
-  // Wait for all tasks to complete
-  float futuresDone = 0;
-  float startLoadingDone = loadingScreen.loadingDone;
-  for (Future<Void> future : futures) {
-    try {
-      future.get();
-      loadingScreen.setLoadingProgress(startLoadingDone + (futuresDone++ / (float)futures.size()) * 0.37); // approximately 37% of the waiting time
-    } catch (Exception e) {
-      e.printStackTrace();
+    
+    for (Flight f : filteredFlights) {
+      futures.add(executor.submit(() -> {
+        processFlight(f);
+        return null;
+      }));
     }
-  }
-
-  executor.shutdown();
- 
+    
+    float futuresDone = 0;
+    float startLoadingDone = loadingScreen.loadingDone;
+    for (Future<Void> future : futures) {
+      try {
+        future.get();
+        loadingScreen.setLoadingProgress(startLoadingDone + (futuresDone++ / (float)futures.size()) * 0.37);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    executor.shutdown();
     medianIntensity = 0;
     ArrayList<Integer> tempList = new ArrayList<Integer>();
-    
-    for(int x = 0; x < heatMapWidth; x++)
-      for(int y = 0; y < heatMapHeight; y++)
-        if(heatMap[x][y] != 0)
+    for (int x = 0; x < heatMapWidth; x++) {
+      for (int y = 0; y < heatMapHeight; y++) {
+        if (heatMap[x][y] != 0) {
           tempList.add(heatMap[x][y]);
+        }
+      }
+    }
+    Collections.sort(tempList);
+    if (tempList.size() != 0) {
+      if (tempList.size() % 2 == 0)
+        medianIntensity = tempList.get(tempList.size() / 2);
+      else
+        medianIntensity = tempList.get((tempList.size() + 1) / 2);
+    }
+  }
   
-      
-     Collections.sort(tempList);
-     if(tempList.size() != 0) {
-       if(tempList.size() % 2 == 0)
-         medianIntensity = tempList.get(tempList.size() / 2);
-       else
-         medianIntensity = tempList.get((tempList.size() + 1) / 2);
-     }
-   
-}
-
-// Flight processing function (each runs on a separate thread)
-void processFlight(Flight f) {
-  Location src = airportCoordinates.get(f.origin);
-  Location des = airportCoordinates.get(f.destination);
-
-  if (src != null && des != null) {
-    PVector pointA = LocationTo3D(src.toRadians());
-    PVector pointB = LocationTo3D(des.toRadians());
-    float angle = acos(pointA.dot(pointB));
-
-    for (float t = 0; t <= 1; t += 0.001) {
-      PVector intermediate = PVector.add(
-        PVector.mult(pointA, sin((1 - t) * angle)),
-        PVector.mult(pointB, sin(t * angle))
-      ).div(sin(angle));
-
-      // Convert back to 2D
-      float lon = atan2(intermediate.y, intermediate.x);
-      float lat = asin(intermediate.z);
-
-      if (!Float.isNaN(degrees(lon)) && !Float.isNaN(degrees(lat))) {
-        int x = (int) (mapX(degrees(lon)) / SCALE);
-        int y = (int) (mapY(degrees(lat)) / SCALE);
-
-        // Ensure thread-safe update of heatMap
-        if (x >= 0 && x < heatMapWidth && y >= 0 && y < heatMapHeight) {
-          synchronized (heatMap) { // Protect shared resource
-            heatMap[x][y]++;
+  void processFlight(Flight f) {
+    Location src = airportCoordinates.get(f.origin);
+    Location des = airportCoordinates.get(f.destination);
+    if (src != null && des != null) {
+      PVector pointA = LocationTo3D(src.toRadians());
+      PVector pointB = LocationTo3D(des.toRadians());
+      float angle = acos(pointA.dot(pointB));
+      for (float t = 0; t <= 1; t += 0.001) {
+        PVector intermediate = PVector.add(
+          PVector.mult(pointA, sin((1 - t) * angle)),
+          PVector.mult(pointB, sin(t * angle))
+        ).div(sin(angle));
+        float lon = atan2(intermediate.y, intermediate.x);
+        float lat = asin(intermediate.z);
+        if (!Float.isNaN(degrees(lon)) && !Float.isNaN(degrees(lat))) {
+          int x = (int)(mapX(degrees(lon)) / SCALE);
+          int y = (int)(mapY(degrees(lat)) / SCALE);
+          if (x >= 0 && x < heatMapWidth && y >= 0 && y < heatMapHeight) {
+            synchronized (heatMap) {
+              heatMap[x][y]++;
+            }
           }
         }
       }
     }
   }
-}
   
   void generateHeatMapLayer() {
-    
     heatMapLayer = createGraphics(width, height);
     heatMapLayer.beginDraw();
     heatMapLayer.noStroke();
-  
-
-    
-    for(int x = 0; x < heatMapWidth; x++) {
+    for (int x = 0; x < heatMapWidth; x++) {
       for (int y = 0; y < heatMapHeight; y++) {
-        int intesity = heatMap[x][y];
-        
-        if (intesity > 0) {
-          
-          color intesityColor = getIntensityColor(intesity);
-          heatMapLayer.fill(intesityColor);
+        int intensity = heatMap[x][y];
+        if (intensity > 0) {
+          color intensityColor = getIntensityColor(intensity);
+          heatMapLayer.fill(intensityColor);
           heatMapLayer.rect(x * SCALE, y * SCALE, SCALE, SCALE);
-         
         }
       }
     }
-    
     heatMapLayer.endDraw();
-    
   }
   
   PVector LocationTo3D(Location loc) {
@@ -295,8 +281,8 @@ void processFlight(Flight f) {
     );
   }
   
-  color getIntensityColor(float intensity) { // n0thing -> blue (quartar median) -> yellow (median) -> orange (median double median) -> red (4 * median)
-    if(intensity < medianIntensity / 4)
+  color getIntensityColor(float intensity) {
+    if (intensity < medianIntensity / 4)
       return lerpColor(color(0, 0, 0, 0), color(0, 0, 255, heatMapOpacity), map(intensity, 1, medianIntensity / 4, 0, 1));
     else if (intensity < medianIntensity)
       return lerpColor(color(0, 0, 255, heatMapOpacity), color(255, 255, 0, heatMapOpacity), map(intensity, medianIntensity / 4, medianIntensity, 0, 1));
@@ -304,12 +290,12 @@ void processFlight(Flight f) {
       return lerpColor(color(255, 255, 0, heatMapOpacity), color(255, 110, 0, heatMapOpacity), map(intensity, medianIntensity, medianIntensity * 2, 0, 1));
     else
       return lerpColor(color(255, 110, 0, heatMapOpacity), color(255, 0, 0, heatMapOpacity), map(intensity, medianIntensity * 2, medianIntensity * 7, 0, 1));
-
   }
+  
   float mapX(float lon) {
     return map(lon, -180, 180, 0, width);
   }
-
+  
   float mapY(float lat) {
     return map(lat, 90, -90, 0, height);
   }
@@ -317,54 +303,97 @@ void processFlight(Flight f) {
   void mouseWheel(MouseEvent event) {
     float zoomFactor = 1.25;
     float e = event.getCount();
-  
-    // Calculate zoom towards the mouse position
     float newScale = (e < 0) ? scaleFactor * zoomFactor : scaleFactor / zoomFactor;
-    if(newScale >= 1) {
+    if (newScale >= 1) {
       float dx = mouseX - offsetX;
       float dy = mouseY - offsetY;
-    
-      // Adjust offset to keep the zoom centered on the mouse
       offsetX -= (newScale - scaleFactor) * dx / scaleFactor;
       offsetY -= (newScale - scaleFactor) * dy / scaleFactor;
-    
       scaleFactor = newScale;
     }
-    
   }
   
-  
-  // Handle mouse drag for panning
   void mousePressed() {
     startX = mouseX - offsetX;
     startY = mouseY - offsetY;
     isDragging = true;
-    backButton.handleOnClick();
-    boolean dateChanged = calendar.mousePressed();
-    
-    confirmButton.handleOnClick();
-    
-
+    if (!hideUI) {
+      backButton.handleOnClick();
+      boolean dateChanged = calendar.mousePressed();
+      confirmButton.handleOnClick();
+    }
+    toggleUIButton.handleOnClick(); 
   }
   
   void mouseDragged() {
     if (isDragging) {
       float newoffsetX = mouseX - startX;
       float newoffsetY = mouseY - startY;
-       
-            
       float zoomedWidth = width * scaleFactor;
       float zoomedHeight = height * scaleFactor;
-    
-      // Clamp offsetX and offsetY so edges stay within the canvas
       offsetX = constrain(newoffsetX, width - zoomedWidth, 0);
       offsetY = constrain(newoffsetY, height - zoomedHeight, 0);
-
     }
   }
   
   void mouseReleased() {
     isDragging = false;
   }
+}
+
+class CustomButton {
+  int x, y, w, h;
+  int col;
+  int textColor;
+  String text;
+  Runnable onClick;
   
+  CustomButton(int x, int y, int w, int h, int col, int textColor, String text, Runnable onClick) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.col = col;
+    this.textColor = textColor;
+    this.text = text;
+    this.onClick = onClick;
+  }
+  
+  boolean isMouseOver() {
+    return (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h);
+  }
+  
+
+  void draw() {
+    if (isMouseOver()) {
+      stroke(255);
+      strokeWeight(2);
+    } else {
+      noStroke();
+    }
+    fill(col);
+    rect(x, y, w, h);
+    fill(textColor);
+    textAlign(CENTER, CENTER);
+    textSize(24); 
+    text(text, x + w / 2, y + h / 2);
+  }
+  
+  void handleOnClick() {
+    if (isMouseOver() && onClick != null) {
+      onClick.run();
+    }
+  }
+}
+
+class CustomButtonSettings {
+  int x, y, w, h;
+  int col;
+  int textColor;
+  String text;
+  Runnable onClick;
+  
+  CustomButton build() {
+    return new CustomButton(x, y, w, h, col, textColor, text, onClick);
+  }
 }
