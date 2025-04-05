@@ -133,7 +133,7 @@ class CreditsScreen extends Screen {
   
     creditsY -= 1; 
     // When the last credit scrolls off the top...
-    if (creditsY < -credits.length * 30) {
+    if (creditsY < -credits.length * 37) {
       // Stop the credits audio if it is playing.
       if (creditsAudio.isPlaying()) {
         creditsAudio.stop();

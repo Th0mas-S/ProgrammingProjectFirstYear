@@ -7,7 +7,7 @@ class Earth {
   PVector lastArcball;
   PVector inertiaAxis;  
   
-  float zoomFactor = 0.5;
+  float zoomFactor = 0.6;
   float inertiaAngle = 0;
   float friction = 0.95;
 

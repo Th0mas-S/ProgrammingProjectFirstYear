@@ -274,7 +274,7 @@ class EarthScreenTracker extends Screen {
   void mouseWheel(MouseEvent event) {
     float e = event.getCount();
     earth.zoomFactor -= e * 0.05;
-    earth.zoomFactor = constrain(earth.zoomFactor, 0.1, 1.3);
+    earth.zoomFactor = constrain(earth.zoomFactor, 0.1, 1.25);
   }
   
   void keyPressed() {
