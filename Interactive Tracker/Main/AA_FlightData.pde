@@ -1,37 +1,3 @@
-//class FlightData {
-//  String originCode;
-//  String destCode;
-//  String dateStr;
-//  int minutes;
-//  int duration;
-
-//  String originCityCountry;
-//  String destCityCountry;
-//  String departureTimeStr;
-//  String arrivalTimeStr;
-//  String airlineName;
-//  String airlineCode;
-//  String flightNumber;
-
-//  FlightData(String originCode, String destCode, String dateStr, int minutes, int duration,
-//             String originCityCountry, String destCityCountry,
-//             String departureTimeStr, String arrivalTimeStr,
-//             String airlineName, String airlineCode, String flightNumber) {
-//    this.originCode = originCode;
-//    this.destCode = destCode;
-//    this.dateStr = dateStr;
-//    this.minutes = minutes;
-//    this.duration = duration;
-
-//    this.originCityCountry = originCityCountry;
-//    this.destCityCountry = destCityCountry;
-//    this.departureTimeStr = departureTimeStr;
-//    this.arrivalTimeStr = arrivalTimeStr;
-//    this.airlineName = airlineName;
-//    this.airlineCode = airlineCode;
-//    this.flightNumber = flightNumber;
-//  }
-//}
 
 void initializeFlights(){
   String[] rows = loadStrings(currentDataset);
@@ -184,9 +150,9 @@ class Flight{
     text(airlineCode + flightNumber, x+(textSize*8.7), y);
     text(origin + " -> " + destination, x+(textSize*15), y);
     text(scheduledDeparture + " - " + scheduledArrival, x+(textSize*22), y);
-    text(cropData(actualDeparture) + " - " + cropData(actualArrival), x+(textSize*31), y);
-    text(departureDelay + " min ", x+(textSize*40), y);
-    text("" + diverted, x+(textSize*47), y);
+    text(cancelled ? "N/A" : cropData(actualDeparture) + " - " + cropData(actualArrival), x+(textSize*31), y);
+    text(cancelled ? "N/A" : departureDelay + " min ", x+(textSize*40), y);
+    text(cancelled ? "N/A" : "" + diverted, x+(textSize*47), y);
     text("" + cancelled, x+(textSize*55), y);
     text(flightDistance + " km", x+(textSize*65), y);
     
