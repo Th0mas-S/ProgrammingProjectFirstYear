@@ -64,7 +64,7 @@ class MainMenuScreen extends Screen {
     }
     
     // Initialize the Earth model.
-    earth = new EarthMenu("Earth.obj", "Surface2k.png");
+    earth = new EarthMenu("Earth.obj", "Surface2k.png", parent, assets);
     
     // Initialize the airplanes list and add airplanes.
     // The airplanes are now placed on a sphere 3 units larger than the Earth's radius.

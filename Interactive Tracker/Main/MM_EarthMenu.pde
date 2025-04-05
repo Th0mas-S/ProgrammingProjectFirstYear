@@ -3,19 +3,19 @@ class EarthMenu {
   PImage texture;
   PMatrix3D rotationMatrix;
   
-  EarthMenu(String shapeFile, String textureFile) {
-    shape = loadShape(shapeFile);
-    texture = loadImage(textureFile);
+  // The constructor expects a PApplet (typically your main sketch) and an Assets instance.
+  EarthMenu(String shapeFile, String textureFile, PApplet p, Assets assets) {
+    assets.loadEarthAssets(p, shapeFile, textureFile);
+    shape = assets.earthShape;
+    texture = assets.earthTexture;
     shape.setTexture(texture);
     rotationMatrix = new PMatrix3D();
   }
   
-
   void slowRotate() {
-    rotationMatrix.preApply(EARTH_ROTATION_DELTA);
+    rotationMatrix.preApply(getUnRotationMatrix(0.001, new PVector(0,1,0)));
   }
   
-  // Apply the current rotation and draw the Earth.
   void display() {
     applyMatrix(rotationMatrix);
     shape(shape);

@@ -19,6 +19,7 @@ Earth earth;
 Airport airportOrigin;
 Airport airportDest;
 Airplane airplane;
+Assets assets;
 
 Location origin = new Location(-25.5, 9.6);
 Location destination = new Location(-51.2, 90.2);
@@ -58,6 +59,8 @@ void setup() {
   //loadAirportMetadata();
   //loadAirportsFromCSV();
   //loadFlightsFromCSV();
+  
+  assets = new Assets();
   
   
   calendar = new CalendarDisplay();
@@ -101,7 +104,7 @@ void setup() {
       evenMoreStars[i] = new Star(2000, 3500);
     }
     
-    earth = new Earth("Earth.obj", "Surface2k.png");
+    earth = new Earth("Earth.obj", "Surface2k.png", this, assets);
     airportOrigin = new Airport(origin, sphereRadius, 5);
     airportDest = new Airport(destination, sphereRadius, 5);
     
