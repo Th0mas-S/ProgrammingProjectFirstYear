@@ -86,8 +86,7 @@ class Widget{
         directoryScreen.airportQuery=false;
       }
       if(mode==17){
-                                //for you ben <3
-      
+        screenManager.switchScreen(earthScreenDirectory);
       }
     }
   }
