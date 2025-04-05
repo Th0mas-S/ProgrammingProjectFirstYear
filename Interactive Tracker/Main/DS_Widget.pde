@@ -85,16 +85,25 @@ class Widget{
         directoryScreen.airportMenu.airportSelector.sortDestination();
         directoryScreen.airportQuery=false;
       }
+      if(mode==17){
+                                //for you ben <3
+      
+      }
     }
   }
   
   void draw(){
     if(mouseOver()) stroke(255);
-    else stroke(0);
+    else{     
+      stroke(0);
+      if(mode==17) stroke(80);
+    }
     fill(colour);
     if(mode==3 || mode==4 || mode==5) strokeWeight(5);
     else strokeWeight(3);
+    
     rect(x, y, w, h, 8);
+    
     textSize(24);
     if(mode==1){
       fill(240);
@@ -202,6 +211,13 @@ class Widget{
       text("Destination", x+(w/2), y+(h/2)+(40/3));
       textAlign(LEFT);
     }
+    else if(mode==17){
+      fill(255);
+      textSize(40);
+      textAlign(CENTER);
+      text("Visualize flight... ", x+(w/2), y+(h/2)+(40/3));
+      textAlign(LEFT);
+    }
   }
 
 }
@@ -230,7 +246,9 @@ class Return{
   
   void draw(){
     if(mouseOver()) stroke(255);
-    else stroke(0);
+    else{
+      stroke(0);
+    }
     fill(#764838);
     rect(x, y, w, h, 4);
     stroke(0);
