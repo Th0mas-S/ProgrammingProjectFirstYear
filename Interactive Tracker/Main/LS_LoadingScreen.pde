@@ -146,6 +146,7 @@ class LoadingScreen extends Screen {
   
   if(!loadingThread.isAlive()) {
     heatMapScreen.generateHeatMapLayer(); // needs to be done on the drawing thread, will cause the loading screen to stall
+    audio.loop();
     screenManager.switchScreen(mainMenuScreen);
   }
   

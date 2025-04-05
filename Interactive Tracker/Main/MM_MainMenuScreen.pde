@@ -41,10 +41,7 @@ class MainMenuScreen extends Screen {
     this.parent = parent;
     
     // Start the main menu audio (audio3) from the global variable only if not muted.
-    if (!muteToggled) {
-      audio.loop();
-    }
-    
+
     flightHubLogo = parent.loadImage("Flighthub Logo.png");
     
     // Load the mute icon.
