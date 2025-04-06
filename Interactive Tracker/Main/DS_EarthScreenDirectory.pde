@@ -7,6 +7,8 @@ class EarthScreenDirectory extends Screen {
 
   PVector panOffset;
   PVector panStart;
+  
+  Screen previousScreen;
 
   int timeStringToMinutes(String timeStr) {
     String trimmed = trim(timeStr);
@@ -26,7 +28,7 @@ class EarthScreenDirectory extends Screen {
     return (hours * 60 + minutes); // Don't wrap here; allow values > 1440 for next day
   }
 
-  EarthScreenDirectory(Earth earth, Flight directoryFlight) {
+  EarthScreenDirectory(Earth earth, Flight directoryFlight, Screen previousScreen) {
     this.earth = earth;
     this.directoryFlight = directoryFlight;
 
@@ -54,6 +56,7 @@ class EarthScreenDirectory extends Screen {
 
     panOffset = new PVector(0, 0);
     panStart = null;
+    this.previousScreen = previousScreen;
   }
   
   void draw() {

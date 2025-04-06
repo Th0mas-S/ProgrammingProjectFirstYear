@@ -150,7 +150,11 @@ class SliderDirectory {
     }
     float backButtonY = sliderButtons.backY;
     if (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize && mouseY >= backButtonY && mouseY <= backButtonY + buttonSize) {
-      screenManager.switchScreen(mainMenuScreen);
+      
+      // 
+      EarthScreenDirectory screen = (EarthScreenDirectory) screenManager.currentScreen;
+      
+      screenManager.switchScreen(screen.previousScreen);
       return;
     }
   }

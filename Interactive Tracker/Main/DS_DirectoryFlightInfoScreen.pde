@@ -89,7 +89,7 @@ class DirectoryFlightInfoScreen extends Screen {
       screenManager.switchScreen(previousScreen);
     }
     if(visualizeFlight.mouseOver()) {
-      screenManager.switchScreen(new EarthScreenDirectory(earth, flight));
+      screenManager.switchScreen(new EarthScreenDirectory(earth, flight, this));
     }
   }
 
