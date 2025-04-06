@@ -2,21 +2,21 @@ class AirplaneDirectory {
   PVector start, end, currentPos;
   float sphereRadius, startMinute;
   int duration;
-  boolean finished = false;
+  PShape model;  // Using a 3D model loaded from an OBJ.
   
-  PImage model; 
-
   // Flight info fields.
   String departureLocation, arrivalLocation;
   String departureTime, arrivalTime;
   String airlineName, airlineCode, flightNumber;
   String originCode, destCode;
   
-  // The single Flight associated with this airplane.
+  boolean hasArrived = false;
+  
+  // Associated Flight.
   Flight flight;
   
   AirplaneDirectory(
-    Airport origin, Airport dest, float sphereRadius, PImage model, float startMinute,
+    Airport origin, Airport dest, float sphereRadius, PShape model, float startMinute,
     String depLoc, String arrLoc, String depTime, String arrTime,
     String airlineName, String airlineCode, String flightNumber,
     int duration, String originCode, String destCode,
@@ -27,6 +27,13 @@ class AirplaneDirectory {
     this.currentPos = start.copy();
     this.sphereRadius = sphereRadius;
     this.model = model;
+    // Load and set the texture unconditionally.
+    if (this.model != null) {
+      PImage texture = loadImage("AirplaneTexture.png");
+      if (texture != null) {
+        this.model.setTexture(texture);
+      }
+    }
     this.startMinute = startMinute;
     this.duration = duration;
     this.originCode = originCode;
@@ -43,22 +50,26 @@ class AirplaneDirectory {
     this.flight = flight;
   }
   
-  void update(float currentMinute) {
-    if (finished) return;
-    
-    float elapsed = currentMinute - startMinute;
-    float t = constrain(elapsed / float(duration), 0, 1);
-    if (t >= 1) {
-      finished = true;
-      return;
+  // This update() method loops the flight animation continuously.
+  void update(float currentTime) {
+    if (hasArrived) return;
+  
+    float elapsed = currentTime - startMinute;
+    if (elapsed >= duration) {
+      elapsed = duration;
+      hasArrived = true;
+    } else if (elapsed < 0) {
+      elapsed = 0;
     }
-    
+  
+    float t = elapsed / (float)duration;
+  
     PVector startNorm = start.copy().normalize();
     PVector endNorm = end.copy().normalize();
     float dot = constrain(startNorm.dot(endNorm), -1, 1);
     float theta = acos(dot);
     float sinTheta = sin(theta);
-    
+  
     if (sinTheta < 0.001) {
       currentPos = start.copy();
     } else {
@@ -69,32 +80,29 @@ class AirplaneDirectory {
   }
   
   void display() {
-  if (model == null) {
-    println("Airplane model is null in AirplaneDirectory!");
-    return;
+    pushMatrix();
+      translate(currentPos.x, currentPos.y, currentPos.z);
+      // Calculate orientation so the airplane faces the travel direction.
+      PVector travelDir = PVector.sub(end, start).normalize();
+      PVector globeNormal = currentPos.copy().normalize();
+      PVector right = globeNormal.cross(travelDir).normalize();
+      PVector forward = right.cross(globeNormal).normalize();
+      PMatrix3D m = new PMatrix3D(
+        forward.x, globeNormal.x, right.x, 0,
+        forward.y, globeNormal.y, right.y, 0,
+        forward.z, globeNormal.z, right.z, 0,
+        0,         0,             0,       1
+      );
+      applyMatrix(m);
+      rotateY(HALF_PI);
+      
+      scale(10);
+      
+      if (model != null) {
+        shape(model);
+      }
+    popMatrix();
   }
-  pushMatrix();
-    translate(currentPos.x, currentPos.y, currentPos.z);
-    // Calculate orientation...
-    PVector travelDir = PVector.sub(end, start).normalize();
-    PVector globeNormal = currentPos.copy().normalize();
-    PVector right = globeNormal.cross(travelDir).normalize();
-    PVector forward = right.cross(globeNormal).normalize();
-    PMatrix3D m = new PMatrix3D(
-      forward.x, globeNormal.x, right.x, 0,
-      forward.y, globeNormal.y, right.y, 0,
-      forward.z, globeNormal.z, right.z, 0,
-      0,         0,             0,       1
-    );
-    applyMatrix(m);
-    rotateX(HALF_PI);
-    rotateZ(PI);
-    
-    float factor = 0.01;
-    imageMode(CENTER);
-    image(model, 0, 0, model.width * factor, model.height * factor);
-  popMatrix();
-}
   
   PVector getPosition() {
     return currentPos;
