@@ -15,13 +15,13 @@ class CreditsScreen extends Screen {
   String[] credits = {
     "CREDITS",
     "",
-    "FHOMAS",
-    ".",
-    "Atticussy",
-    "Aiwanabreakfree",
-    "Jacinda",
-    "A man",
-    "Bently",
+    "Thomas",
+    "Darragh",
+    "Atticus",
+    "Aiwan",
+    "Jason",
+    "Aman",
+    "Ben",
   };
   
   // Credits vertical offset.
@@ -31,6 +31,11 @@ class CreditsScreen extends Screen {
   int logoStartTime;       // Start time for tracking 3 seconds
   float logoScale = 0.5;   // Initial (smaller) scale for the logo
   boolean shrinking = false; // Whether the logo is currently shrinking
+  
+  // New variable for logo opacity
+  float logoOpacity;
+  // Define a minimum scale at which the image stops shrinking.
+  final float MIN_LOGO_SCALE = 0.01f;
   
   // Flag to trigger reset before drawing anything on the screen.
   boolean firstFrame = true;
@@ -80,7 +85,7 @@ class CreditsScreen extends Screen {
       s.display();
     }
   
-    // 2) Handle the logo display and shrinking.
+    // 2) Handle the logo display and shrinking/fading.
     displayLogo();
   
     // 3) Display the credits once the logo starts shrinking.
@@ -93,7 +98,8 @@ class CreditsScreen extends Screen {
   // Logo display logic.
   // ---------------------------------------------------------------------
   void displayLogo() {
-    if (!shrinking || (shrinking && logoScale > 0.01)) {
+    // Modify the condition so that we continue drawing if the logo is still visible.
+    if (!shrinking || (shrinking && (logoScale > MIN_LOGO_SCALE || logoOpacity > 0))) {
       parent.pushMatrix();
         parent.translate(parent.width / 2, parent.height / 2);
         
@@ -102,18 +108,31 @@ class CreditsScreen extends Screen {
           shrinking = true;
         }
         
-        // If in the shrinking phase, slow down the shrink by a factor of 0.99.
+        // If in the shrinking phase, either shrink or fade out.
         if (shrinking) {
-          logoScale *= 0.99;
-          if (logoScale < 0.01) {
-            logoScale = 0;
+          if (logoScale > MIN_LOGO_SCALE) {
+            // Continue shrinking the logo.
+            logoScale *= 0.99;
+            if (logoScale < MIN_LOGO_SCALE) {
+              logoScale = MIN_LOGO_SCALE;
+            }
+          } else {
+            // Once the logo has reached its minimum scale, fade it out.
+            logoOpacity -= 5;  // Adjust decrement to control fade-out speed.
+            if (logoOpacity < 0) {
+              logoOpacity = 0;
+            }
+            // Apply tint with the current opacity.
+            parent.tint(255, logoOpacity);
           }
         }
         
-        // Draw the logo at the current scale.
+        // Draw the logo. If fading, the logo remains at the minimum scale.
         parent.imageMode(PConstants.CENTER);
-        parent.image(flightHubLogoCredits, 0, 0, flightHubLogoCredits.width * logoScale, flightHubLogoCredits.height * logoScale);
+        float currentScale = (logoScale > MIN_LOGO_SCALE) ? logoScale : MIN_LOGO_SCALE;
+        parent.image(flightHubLogoCredits, 0, 0, flightHubLogoCredits.width * currentScale, flightHubLogoCredits.height * currentScale);
         parent.imageMode(PConstants.CORNER);
+        parent.noTint();
       parent.popMatrix();
     }
   }
@@ -158,6 +177,7 @@ class CreditsScreen extends Screen {
     logoScale = 0.5;
     shrinking = false;
     logoStartTime = parent.millis();
+    logoOpacity = 255;  // Reset the opacity to full when starting over.
     
     // Start playing the credits audio only when the credits screen is active.
     if (!creditsAudio.isPlaying()) {
