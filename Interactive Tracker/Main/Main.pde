@@ -4,7 +4,7 @@ CalendarDisplay calendar;
 TimeSlider timeSlider;
 
 ScreenManager  screenManager;
-//EarthScreenDirectory  earthScreenDirectory;
+EarthScreenDirectory  earthScreenDirectory;
 EarthScreenTracker  earthScreenTracker;
 MainMenuScreen mainMenuScreen;
 ScreenBetweenScreens screenBetweenScreens;

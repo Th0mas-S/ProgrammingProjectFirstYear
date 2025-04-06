@@ -8,10 +8,17 @@ class EarthScreenTracker extends Screen {
   
   ActiveFlightInfo activeFlightInfo;
   
+  // New variables for panning
+  PVector panOffset;  // Overall pan offset.
+  PVector panStart;   // Starting mouse position when panning.
+  
   EarthScreenTracker(Earth earth) {
     this.earth = earth;
     calendar = new CalendarDisplay();
     timeSlider = new TimeSlider(width / 4, 60, width / 2, 30);
+    // Initialize pan variables.
+    panOffset = new PVector(0, 0);
+    panStart = null;
   }
   
   void draw() {
@@ -84,6 +91,8 @@ class EarthScreenTracker extends Screen {
     // Update Earth and draw globe.
     earth.update();
     pushMatrix();
+      // Apply pan offset before centering.
+      translate(panOffset.x, panOffset.y, 0);
       translate(width / 2, height / 2, 0);
       applyMatrix(earth.rotationMatrix);
       scale(earth.zoomFactor);
@@ -148,6 +157,12 @@ class EarthScreenTracker extends Screen {
   }
   
   void mousePressed() {
+    // Check for middle mouse button press for panning.
+    if (mouseButton == RIGHT) {
+      panStart = new PVector(mouseX, mouseY);
+      return;
+    }
+    
     if (isOverCalendar()) {
       uiHeld = true;
       calendar.mousePressed();
@@ -235,11 +250,22 @@ class EarthScreenTracker extends Screen {
   }
   
   void mouseDragged() {
-    // Prevent dragging if a plane was clicked.
+    // If middle mouse button is held, pan the globe.
+    if (mouseButton == RIGHT) {
+      if (panStart == null) {
+        panStart = new PVector(mouseX, mouseY);
+      }
+      PVector delta = new PVector(mouseX - panStart.x, mouseY - panStart.y);
+      panOffset.add(delta);
+      panStart.set(mouseX, mouseY);
+      return;
+    }
+    
+    // Prevent dragging if a plane was clicked or if slider UI is active.
     if (planeClicked || timeSlider.dragging || uiHeld) return;
     
-    if (mouseButton == LEFT || mouseButton == RIGHT) {
-      if (mouseButton == RIGHT || (mouseButton == LEFT && keyPressed && keyCode == CONTROL)) {
+    if (mouseButton == LEFT) {
+      if (mouseButton == LEFT && keyPressed && keyCode == CONTROL) {
         float angle = (mouseX - pmouseX) * 0.01;
         PMatrix3D delta = getRotationMatrix(angle, new PVector(0, 1, 0));
         earth.rotationMatrix.preApply(delta);
@@ -263,6 +289,11 @@ class EarthScreenTracker extends Screen {
   }
   
   void mouseReleased() {
+    // If middle mouse was used, end panning.
+    if (mouseButton == RIGHT) {
+      panStart = null;
+      return;
+    }
     timeSlider.mouseReleased();
     earth.isDragging = false;
     uiHeld = false;
