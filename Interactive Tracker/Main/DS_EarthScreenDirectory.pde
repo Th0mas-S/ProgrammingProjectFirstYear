@@ -10,24 +10,6 @@ class EarthScreenDirectory extends Screen {
   
   Screen previousScreen;
 
-  int timeStringToMinutes(String timeStr) {
-    String trimmed = trim(timeStr);
-    String[] dateTimeParts = split(trimmed, " ");
-    if (dateTimeParts.length < 2) {
-      println("⚠️ Could not extract time from: [" + trimmed + "]");
-      return 0;
-    }
-    String timePart = dateTimeParts[1];
-    String[] parts = split(timePart, ":");
-    if (parts.length != 2) {
-      println("⚠️ Invalid time format in: " + timePart);
-      return 0;
-    }
-    int hours = int(parts[0]);
-    int minutes = int(parts[1]);
-    return (hours * 60 + minutes); // Don't wrap here; allow values > 1440 for next day
-  }
-
   EarthScreenDirectory(Earth earth, Flight directoryFlight, Screen previousScreen) {
     this.earth = earth;
     this.directoryFlight = directoryFlight;
@@ -57,6 +39,35 @@ class EarthScreenDirectory extends Screen {
     panOffset = new PVector(0, 0);
     panStart = null;
     this.previousScreen = previousScreen;
+  }
+  
+  // Helper function: returns a fitted text size so that the text fits within maxWidth.
+  float getFittedTextSize(String s, float baseSize, float maxWidth) {
+    textSize(baseSize);
+    float measuredWidth = textWidth(s);
+    if (measuredWidth > maxWidth) {
+      return baseSize * maxWidth / measuredWidth;
+    } else {
+      return baseSize;
+    }
+  }
+  
+  int timeStringToMinutes(String timeStr) {
+    String trimmed = trim(timeStr);
+    String[] dateTimeParts = split(trimmed, " ");
+    if (dateTimeParts.length < 2) {
+      println("⚠️ Could not extract time from: [" + trimmed + "]");
+      return 0;
+    }
+    String timePart = dateTimeParts[1];
+    String[] parts = split(timePart, ":");
+    if (parts.length != 2) {
+      println("⚠️ Invalid time format in: " + timePart);
+      return 0;
+    }
+    int hours = int(parts[0]);
+    int minutes = int(parts[1]);
+    return (hours * 60 + minutes); // Don't wrap here; allow values > 1440 for next day
   }
   
   void draw() {
@@ -188,7 +199,7 @@ class EarthScreenDirectory extends Screen {
     sliderDirectory.display();
     hint(ENABLE_DEPTH_TEST);
 
-    // Updated directory info panel: transparent and matching main menu button style.
+    // Draw the info screen in the top left.
     pushStyle();
     hint(DISABLE_DEPTH_TEST);
     rectMode(CORNER);
@@ -201,9 +212,7 @@ class EarthScreenDirectory extends Screen {
     float infoH = 165;
     rect(infoX, infoY, infoW, infoH, 10);   // Rounded corners with radius 10
 
-    fill(255);
-    textSize(24);
-    textAlign(LEFT, TOP);
+    // Prepare the text to display.
     String fromText, toText, departedText, arrivedText, flightNumberText;
     if (airplane != null) {
       fromText = "From: " + airplane.departureLocation;
@@ -218,14 +227,38 @@ class EarthScreenDirectory extends Screen {
       arrivedText = "Arrived: " + directoryFlight.actualArrival;
       flightNumberText = "Flight Number: " + directoryFlight.airlineCode + directoryFlight.flightNumber;
     }
+    
+    // Define base text size and maximum allowed width.
+    float baseTextSize = 24;
+    float maxTextWidth = infoW - 20;  // leave a 10px margin on each side
     float textX = infoX + 10;
     float textY = infoY + 10;
     float lineSpacing = 30;
+    
+    fill(255);
+    textAlign(LEFT, TOP);
+    
+    // Adjust text size for each string if needed.
+    float fittedSize = getFittedTextSize(fromText, baseTextSize, maxTextWidth);
+    textSize(fittedSize);
     text(fromText, textX, textY);
+    
+    fittedSize = getFittedTextSize(toText, baseTextSize, maxTextWidth);
+    textSize(fittedSize);
     text(toText, textX, textY + lineSpacing);
+    
+    fittedSize = getFittedTextSize(departedText, baseTextSize, maxTextWidth);
+    textSize(fittedSize);
     text(departedText, textX, textY + 2 * lineSpacing);
+    
+    fittedSize = getFittedTextSize(arrivedText, baseTextSize, maxTextWidth);
+    textSize(fittedSize);
     text(arrivedText, textX, textY + 3 * lineSpacing);
+    
+    fittedSize = getFittedTextSize(flightNumberText, baseTextSize, maxTextWidth);
+    textSize(fittedSize);
     text(flightNumberText, textX, textY + 4 * lineSpacing);
+    
     hint(ENABLE_DEPTH_TEST);
     popStyle();
   }
