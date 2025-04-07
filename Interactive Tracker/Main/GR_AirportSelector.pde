@@ -188,21 +188,7 @@ class AirportSelectorMenu extends Screen {
     
     drawAirportList();
     drawSortMenu();
-    
-    if (airportSelector.searchFocused) {
-      int now = millis();
-      if (backspaceHeld && now - backspaceHoldStart > initialDelay && now - backspaceLastDelete > repeatRate) {
-        handleBackspace();
-        backspaceLastDelete = now;
-      }
-      if (keyBeingHeld && heldKey != 0 && heldKey != BACKSPACE) {
-        if (now - keyHoldStart > initialDelay && now - keyLastRepeat > repeatRate) {
-          insertKeyChar(heldKey);
-          keyLastRepeat = now;
-        }
-      }
-    
-    }
+   
     
   }
   

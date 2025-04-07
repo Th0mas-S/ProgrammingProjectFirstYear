@@ -11,11 +11,13 @@ class Screen {
 
 class ScreenManager {
   Screen currentScreen;
+  Screen previousScreen;
 
   ScreenManager() {
   }
   
   void switchScreen(Screen screen) {
+    previousScreen = currentScreen;
     currentScreen = screen;
   }
   
@@ -24,7 +26,12 @@ class ScreenManager {
   }
   
   void handleMousePressed() {
-    currentScreen.mousePressed();
+    if(key == BACKSPACE) {
+      currentScreen = previousScreen;
+      previousScreen = null;
+    } else {
+      currentScreen.mousePressed();
+    }
   }
   
   void handleMouseReleased() {
