@@ -27,6 +27,8 @@ Location destination = new Location(-51.2, 90.2);
 boolean showFlightInfo = false;
 float sphereRadius = 650;
 
+String[] flightRows;
+
 ArrayList<Airport> airports = new ArrayList<Airport>();
 HashMap<String, Airport> airportMap = new HashMap<String, Airport>();
 ArrayList<Flight> todaysFlights = new ArrayList<Flight>();
@@ -72,7 +74,7 @@ void setup() {
 
   initGlobalVariables();
   
-  // this is all the stuff that will happen in the background while the loading screen is being shown
+  //// this is all the stuff that will happen in the background while the loading screen is being shown
   Thread loadingThread = new Thread( () -> {
     float loadingStart = millis();
     float start = millis();
@@ -142,7 +144,6 @@ void setup() {
 
     println("Total loading took approx " + (millis() - loadingStart) + "ms");
   });
-  
   loadingScreen = new LoadingScreen(loadingThread);
   loadingThread.start(); // start loading the data  
   screenManager.switchScreen(loadingScreen);
@@ -269,10 +270,17 @@ void loadAllAssets() {
   println("Initialising dictionary took" +  (millis() - start) + "ms");
   
   start = millis();
-  initializeFlights();
+  flightRows = loadStrings(currentDataset);
+
+  initializeFlights(flightRows);
   println("Initialising flights took " +  (millis() - start) + "ms");
 
   
   clearIndex();
+  
+  // graph loading
+  loadAirportDictionary(rows);
+  initGraphGlobVariables();
+
 
 }
