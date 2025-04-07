@@ -16,34 +16,41 @@ class ScreenManager {
   }
   
   void switchScreen(Screen screen) {
-    currentScreen = screen;
+    if (screen == null) {
+      println("Attempted to switch to a null screen. Switching to MainMenuScreen instead.");
+      currentScreen = mainMenuScreen; // Default to a valid screen
+    } else {
+      println("Switching to screen: " + screen);
+      currentScreen = screen;
+    }
   }
+
   
   void drawScreen() {
-   currentScreen.draw();
+    if (currentScreen != null) currentScreen.draw();
   }
   
   void handleMousePressed() {
-    currentScreen.mousePressed();
+    if (currentScreen != null) currentScreen.mousePressed();
   }
   
   void handleMouseReleased() {
-    currentScreen.mouseReleased();
+    if (currentScreen != null) currentScreen.mouseReleased();
   }
   
   void handleMouseDragged() {
-    currentScreen.mouseDragged();
+    if (currentScreen != null) currentScreen.mouseDragged();
   }
   
   void handleMouseWheel(MouseEvent event) {
-    currentScreen.mouseWheel(event);
+    if (currentScreen != null) currentScreen.mouseWheel(event);
   }
   
   void handleKeyPressed() {
-    currentScreen.keyPressed();
+    if (currentScreen != null) currentScreen.keyPressed();
   }
   
   void handleMouseMoved() {
-    currentScreen.mouseMoved();
+    if (currentScreen != null) currentScreen.mouseMoved();
   }
 }

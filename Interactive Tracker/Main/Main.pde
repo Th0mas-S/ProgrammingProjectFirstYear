@@ -12,6 +12,8 @@ CreditsScreen creditsScreen;
 
 HeatMapScreen heatMapScreen;
 DirectoryScreen directoryScreen;
+GraphScreen graphScreen;
+AirportSelectorMenu airportSelectorMenu;
 
 LoadingScreen loadingScreen;
 
@@ -20,6 +22,9 @@ Airport airportOrigin;
 Airport airportDest;
 Airplane airplane;
 Assets assets;
+ProcessData processdata;
+AirportSelectorMenu airportSelector;
+
 
 Location origin = new Location(-25.5, 9.6);
 Location destination = new Location(-51.2, 90.2);
@@ -27,7 +32,7 @@ Location destination = new Location(-51.2, 90.2);
 boolean showFlightInfo = false;
 float sphereRadius = 650;
 
-ArrayList<Airport> airports = new ArrayList<Airport>();
+//ArrayList<Airport> airports = new ArrayList<Airport>();
 HashMap<String, Airport> airportMap = new HashMap<String, Airport>();
 ArrayList<Flight> todaysFlights = new ArrayList<Flight>();
 ArrayList<Airplane> activePlanes = new ArrayList<Airplane>();
@@ -39,6 +44,8 @@ HashMap<String, String> airportLocations = new HashMap<String, String>();
 
 HashMap<String, Location> airportCoordinates = new HashMap<String, Location>();
 
+ProcessData processData;
+String[] airports;
 String lastCheckedDate = "";
 Airplane selectedPlane = null;
 
@@ -49,7 +56,7 @@ SoundFile audio;
 // ========================
 void setup() {
   size(1920, 1055, P3D); // ben added this >:( (i know you can't hide from me);
-  
+  //loadAirportDictionary(); same as loadAllAssets()?
   //fullScreen(P3D);
   
   audio = new SoundFile(this, "audio3.mp3");
@@ -67,7 +74,8 @@ void setup() {
   
   timeSlider = new TimeSlider(width / 4, 60, width / 2, 30);
   timeSlider.value = 0;
-  
+  graphScreen = new GraphScreen(); // or however it's constructed in your code
+
   screenManager = new ScreenManager();
 
   initGlobalVariables();
@@ -82,8 +90,6 @@ void setup() {
     airplaneImg = loadImage("Airplane.png");
     // Use the airplane image as the airplane model
     airplaneModel = airplaneImg;
-    
-
 
     flightHubLogo = loadImage("Flighthub Logo.png");
     flightHubLogoCredits = loadImage("FlightHubLogoCredits.png");
@@ -134,6 +140,11 @@ void setup() {
     start = millis();
     loadingScreen.setLoadingProgress(loadingScreen.loadingDone + 0.01);
 
+    airportSelector = new AirportSelectorMenu(airports, graphScreen.airportNameLookup());
+    println("Creating Airport Selector screen " + (millis() - start) + "ms");
+    start = millis();
+    loadingScreen.setLoadingProgress(loadingScreen.loadingDone + 0.01);
+
 
     heatMapScreen = new HeatMapScreen();
     println("Creating HeatMap Tracker " + (millis() - start) + "ms");
@@ -142,12 +153,27 @@ void setup() {
 
     println("Total loading took approx " + (millis() - loadingStart) + "ms");
   });
-  
+    
+  //loadAirportDictionary();  // Load airport dictionary from airport_data.csv
+  processData = new ProcessData("flight_data_2017.csv"); 
+  airports = processData.getUniqueAirports();
+  if (airports == null || airports.length == 0) {
+    println("Error: airports array is null or empty.");
+}
   loadingScreen = new LoadingScreen(loadingThread);
   loadingThread.start(); // start loading the data  
   screenManager.switchScreen(loadingScreen);
+ 
   
-  
+  //StringLookup airportNameLookup = new StringLookup() {
+  //  public String get(String code) {
+  //    if (airportLookup.containsKey(code)) {
+  //      return airportLookup.get(code);
+  //    }
+  //    return code;
+  //  }
+  //};
+
   noStroke();
 }
 
@@ -174,11 +200,12 @@ void mouseReleased() {
 }
 
 void mouseWheel(MouseEvent event) {
-  screenManager.handleMouseWheel(event);
+  graphScreen.graphMouseWheel(event);
 }
 
 void mouseMoved() {
   screenManager.handleMouseMoved();
+  
 }
 
 void keyPressed() {
@@ -259,7 +286,7 @@ void loadAllAssets() {
       float relLon = 1.0071 * lon + 90.35;
       Location loc = new Location(relLat, relLon);
       Airport airport = new Airport(loc, sphereRadius, 5);
-      airports.add(airport);
+      //airports.add(airport);
       airportMap.put(iata, airport);
   } 
   println("Loading Airport Data took " +  (millis() - start) + "ms");

@@ -111,9 +111,11 @@ class ScreenBetweenScreens extends Screen {
     }
     // Airports button
     else if (isMouseOverRect(buttonX, airportBtnY, buttonWidth, buttonHeight)) {
+      screenManager.switchScreen(new AirportSelectorMenu(airports, graphScreen.airportNameLookup()));
     }
     else if (isMouseOverRect(menuBtnX, menuBtnY, menuBtnWidth, menuBtnHeight)) {
       screenManager.switchScreen(mainMenuScreen);
+
     }
   }
 }
