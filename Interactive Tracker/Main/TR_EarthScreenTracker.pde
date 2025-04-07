@@ -19,6 +19,7 @@ class EarthScreenTracker extends Screen {
     // Initialize pan variables.
     panOffset = new PVector(0, 0);
     panStart = null;
+    calendar.visible = true;
   }
   
   void draw() {

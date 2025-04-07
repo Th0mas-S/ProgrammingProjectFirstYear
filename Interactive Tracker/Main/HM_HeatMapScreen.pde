@@ -83,6 +83,8 @@ class HeatMapScreen extends Screen {
       toggleUIButton.text = hideUI ? "SHOW UI" : "HIDE UI";
     };
     toggleUIButton = bsToggle.build();
+    
+    calendar.visible = true;
   }
   
   void draw() {
