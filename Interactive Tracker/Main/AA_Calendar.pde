@@ -17,7 +17,7 @@ class CalendarDisplay {
 
   void display() {
     pushStyle();
-    fill(128, 128, 128, 50);
+    fill(50, 230);
     stroke(135, 206, 235, 150);
     rect(x, y, w, h, 5);
     popStyle();
