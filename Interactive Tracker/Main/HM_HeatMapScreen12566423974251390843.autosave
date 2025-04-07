@@ -22,11 +22,10 @@ class HeatMapScreen extends Screen {
   boolean isDragging = false;
   
   CalendarDisplay calendar;
-  CustomButton menuButton;          // Formerly "backButton", top-right
-  CustomButton confirmButton;       // Below the calendar
-  CustomButton toggleUIButton;      // "HIDE UI" – also below calendar
-  CustomButton showUIButton;        // "SHOW UI" – top-left, only when UI is hidden
-  
+  CustomButton backButton;
+  CustomButton confirmButton;
+  CustomButton toggleUIButton; 
+
   boolean hideUI = false;
   boolean isLoading = false; // Flag to indicate loading state
   
@@ -40,17 +39,17 @@ class HeatMapScreen extends Screen {
     
     int buttonsY = (int)(calendar.y + calendar.h + 10);
     
-    // Confirm Button
     CustomButtonSettings bsConfirm = new CustomButtonSettings();
     bsConfirm.x = (int)(calendar.x);
     bsConfirm.y = buttonsY;
-    bsConfirm.w = 160;
-    bsConfirm.h = 40;
-    bsConfirm.col = color(50, 50, 50, 200);
+    bsConfirm.w = (int)(calendar.w / 2) - 5;
+    bsConfirm.h = 50;
+    bsConfirm.col = color(128, 128, 128, 200);
     bsConfirm.textColor = color(255);
-    bsConfirm.text = "Confirm";
+    bsConfirm.text = "CONFIRM";
     bsConfirm.onClick = () -> {
       isLoading = true;
+      // Run heavy processing on a separate thread
       new Thread(() -> {
          generateHeatMap();
          generateHeatMapLayer();
@@ -59,72 +58,50 @@ class HeatMapScreen extends Screen {
     };
     confirmButton = bsConfirm.build();
     
-    // MENU Button at top right
-    CustomButtonSettings bsMenu = new CustomButtonSettings();
-    bsMenu.x = width - 165;
-    bsMenu.y = 15;
-    bsMenu.w = 160;
-    bsMenu.h = 40;
-    bsMenu.col = color(50, 50, 50, 200);
-    bsMenu.textColor = color(255);
-    bsMenu.text = "Menu";
-    bsMenu.onClick = () -> {
+    CustomButtonSettings bsBack = new CustomButtonSettings();
+    bsBack.x = (int)(calendar.x + (calendar.w / 2) + 5);
+    bsBack.y = buttonsY;
+    bsBack.w = (int)(calendar.w / 2) - 5;
+    bsBack.h = 50;
+    bsBack.col = color(128, 128, 128, 200); 
+    bsBack.textColor = color(255);
+    bsBack.text = "BACK";
+    bsBack.onClick = () -> {
       screenManager.switchScreen(mainMenuScreen);
     };
-    menuButton = bsMenu.build();
+    backButton = bsBack.build();
     
-    // Toggle UI Button ("HIDE UI") at original back-button location
     CustomButtonSettings bsToggle = new CustomButtonSettings();
-    bsToggle.x = (int)(calendar.x + calendar.w - 160);
-    bsToggle.y = buttonsY;
-    bsToggle.w = 160;
-    bsToggle.h = 40;
-    bsToggle.col = color(50, 50, 50, 200);
+    bsToggle.x = width - 200 - 20;  
+    bsToggle.y = height - 50 - 20;  
+    bsToggle.w = 200;
+    bsToggle.h = 50;
+    bsToggle.col = color(128, 128, 128, 200); 
     bsToggle.textColor = color(255);
-    bsToggle.text = "Hide UI";
-    // Toggles hideUI but DOES NOT change the button's text
+    bsToggle.text = "HIDE UI";
     bsToggle.onClick = () -> {
-      hideUI = true;  // Turn UI off
+      hideUI = !hideUI;
+      toggleUIButton.text = hideUI ? "SHOW UI" : "HIDE UI";
     };
     toggleUIButton = bsToggle.build();
-    
-    // "SHOW UI" button – only drawn when UI is hidden, top-left corner
-    CustomButtonSettings bsShowUI = new CustomButtonSettings();
-    bsShowUI.x = 20;
-    bsShowUI.y = 20;
-    bsShowUI.w = 160;
-    bsShowUI.h = 40;
-    bsShowUI.col = color(50, 50, 50, 200);
-    bsShowUI.textColor = color(255);
-    bsShowUI.text = "Show UI";
-    bsShowUI.onClick = () -> {
-      hideUI = false;  // Turn UI back on
-    };
-    showUIButton = bsShowUI.build();
   }
   
   void draw() {
     background(0);
     
-    // Draw the map and heat layer with panning/zooming
     pushMatrix();
-      translate(offsetX, offsetY);
-      scale(scaleFactor);
-      image(earthImage, 0, 0, width, height);
-      image(heatMapLayer, 0, 0);
+    translate(offsetX, offsetY);
+    scale(scaleFactor);
+    image(earthImage, 0, 0, width, height);
+    image(heatMapLayer, 0, 0);
     popMatrix();
     
     drawLegend();
     
     if (!hideUI) {
-      // Draw normal UI
-      calendar.displayHeatmap();
-      menuButton.draw();
+      calendar.display();
+      backButton.draw();
       confirmButton.draw();
-      toggleUIButton.draw();
-    } else {
-      // If UI is hidden, show the "SHOW UI" button
-      showUIButton.draw();
     }
     
     drawIntensityTab();
@@ -134,16 +111,20 @@ class HeatMapScreen extends Screen {
     offsetX = constrain(offsetX, width - zoomedWidth, 0);
     offsetY = constrain(offsetY, height - zoomedHeight, 0);
     
-    // If loading, overlay a transparent black box with cycling loading text.
+    // Always draw the toggle button.
+    toggleUIButton.draw();
+    
+    // Overlay a transparent black box with loading text if isLoading is true.
     if (isLoading) {
-      fill(0, 150);
+      fill(0, 150); // Transparent black with alpha 150
       noStroke();
       rect(0, 0, width, height);
       
       fill(255);
       textAlign(CENTER, CENTER);
       textSize(32);
-      int cycle = (int)((millis() / 1000) % 3); // cycle: 0, 1, or 2
+      // Cycle loading text every second
+      int cycle = (int)((millis() / 1000) % 3); // cycle will be 0, 1, or 2
       String loadingText = "";
       if (cycle == 0) {
         loadingText = "Loading.";
@@ -153,7 +134,6 @@ class HeatMapScreen extends Screen {
         loadingText = "Loading...";
       }
       text(loadingText, width / 2, height / 2);
-      textAlign(LEFT);
     }
   }
   
@@ -164,7 +144,7 @@ class HeatMapScreen extends Screen {
     int[][] offsets = {
       {0, 0}, {1, 0}, {1, -1}, {0, -1},
       {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}
-    };
+    }; 
     
     int intensity = 0;
     for (int[] coordinate : offsets) {
@@ -177,49 +157,47 @@ class HeatMapScreen extends Screen {
     
     int x, y;
     if (!hideUI) {
-      // Original position when UI is visible.
       x = (int)calendar.x + 10;
       y = (int)(calendar.y + calendar.h + 50) + 40;
     } else {
-      // Moved to top left when UI is hidden.
       x = 20;
-      y = 80; 
-      // Shift down a bit so it doesn't overlap with the "SHOW UI" button (which is at y=20).
+      y = 20;
     }
     
     stroke(135, 206, 235, 150);
-    strokeWeight(2);
-    fill(50, 50, 50, 200);
-    rect(10, height - 220, 200, 50, 8);
+    strokeWeight(5);
+    fill(128, 128, 128, 50);
+    rect(x, y, 200, 50);
     noStroke();
     
     fill(255);
-    textAlign(CORNER);
+    textAlign(CENTER);
     textSize(20);
-    text("Flights This Area: " + intensity, 20, height - 190);
+    text("Flights This Area: " + intensity, x + 100, y + 25);
   }
   
   void drawLegend() {
-    int legendXpos = 10;
-    int legendYpos = height - 160;
+    int legendXpos = 0;
+    int legendYpos = height - 150;
     stroke(135, 206, 235, 150);
-    strokeWeight(2);
-    fill(50, 50, 50, 200);
-    rect(legendXpos, legendYpos, 250, 100, 8);
+    strokeWeight(5);
+    fill(128, 128, 128, 50);
+    rect(legendXpos, legendYpos, 250, 150);
     textSize(20);
     noStroke();
     fill(0, 0, 255);
-    rect(legendXpos + 10, legendYpos + 10, 20, 20, 8);
+    rect(legendXpos + 10, legendYpos + 10, 20, 20);
     fill(255);
-    text("Low intensity: " + medianIntensity / 4, legendXpos + 50, legendYpos + 25);
+    textAlign(LEFT);
+    text("Low intensity", legendXpos + 50, legendYpos + 25);
     fill(255, 255, 0);
-    rect(legendXpos + 10, legendYpos + 40, 20, 20, 8);
+    rect(legendXpos + 10, legendYpos + 40, 20, 20);
     fill(255);
-    text("Median intensity: " + medianIntensity, legendXpos + 50, legendYpos + 55); 
+    text("Median intensity", legendXpos + 50, legendYpos + 55); 
     fill(255, 0, 0);
-    rect(legendXpos + 10, legendYpos + 70, 20, 20, 8);
+    rect(legendXpos + 10, legendYpos + 70, 20, 20);
     fill(255);
-    text("High intensity: " + medianIntensity * 7, legendXpos + 50, legendYpos + 85); 
+    text("High intensity", legendXpos + 50, legendYpos + 85); 
   }
   
   void generateHeatMap() {
@@ -360,14 +338,11 @@ class HeatMapScreen extends Screen {
     startY = mouseY - offsetY;
     isDragging = true;
     if (!hideUI) {
-      menuButton.handleOnClick();
+      backButton.handleOnClick();
       boolean dateChanged = calendar.mousePressed();
       confirmButton.handleOnClick();
-      toggleUIButton.handleOnClick();
-    } else {
-      // If UI is hidden, let the user press the "SHOW UI" button if hovered.
-      showUIButton.handleOnClick();
     }
+    toggleUIButton.handleOnClick(); 
   }
   
   void mouseDragged() {
@@ -413,11 +388,10 @@ class CustomButton {
       stroke(255);
       strokeWeight(2);
     } else {
-      stroke(color(135, 206, 235, 150));
-      strokeWeight(2);
+      noStroke();
     }
     fill(col);
-    rect(x, y, w, h, 8);
+    rect(x, y, w, h);
     fill(textColor);
     textAlign(CENTER, CENTER);
     textSize(24); 
