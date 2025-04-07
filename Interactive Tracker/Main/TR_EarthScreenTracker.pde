@@ -311,7 +311,8 @@ class EarthScreenTracker extends Screen {
   void keyPressed() {
     if (key == ' ') {
       earth.rotationMatrix = new PMatrix3D();
-      earth.zoomFactor = 0.8;
+      earth.zoomFactor = 0.6;
+      panOffset.set(0, 0);
     }
   }
   
