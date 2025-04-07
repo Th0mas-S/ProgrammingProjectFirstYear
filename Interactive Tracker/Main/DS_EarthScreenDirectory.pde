@@ -64,6 +64,24 @@ class EarthScreenDirectory extends Screen {
     sliderDirectory.update();
     float currentTime = sliderDirectory.value;
 
+    // --- Draw star field (as in the tracker screen) ---
+    for (Star star : stars) {
+      star.update(earth);
+      star.display();
+    }
+    for (Star star : moreStars) {
+      star.update(earth);
+      star.display();
+    }
+    for (Star star : evenMoreStars) {
+      star.update(earth);
+      star.display();
+    }
+    // ---------------------------------------------------
+
+    // Update Earth's momentum (rotation/inertia) just like in the tracker screen.
+    earth.update();
+    
     pushMatrix();
     translate(panOffset.x, panOffset.y, 0);
     translate(width / 2, height / 2, 0);
@@ -170,16 +188,18 @@ class EarthScreenDirectory extends Screen {
     sliderDirectory.display();
     hint(ENABLE_DEPTH_TEST);
 
+    // Updated directory info panel: transparent and matching main menu button style.
     pushStyle();
     hint(DISABLE_DEPTH_TEST);
     rectMode(CORNER);
-    fill(50, 50, 50, 230);
-    noStroke();
+    fill(128, 128, 128, 50);               // Transparent gray fill
+    stroke(135, 206, 235, 150);            // Light blue stroke
+    strokeWeight(2);
     float infoX = 10;
     float infoY = 10;
     float infoW = 350;
     float infoH = 165;
-    rect(infoX, infoY, infoW, infoH);
+    rect(infoX, infoY, infoW, infoH, 10);   // Rounded corners with radius 10
 
     fill(255);
     textSize(24);

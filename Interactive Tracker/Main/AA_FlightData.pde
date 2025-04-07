@@ -142,7 +142,7 @@ class Flight{
     }
     else mouseOver = false;
     
-    fill(#3E1607);
+    fill(255);
     strokeWeight(1);
     stroke(0);
     textAlign(CENTER);

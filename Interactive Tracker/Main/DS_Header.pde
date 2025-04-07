@@ -51,7 +51,7 @@ class Header{
     noStroke();
     fill(160, 160, 160, opacity);
     rect(x, y-(textSize*1/3), w, h, 5);
-    fill(20);
+    fill(255);
     text(title, x, y);
     
     textAlign(LEFT);
