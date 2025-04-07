@@ -120,20 +120,12 @@ class AirportSelectorMenu {
     
     // --- Draw the FlightHub logo above the search bar ---
     if (logo != null) {
-      // Set the logo width (here 75% of listWidth, adjust as desired)
       float desiredLogoWidth = listWidth * 0.75; 
       float aspect = (float) logo.height / logo.width;
       float desiredLogoHeight = desiredLogoWidth * aspect;
-      
-      // marginAboveSearchBar can be used to fine-tune vertical placement.
-      // A negative value moves it further down.
       float marginAboveSearchBar = -140;
-      
       float centerX = width / 2;
-      // The centerY is calculated so that the logo's bottom (centerY + desiredLogoHeight/2)
-      // equals searchBarY minus marginAboveSearchBar.
       float centerY = searchBarY - marginAboveSearchBar - (desiredLogoHeight / 2);
-      
       imageMode(CENTER);
       image(logo, centerX, centerY, desiredLogoWidth, desiredLogoHeight);
     }
@@ -152,10 +144,19 @@ class AirportSelectorMenu {
     textAlign(LEFT, CENTER);
     textSize(24);
     
-    String displayText = searchQuery.isEmpty() ? "Search airports..." : searchQuery;
-    int textAlpha = searchQuery.isEmpty() ? 120 : 255;
+    // If the search bar is focused, even an empty query is shown with full opacity.
+    String displayText;
+    int textAlpha;
+    if (searchQuery.isEmpty() && !searchFocused) {
+      displayText = "Search airports...";
+      textAlpha = 120;
+    } else {
+      displayText = searchQuery;
+      textAlpha = 255;
+    }
+    
     fill(0, textAlpha);
-    text(displayText, listX + 16, searchBarY + searchBarHeight/2);
+    text(displayText, listX + 16, searchBarY + searchBarHeight / 2);
     
     // Draw text selection highlight.
     if (searchFocused && hasSelection() && textAlpha == 255) {
@@ -183,11 +184,11 @@ class AirportSelectorMenu {
     if (!searchQuery.isEmpty()) {
       fill(200);
       noStroke();
-      ellipse(clearButtonX + clearButtonSize/2, clearButtonY + clearButtonSize/2, clearButtonSize, clearButtonSize);
+      ellipse(clearButtonX + clearButtonSize / 2, clearButtonY + clearButtonSize / 2, clearButtonSize, clearButtonSize);
       fill(0);
       textAlign(CENTER, CENTER);
       textSize(16);
-      text("X", clearButtonX + clearButtonSize/2, clearButtonY + clearButtonSize/2);
+      text("X", clearButtonX + clearButtonSize / 2, clearButtonY + clearButtonSize / 2);
     }
     
     drawAirportList();
@@ -246,7 +247,7 @@ class AirportSelectorMenu {
           fontSize -= 1;
           textSize(fontSize);
         }
-        text(label, listX + listWidth/2, currentItemY + itemHeight/2);
+        text(label, listX + listWidth / 2, currentItemY + itemHeight / 2);
       }
     }
     
@@ -275,7 +276,7 @@ class AirportSelectorMenu {
     fill(0);
     textSize(20);
     textAlign(LEFT, CENTER);
-    text("Sort by:", sortMenuX + 10, sortMenuY + sortMenuH/2);
+    text("Sort by:", sortMenuX + 10, sortMenuY + sortMenuH / 2);
     
     String currentOption = "";
     if (sortField == SortField.CODE) {
@@ -287,7 +288,7 @@ class AirportSelectorMenu {
     }
     
     textAlign(RIGHT, CENTER);
-    text(currentOption, sortMenuX + sortMenuW - 10, sortMenuY + sortMenuH/2);
+    text(currentOption, sortMenuX + sortMenuW - 10, sortMenuY + sortMenuH / 2);
     
     if (sortMenuOpen) {
       float totalOptionsHeight = sortOptions.length * optionHeight;
@@ -307,14 +308,13 @@ class AirportSelectorMenu {
         fill(0);
         textSize(18);
         textAlign(LEFT, CENTER);
-        text(sortOptions[i].label, sortMenuX + 10, optionY + optionHeight/2);
+        text(sortOptions[i].label, sortMenuX + 10, optionY + optionHeight / 2);
       }
     }
   }
   
   String handleMousePressed(float mx, float my) {
     float searchBarHeight = 55;
-    // Use the same searchBarY calculation as in display() for consistency:
     float searchBarY = listY - searchBarHeight - 20;
     float clearX = listX + listWidth - 28 - 10;
     float clearY = searchBarY + (searchBarHeight - 28) / 2;

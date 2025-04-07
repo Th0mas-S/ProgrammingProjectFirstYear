@@ -138,15 +138,15 @@ void mouseWheel(MouseEvent event) {
 }
 
 void keyPressed() {
-  // In graph view, handle BACKSPACE as a way to navigate pages.
+  // In graph view, handle BACKSPACE for navigation.
   if (screenMode == SCREEN_OVERVIEW) {
     if (key == BACKSPACE) {
-      // If we're displaying a graph (graphScreen.inMenu == false), go back to the graph selection menu.
+      // If a graph is being displayed, go back to the graph selection menu.
       if (!graphScreen.inMenu) {
         graphScreen.inMenu = true;
         return;
       }
-      // If we're already in the graph selection menu, go back to airport search.
+      // If already in graph selection, go back to airport search.
       else {
         screenMode = SCREEN_SELECTION;
         graphScreen = null;
@@ -205,7 +205,6 @@ void keyPressed() {
         graphScreen = new GraphSelectorMenu(selected, processData);
         screenMode = SCREEN_OVERVIEW;
       }
-      // Optionally, handle other ENTER functionality here.
     }
     else {
       char c = key;

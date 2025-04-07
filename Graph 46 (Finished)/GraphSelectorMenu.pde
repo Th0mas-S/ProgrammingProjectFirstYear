@@ -216,7 +216,7 @@ class GraphSelectorMenu {
     else {
       background(255);
     }
-
+    
     drawBackButton();
     
     // Retrieve airport info.
@@ -226,7 +226,6 @@ class GraphSelectorMenu {
     String location    = util.extractLocation(fullOrigin);
     
     if (inMenu) {
-      // Calculate the widget grid's starting position
       float btnWidth = 380, btnHeight = 260, btnGapX = 25, btnGapY = 40;
       int cols = 4, rows = 2;
       float totalWidth  = cols * btnWidth + (cols - 1) * btnGapX;
@@ -235,29 +234,23 @@ class GraphSelectorMenu {
       float startX = width / 2 - totalWidth / 2;
       float startY = height / 2 - totalHeight / 2;
       
-      // We'll place the heading some pixels above startY
       float headingBaseY = startY - 80;
       
-      // Main heading
       String mainHeading = "Graph Selection Menu";
-      // Sub-header
       String subHeader = "Select a Graph for " + airportName + " (" + airport + ")";
       
       fill(255);
       
-      // Draw main heading
       textSize(28);
       textAlign(CENTER, TOP);
-      text(mainHeading, width/2, headingBaseY);
+      text(mainHeading, width / 2, headingBaseY);
       headingBaseY += 35;
       
-      // Draw sub-header
       float availableWidth = width - 250;
       float fs = util.getFittedTextSize(subHeader, availableWidth, 24);
       textSize(fs);
-      text(subHeader, width/2, headingBaseY);
+      text(subHeader, width / 2, headingBaseY);
       
-      // Now draw the menu below these headings
       drawMenu();
     } else {
       int elapsed = millis() - graphStartTime;
@@ -285,26 +278,26 @@ class GraphSelectorMenu {
       float fs1 = util.getFittedTextSize(line1, availableWidth, 24);
       textSize(fs1);
       textAlign(CENTER, TOP);
-      text(line1, width/2, baseY);
+      text(line1, width / 2, baseY);
       baseY += fs1 + gap;
       
       if (line2.length() > 0) {
         float fs2 = util.getFittedTextSize(line2, availableWidth, 20);
         textSize(fs2);
-        text(line2, width/2, baseY);
+        text(line2, width / 2, baseY);
         baseY += fs2 + gap;
       }
       
       float fs3 = util.getFittedTextSize(line3, availableWidth, 20);
       textSize(fs3);
-      text(line3, width/2, baseY);
+      text(line3, width / 2, baseY);
       
       float gx = 150, gy = 150, gw = width - 300, gh = height - 300;
       if (data.totalFlights == 0) {
         fill(0);
         textSize(30);
         textAlign(CENTER, CENTER);
-        text("No data available for this date", width/2, height/2);
+        text("No data available for this date", width / 2, height / 2);
       } else {
         switch (selectedGraph) {
           case 0: new PieChartScreen(airport, data, animationProgress).display(gx, gy, gw, gh); break;
@@ -482,7 +475,7 @@ class GraphSelectorMenu {
     fill(0);
     textSize(24);
     textAlign(CENTER, CENTER);
-    text("Back", bx + bw/2, by + bh/2);
+    text("Back", bx + bw / 2, by + bh / 2);
   }
   
   void drawAnnualToggle() {
@@ -502,7 +495,7 @@ class GraphSelectorMenu {
     textSize(18);
     textAlign(CENTER, CENTER);
     String label = annualData ? "Annual: On" : "Annual: Off";
-    text(label, bx + bw/2, by + bh/2);
+    text(label, bx + bw / 2, by + bh / 2);
   }
   
   void drawDateSelector() {
@@ -516,6 +509,6 @@ class GraphSelectorMenu {
     fill(0);
     textSize(18);
     textAlign(CENTER, CENTER);
-    text("Calendar", bx + bw/2, by + bh/2);
+    text("Calendar", bx + bw / 2, by + bh / 2);
   }
 }
