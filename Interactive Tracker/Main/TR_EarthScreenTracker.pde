@@ -28,6 +28,7 @@ class EarthScreenTracker extends Screen {
     menuButtonY = (int)(calendar.y + calendar.h + 10);
     menuButtonW = 100;
     menuButtonH = 40;
+    calendar.visible = true;
   }
   
   void draw() {

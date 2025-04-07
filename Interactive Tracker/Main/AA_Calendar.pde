@@ -5,6 +5,8 @@ class CalendarDisplay {
   float x, y;
   float w, h;
   float arrowSize = 30;
+  
+  boolean visible = false;
 
   CalendarDisplay() {
     month = 0;
@@ -14,8 +16,27 @@ class CalendarDisplay {
     w = 350;
     h = 255;
   }
+  
+  CalendarDisplay(float x, float y, float w, float h) 
+  {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    month = 0; 
+    year = 2017;
+  }
+  
+    
+  void toggle()
+  {
+    visible = !visible;
+  }
 
   void display() {
+    
+    if(!visible) return;
+    
     pushStyle();
     fill(50, 230);
     stroke(135, 206, 235, 150);

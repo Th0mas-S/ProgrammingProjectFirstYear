@@ -88,6 +88,7 @@ class HeatMapScreen extends Screen {
     };
     toggleUIButton = bsToggle.build();
     
+<<<<<<< HEAD
     // "SHOW UI" button – only drawn when UI is hidden, top-left corner
     CustomButtonSettings bsShowUI = new CustomButtonSettings();
     bsShowUI.x = 20;
@@ -101,6 +102,9 @@ class HeatMapScreen extends Screen {
       hideUI = false;  // Turn UI back on
     };
     showUIButton = bsShowUI.build();
+=======
+    calendar.visible = true;
+>>>>>>> intergrating-graphs
   }
   
   void draw() {
