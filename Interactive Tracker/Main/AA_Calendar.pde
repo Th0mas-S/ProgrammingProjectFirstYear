@@ -8,6 +8,7 @@ class CalendarDisplay {
   
   boolean visible = false;
 
+  // Default constructor
   CalendarDisplay() {
     month = 0;
     year = 2017; 
@@ -17,8 +18,8 @@ class CalendarDisplay {
     h = 255;
   }
   
-  CalendarDisplay(float x, float y, float w, float h) 
-  {
+  // Overloaded constructor
+  CalendarDisplay(float x, float y, float w, float h) {
     this.x = x;
     this.y = y;
     this.w = w;
@@ -27,15 +28,14 @@ class CalendarDisplay {
     year = 2017;
   }
   
-    
-  void toggle()
-  {
+  // Toggle visibility on and off
+  void toggle() {
     visible = !visible;
   }
 
+  // Draw the calendar
   void display() {
-    
-    if(!visible) return;
+    if (!visible) return;
     
     pushStyle();
     fill(50, 230);
@@ -52,6 +52,7 @@ class CalendarDisplay {
     float headerCenterY = headerY + headerHeight / 2;
     text(mName + " " + year, x + w / 2, headerCenterY);
 
+    // Left arrow (for previous month)
     if (month > 0) {
       float arrowY = headerCenterY;
       boolean leftHover = (mouseX >= x + 10 && mouseX <= x + 10 + arrowSize &&
@@ -71,6 +72,7 @@ class CalendarDisplay {
       fill(255);
     }
 
+    // Right arrow (for next month)
     if (month < 11) {
       float arrowY = headerCenterY;
       boolean rightHover = (mouseX >= x + w - 10 - arrowSize && mouseX <= x + w - 10 &&
@@ -127,7 +129,9 @@ class CalendarDisplay {
       text(i, cellX + cellW / 2, cellY + cellH / 2);
     }
   }
-    void displayHeatmap() {
+  
+  // (Optional) Additional display method for heatmap style
+  void displayHeatmap() {
     pushStyle();
     fill(50, 50, 50, 200);
     stroke(135, 206, 235, 150);
@@ -219,20 +223,23 @@ class CalendarDisplay {
     }
   }
 
+  // Returns the month name for the given month number
   String getMonthName(int m) {
     String[] months = {"January", "February", "March", "April", "May", "June",
                        "July", "August", "September", "October", "November", "December"};
     return months[m % 12];
   }
 
+  // Returns the index (0-based) of the day of the week of the 1st day of the month
   int getStartDay(int m, int y) {
     java.util.Calendar cal = java.util.Calendar.getInstance();
     cal.set(y, m, 1);
     return cal.get(java.util.Calendar.DAY_OF_WEEK) - 1;
   }
 
+  // Returns the number of days in the month
   int getDaysInMonth(int m, int y) {
-    if (m == 1) {
+    if (m == 1) { // February
       if ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)) return 29;
       return 28;
     }
@@ -240,6 +247,9 @@ class CalendarDisplay {
     return days[m];
   }
 
+  // Handles mouse presses on the calendar.
+  // If the user presses on a day cell, it sets that as selectedDay.
+  // If the user presses on the arrow buttons, it calls previousMonth() or nextMonth().
   boolean mousePressed() {
     if (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h) {
       float headerY = y + 20;
@@ -280,18 +290,24 @@ class CalendarDisplay {
     return false;
   }
 
+  // Modified previousMonth method: now resets selectedDay to 1
   void previousMonth() {
     if (month > 0) month--;
+    selectedDay = 1;
   }
 
+  // Modified nextMonth method: now resets selectedDay to 1
   void nextMonth() {
     if (month < 11) month++;
+    selectedDay = 1;
   }
   
+  // Alternative date formats (you can keep or remove getSelectedDate2)
   String getSelectedDate2() {
     return nf(selectedDay, 2) + "/" + nf(month + 1, 2) + "/" + nf(year, 4); 
   }
   
+  // Returns the selected date in YYYY-MM-DD format.
   String getSelectedDate() {
     return nf(year, 4) + "-" + nf(month + 1, 2) + "-" + nf(selectedDay, 2);
   }

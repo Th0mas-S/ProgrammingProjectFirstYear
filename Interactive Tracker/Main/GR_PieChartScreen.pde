@@ -10,9 +10,9 @@ class PieChartScreen {
   }
   
   void display(float x, float y, float w, float h) {
-    float cx = x + w/2;
-    float cy = y + h/2;
-    float dia = min(w, h) * 0.7;
+    float cx = x + w / 2;
+    float cy = y + h / 2;
+    float dia = min(w, h) * 0.9;
     
     int onTime    = data.onTimeFlights;
     int delayed   = data.delayedFlights;
@@ -21,7 +21,6 @@ class PieChartScreen {
     
     float angleOnTime    = TWO_PI * onTime / total;
     float angleDelayed   = TWO_PI * delayed / total;
-    // Calculate angle for cancelled flights.
     float angleCancelled = TWO_PI - angleOnTime - angleDelayed;
     
     float anim = animationProgress;
@@ -40,27 +39,30 @@ class PieChartScreen {
     fill(255, 0, 0);
     arc(cx, cy, dia, dia, startAngle, startAngle + angleCancelled * anim);
     
-    // Draw legend.
-    float legendX = x + 30;
-    float legendY = y + 30;
-    float boxSize = 25;
+    float spacing = 10;       // Vertical spacing between legend rows
+    float legendX = x + 40;   // Position the legend a bit away from the left
+    float legendY = y + 40;   // Position the legend a bit away from the top
+    float boxSize = 40;       // Legend box size
+    textSize(20);             // Legend text size
     textAlign(LEFT, CENTER);
-    textSize(18);
     noStroke();
     
+    // Legend for "On Time"
     fill(0, 200, 0);
     rect(legendX, legendY, boxSize, boxSize);
     fill(0);
-    text("On Time: " + onTime, legendX + boxSize + 10, legendY + boxSize/2);
+    text("On Time: " + onTime, legendX + boxSize + 8, legendY + boxSize/2);
     
+    // Legend for "Delayed"
     fill(0, 0, 255);
-    rect(legendX, legendY + 35, boxSize, boxSize);
+    rect(legendX, legendY + boxSize + spacing, boxSize, boxSize);
     fill(0);
-    text("Delayed: " + delayed, legendX + boxSize + 10, legendY + 35 + boxSize/2);
+    text("Delayed: " + delayed, legendX + boxSize + 8, legendY + boxSize + spacing + boxSize/2);
     
+    // Legend for "Cancelled"
     fill(255, 0, 0);
-    rect(legendX, legendY + 70, boxSize, boxSize);
+    rect(legendX, legendY + 2*(boxSize + spacing), boxSize, boxSize);
     fill(0);
-    text("Cancelled: " + cancelled, legendX + boxSize + 10, legendY + 70 + boxSize/2);
+    text("Cancelled: " + cancelled, legendX + boxSize + 8, legendY + 2*(boxSize + spacing) + boxSize/2);
   }
 }
