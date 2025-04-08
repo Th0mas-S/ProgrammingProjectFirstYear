@@ -24,7 +24,7 @@ class ScreenManager {
   }
   
   void handleMousePressed() {
-    currentScreen.mousePressed();
+   currentScreen.mousePressed();
   }
   
   void handleMouseReleased() {

@@ -192,7 +192,7 @@ class MainMenuScreen extends Screen {
       isMouseOverRect(startX, fourthButtonY, creditsWidth, buttonHeight - 30) ||
       isMouseOverRect(exitX, fourthButtonY, exitWidth, buttonHeight - 30);
       
-    if (currentlyHovering && !wasHoveringButton && !muteToggled) {
+    if (currentlyHovering && !wasHoveringButton) {
       hoverSound.play();
     }
     wasHoveringButton = currentlyHovering;
@@ -224,10 +224,9 @@ class MainMenuScreen extends Screen {
                           parent.mouseY >= baseTop && parent.mouseY <= baseTop + baseIconHeight);
     if (isOverMute) {
       muteToggled = !muteToggled;
-      // If muting, stop all audio; if unmuting, restart the main menu audio.
+      // If muting, stop backgroud audio (not hover audio); if unmuting, restart the main menu audio.
       if (muteToggled) {
         audio.stop();
-        hoverSound.stop();
       } else {
         audio.loop();
       }

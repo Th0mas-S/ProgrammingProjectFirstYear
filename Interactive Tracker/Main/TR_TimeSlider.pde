@@ -52,9 +52,9 @@ class TimeSlider {
   void display() {
     fill(200);
     noStroke();
-    rect(x, y, w, h, 5);
+    rect(x, y-15, w, h, 5);
     float handleX = map(value, 0, 1439, x, x + w);
-    float handleY = y + h / 2 - 30;
+    float handleY = y + h / 2 - 45;
     float handleWidth = 20;
     float handleHeight = 60;
     
@@ -78,7 +78,7 @@ class TimeSlider {
     float timeBoxWidth = 80;
     float timeBoxHeight = 40;
     float timeBoxX = handleX - timeBoxWidth / 2;
-    float timeBoxY = y + h + 25;
+    float timeBoxY = y + h + 10;
     fill(50);
     stroke(255);
     strokeWeight(1);
@@ -148,12 +148,12 @@ class TimeSlider {
     }
     
     // Back button hitbox (located just beneath the fast-forward button).
-    float backButtonY = sliderButtons.backY;
-    if (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
-        mouseY >= backButtonY && mouseY <= backButtonY + buttonSize) {
-      screenManager.switchScreen(mainMenuScreen);
-      return;
-    }
+    //float backButtonY = sliderButtons.backY;
+    //if (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
+    //    mouseY >= backButtonY && mouseY <= backButtonY + buttonSize) {
+    //  screenManager.switchScreen(mainMenuScreen);
+    //  return;
+    //}
   }
   
   void mouseReleased() {

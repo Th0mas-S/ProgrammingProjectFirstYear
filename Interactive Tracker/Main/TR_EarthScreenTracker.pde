@@ -8,9 +8,12 @@ class EarthScreenTracker extends Screen {
   
   ActiveFlightInfo activeFlightInfo;
   
-  // New variables for panning
+  // Variables for panning.
   PVector panOffset;  // Overall pan offset.
   PVector panStart;   // Starting mouse position when panning.
+  
+  // Coordinates for the standalone MENU button.
+  int menuButtonX, menuButtonY, menuButtonW, menuButtonH;
   
   EarthScreenTracker(Earth earth) {
     this.earth = earth;
@@ -19,6 +22,13 @@ class EarthScreenTracker extends Screen {
     // Initialize pan variables.
     panOffset = new PVector(0, 0);
     panStart = null;
+    
+    // Set MENU button coordinates: aligned with the left edge of the calendar, just below it.
+    menuButtonX = (int) calendar.x;
+    menuButtonY = (int)(calendar.y + calendar.h + 10);
+    menuButtonW = 100;
+    menuButtonH = 40;
+    calendar.visible = true;
   }
   
   void draw() {
@@ -61,7 +71,7 @@ class EarthScreenTracker extends Screen {
           Airport dest = airportMap.get(flight.destination);
           if (origin != null && dest != null && !flight.cancelled) {
             Airplane airplane = new Airplane(
-              origin, dest, sphereRadius, airplaneModel, (float)flight.minutes,
+              origin, dest, sphereRadius, airplaneModel, (float) flight.minutes,
               airportLocations.get(flight.origin), airportLocations.get(flight.destination),
               flight.actualDeparture, flight.actualArrival,
               flight.airlineName, flight.airlineCode, flight.flightNumber,
@@ -74,7 +84,7 @@ class EarthScreenTracker extends Screen {
       }
     }
     
-    // Update and display stars.
+    // Draw stars.
     for (Star star : stars) {
       star.update(earth);
       star.display();
@@ -98,10 +108,9 @@ class EarthScreenTracker extends Screen {
       scale(earth.zoomFactor);
       earth.display();
       
-      // Draw airplanes with depth test disabled for blending.
+      // Draw airplanes with depth test disabled for proper blending.
       hint(DISABLE_DEPTH_TEST);
       for (Airplane a : activePlanes) {
-        // If this airplane's flight matches the persistent selected flight, mark it as selected.
         if (activeFlightInfo != null &&
             a.flight.identifier.equals(activeFlightInfo.flight.identifier) &&
             a.flight.date.equals(activeFlightInfo.flight.date)) {
@@ -109,9 +118,7 @@ class EarthScreenTracker extends Screen {
         } else {
           a.selected = false;
         }
-        
         a.update(currentTime);
-        // Transform airplane position to viewer space.
         PVector transformedPos = new PVector();
         earth.rotationMatrix.mult(a.getPosition(), transformedPos);
         PVector norm = transformedPos.copy().normalize();
@@ -119,7 +126,6 @@ class EarthScreenTracker extends Screen {
           a.display();
         }
       }
-      
       // Draw the flight arc if an airplane is selected and its flight info is visible.
       if (activeFlightInfo != null && activeFlightInfo.visible) {
         activeFlightInfo.drawFlightArc(sphereRadius);
@@ -129,12 +135,30 @@ class EarthScreenTracker extends Screen {
     
     // Draw additional UI elements if UI is not hidden.
     hint(DISABLE_DEPTH_TEST);
-    timeSlider.display();
-    calendar.display();
-    if (activeFlightInfo != null && activeFlightInfo.visible) {
-      activeFlightInfo.display();
-    }
+      // Draw the calendar without stroke (so it doesn't highlight on hover).
+      pushStyle();
+        noStroke();
+        calendar.display();
+      popStyle();
+      timeSlider.display();
+      if (activeFlightInfo != null && activeFlightInfo.visible) {
+        activeFlightInfo.display();
+      }
+      // Draw the MENU button.
+      drawMenuButton();
     hint(ENABLE_DEPTH_TEST);
+  }
+  
+  void drawMenuButton() {
+    // Draw the standalone MENU button.
+    stroke(color(135, 206, 235, 150));
+    strokeWeight(2);  // Set stroke weight to 2.
+    fill(color(50, 50, 50, 230));
+    rect(menuButtonX, menuButtonY, menuButtonW, menuButtonH, 8);
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(24);
+    text("Menu", menuButtonX + menuButtonW / 2, menuButtonY + menuButtonH / 2);
   }
   
   boolean isOverSliderButtons() {
@@ -157,7 +181,6 @@ class EarthScreenTracker extends Screen {
   }
   
   void mousePressed() {
-    // Check for middle mouse button press for panning.
     if (mouseButton == RIGHT) {
       panStart = new PVector(mouseX, mouseY);
       return;
@@ -168,7 +191,7 @@ class EarthScreenTracker extends Screen {
       calendar.mousePressed();
       return;
     }
-  
+    
     if (isOverSliderButtons() || isOverSliderTrack()) {
       uiHeld = true;
       timeSlider.mousePressed();
@@ -176,6 +199,13 @@ class EarthScreenTracker extends Screen {
     }
     
     timeSlider.mousePressed();
+    
+    // Check if MENU button is pressed.
+    if (mouseX >= menuButtonX && mouseX <= menuButtonX + menuButtonW &&
+        mouseY >= menuButtonY && mouseY <= menuButtonY + menuButtonH) {
+      screenManager.switchScreen(mainMenuScreen);
+      return;
+    }
     
     if (activeFlightInfo != null && activeFlightInfo.closeButtonClicked(mouseX, mouseY)) {
       activeFlightInfo.visible = false;
@@ -194,7 +224,6 @@ class EarthScreenTracker extends Screen {
       return;
     }
     
-    // Look for a candidate plane that is hovered.
     Airplane candidate = null;
     for (Airplane a : activePlanes) {
       PVector transformedPos = new PVector();
@@ -207,16 +236,11 @@ class EarthScreenTracker extends Screen {
     }
     
     if (candidate != null) {
-      // Prevent earth dragging when a plane is clicked.
       planeClicked = true;
-      
-      // Deselect all planes and select the candidate.
       for (Airplane plane : activePlanes) {
         plane.selected = false;
       }
       candidate.selected = true;
-      
-      // Create ActiveFlightInfo using the candidate's Flight object.
       activeFlightInfo = new ActiveFlightInfo(
         candidate.flight,
         candidate.start, candidate.end, 
@@ -238,7 +262,6 @@ class EarthScreenTracker extends Screen {
       return;
     }
     
-    // Only allow earth dragging if no plane was clicked.
     if (!uiHeld && !planeClicked) {
       earth.isDragging = true;
       earth.inertiaAngle = 0;
@@ -250,19 +273,15 @@ class EarthScreenTracker extends Screen {
   }
   
   void mouseDragged() {
-    // If middle mouse button is held, pan the globe.
     if (mouseButton == RIGHT) {
-      if (panStart == null) {
-        panStart = new PVector(mouseX, mouseY);
-      }
+      if (panStart == null) panStart = new PVector(mouseX, mouseY);
       PVector delta = new PVector(mouseX - panStart.x, mouseY - panStart.y);
       panOffset.add(delta);
       panStart.set(mouseX, mouseY);
       return;
     }
     
-    // Prevent dragging if a plane was clicked or if slider UI is active.
-    if (planeClicked || timeSlider.dragging || uiHeld) return;
+    if (timeSlider.dragging || uiHeld) return;
     
     if (mouseButton == LEFT) {
       if (mouseButton == LEFT && keyPressed && keyCode == CONTROL) {
@@ -289,7 +308,6 @@ class EarthScreenTracker extends Screen {
   }
   
   void mouseReleased() {
-    // If middle mouse was used, end panning.
     if (mouseButton == RIGHT) {
       panStart = null;
       return;
@@ -297,7 +315,6 @@ class EarthScreenTracker extends Screen {
     timeSlider.mouseReleased();
     earth.isDragging = false;
     uiHeld = false;
-    // Reset the planeClicked flag when the mouse is released.
     planeClicked = false;
     cursor(ARROW);
   }

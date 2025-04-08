@@ -5,6 +5,8 @@ class CalendarDisplay {
   float x, y;
   float w, h;
   float arrowSize = 30;
+  
+  boolean visible = false;
 
   CalendarDisplay() {
     month = 0;
@@ -14,11 +16,121 @@ class CalendarDisplay {
     w = 350;
     h = 255;
   }
+  
+  CalendarDisplay(float x, float y, float w, float h) 
+  {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    month = 0; 
+    year = 2017;
+  }
+  
+    
+  void toggle()
+  {
+    visible = !visible;
+  }
 
   void display() {
+    
+    if(!visible) return;
+    
+    pushStyle();
+    fill(50, 230);
+    stroke(135, 206, 235, 150);
+    rect(x, y, w, h, 5);
+    popStyle();
+
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(20);
+    String mName = getMonthName(month);
+    float headerY = y + 20;
+    float headerHeight = 40;
+    float headerCenterY = headerY + headerHeight / 2;
+    text(mName + " " + year, x + w / 2, headerCenterY);
+
+    if (month > 0) {
+      float arrowY = headerCenterY;
+      boolean leftHover = (mouseX >= x + 10 && mouseX <= x + 10 + arrowSize &&
+                           mouseY >= arrowY - arrowSize / 2 && mouseY <= arrowY + arrowSize / 2);
+      if (leftHover) {
+        fill(100, 150, 255);
+        stroke(255, 255, 255);
+        strokeWeight(2);
+      } else {
+        fill(200);
+        noStroke();
+      }
+      triangle(x + 10, arrowY,
+               x + 10 + arrowSize, arrowY - arrowSize / 2,
+               x + 10 + arrowSize, arrowY + arrowSize / 2);
+      noStroke();
+      fill(255);
+    }
+
+    if (month < 11) {
+      float arrowY = headerCenterY;
+      boolean rightHover = (mouseX >= x + w - 10 - arrowSize && mouseX <= x + w - 10 &&
+                            mouseY >= arrowY - arrowSize / 2 && mouseY <= arrowY + arrowSize / 2);
+      if (rightHover) {
+        fill(100, 150, 255);
+        stroke(255, 255, 255);
+        strokeWeight(2);
+      } else {
+        fill(200);
+        noStroke();
+      }
+      triangle(x + w - 10, arrowY,
+               x + w - 10 - arrowSize, arrowY - arrowSize / 2,
+               x + w - 10 - arrowSize, arrowY + arrowSize / 2);
+      noStroke();
+      fill(255);
+    }
+
+    textSize(16);
+    String[] dayNames = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    float cellW = (w - 20) / 7.0;
+    float dayNamesY = headerY + headerHeight + 20 / 2;
+    for (int i = 0; i < 7; i++) {
+      text(dayNames[i], x + 10 + cellW * i + cellW / 2, dayNamesY);
+    }
+
+    int daysInMonth = getDaysInMonth(month, year);
+    int startDay = getStartDay(month, year);
+    float cellH = 25;
+    float gridStartY = headerY + headerHeight + 20;
+    for (int i = 1; i <= daysInMonth; i++) {
+      int cellIndex = startDay + (i - 1);
+      int row = cellIndex / 7;
+      int col = cellIndex % 7;
+      float cellX = x + 10 + col * cellW;
+      float cellY = gridStartY + row * cellH;
+
+      boolean isHovered = mouseX >= cellX && mouseX < cellX + cellW &&
+                          mouseY >= cellY && mouseY < cellY + cellH;
+      boolean isSelected = (i == selectedDay);
+
+      if (isHovered || isSelected) {
+        fill(isHovered ? color(100, 150, 255) : color(150));
+        stroke(255);
+        strokeWeight(2);
+        rect(cellX, cellY, cellW, cellH);
+        noStroke();
+        fill(255);
+      } else {
+        fill(255);
+        noStroke();
+      }
+      text(i, cellX + cellW / 2, cellY + cellH / 2);
+    }
+  }
+    void displayHeatmap() {
     pushStyle();
     fill(50, 50, 50, 200);
-    noStroke();
+    stroke(135, 206, 235, 150);
     rect(x, y, w, h, 5);
     popStyle();
 
