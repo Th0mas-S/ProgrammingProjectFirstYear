@@ -145,15 +145,16 @@ class Flight{
     strokeWeight(1);
     stroke(0);
     textAlign(CENTER);
-    text(date, x+(textSize*2.5), y);
-    text(airlineCode + flightNumber, x+(textSize*8.7), y);
-    text(origin + " -> " + destination, x+(textSize*15), y);
-    text(scheduledDeparture + " - " + scheduledArrival, x+(textSize*22), y);
-    text(cancelled ? "N/A" : cropData(actualDeparture) + " - " + cropData(actualArrival), x+(textSize*31), y);
-    text(cancelled ? "N/A" : departureDelay + " min ", x+(textSize*40), y);
-    text(cancelled ? "N/A" : "" + diverted, x+(textSize*47), y);
-    text("" + cancelled, x+(textSize*55), y);
-    text(flightDistance + " km", x+(textSize*65), y);
+    text(date, x+(textSize*4.36), y);
+    text(airlineCode + flightNumber, x+(textSize*12.38), y);
+    text(origin + " -> " + destination, x+(textSize*21.04), y);
+    text(scheduledDeparture + " - " + scheduledArrival, x+(textSize*30.42), y);
+    text(cancelled ? "N/A" : cropData(actualDeparture) + " - " + cropData(actualArrival), x+(textSize*39.88), y);
+    if(cancelled || departureDelay==0) text("N/A", x+(textSize*47.66), y);
+    else text(departureDelay + " min ", x+(textSize*47.66), y);
+    text(cancelled ? "N/A" : "" + diverted, x+(textSize*54.3), y);
+    text("" + cancelled, x+(textSize*59.82), y);
+    text(flightDistance + " km", x+(textSize*67.5), y);
     
     
       if(mouseX>x && mouseX<x+width-150 && mouseY>y-textSize && mouseY<y){
