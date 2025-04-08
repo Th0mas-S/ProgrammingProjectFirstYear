@@ -15,13 +15,13 @@ class CreditsScreen extends Screen {
   String[] credits = {
     "CREDITS",
     "",
-    "Thomas",
-    "Darragh",
-    "Atticus",
     "Aiwan",
-    "Jason",
     "Aman",
+    "Atticus",
     "Ben",
+    "Darragh",
+    "Jason",
+    "Thomas",
   };
   
   // Credits vertical offset.
