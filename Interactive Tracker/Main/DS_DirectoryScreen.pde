@@ -21,7 +21,9 @@ void clearIndex() {                        // sets index array to all ints 0-(ma
   for (int i = 0; i < flights.size(); i++) {
     arrayIndex.add(i);
   }
-  arrayIndex.sort(Comparator.comparing(index -> flights.get(index).date));
+  DateTimeFormatter sortFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+  arrayIndex.sort(Comparator.comparing(index -> LocalDate.parse(flights.get(index).date, sortFormat)));
+  remove2016Data("01/01/2017", "31/12/2017");
 }
 
 String convertDate(String dateIn) {        // used for initializing flights
@@ -33,6 +35,19 @@ String cropData(String dataIn) {           // used for initializing flights
   if (dataIn.equals("")) return "00:00";
   String[] mess = split(dataIn, ' ');
   return(mess[1]);
+}
+
+void remove2016Data(String date1In, String date2In) {
+    arrayIndex = new ArrayList<>();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    LocalDate startDate = LocalDate.parse(date1In, formatter);
+    LocalDate endDate = LocalDate.parse(date2In, formatter);
+    for (int i = 0; i < flights.size(); i++) {
+      LocalDate flightDate = LocalDate.parse(flights.get(i).date, formatter);
+      if (!flightDate.isBefore(startDate) && !flightDate.isAfter(endDate)) {
+        arrayIndex.add(i);
+      }
+    }
 }
 
 void initializeDictionary(String[] readIn) {  // call once on startup
@@ -238,7 +253,7 @@ class DirectoryScreen extends Screen {
   }
   
   void mousePressed() {
-    println(mouseX+" / "+((mouseX-55)/textSize));
+    //println(mouseX+" / "+((mouseX-55)/textSize));
      if (!sortQuery && !dateQuery && !airportQuery) {
       slider.sliderPressed();
       searchbar.searchPressed();

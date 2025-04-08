@@ -5,12 +5,14 @@ class DirectoryFlightInfoScreen extends Screen {
   Widget back, visualizeFlight;
   int textSize;
   Screen previousScreen;
+  boolean nextDay;
 
   DirectoryFlightInfoScreen(Flight currentFlight, Screen previousScreen) {
     logo = loadImage("Flighthub Logo.png");
     logo.resize(int(360 * 1.9), int(240 * 1.9));
     
     showData(currentFlight);
+    nextDay=checkNextDay();
     
     back = new Widget(width - 160, 160, 2, 100, 50, #674C11);
     textSize = int((width - 110) * 0.014);
@@ -23,6 +25,21 @@ class DirectoryFlightInfoScreen extends Screen {
   
   void showData(Flight currentFlight) {
     flight = currentFlight;
+  }
+  
+  boolean checkNextDay(){
+    if(flight.cancelled) return false;
+    int dep=convertTime(flight.actualDeparture);
+    int arr=convertTime(flight.actualArrival);
+    if(arr<dep) return true;
+    else return false;
+  }
+  
+  int convertTime(String timeIn){
+    if(timeIn.equals("n/a")) return(0);
+    String[] num = timeIn.split(":");
+    int time = (int(num[0])*60)+int(num[1]);
+    return(time);
   }
 
   void draw() {
@@ -64,17 +81,27 @@ class DirectoryFlightInfoScreen extends Screen {
     text("To:            " + getAirportAddress(flight.destination), iPos, jPos - textSize * 4 + 10);
     
     text("Scheduled Departure:    " + flight.scheduledDeparture, iPos + width / 2, jPos - textSize * 5);
-    text("Scheduled Arrival:            " + flight.scheduledArrival, iPos + width / 2, jPos - textSize * 4 + 10);
-    text("Actual Departure:             " + flight.actualDeparture, iPos + width / 2, jPos - textSize * 2 + 30);
-    text("Actual Arrival:                     " + flight.actualArrival, iPos + width / 2, jPos - textSize + 40);
-    text("Delayed:    " + flight.departureDelay + " mins", iPos + width / 2, jPos + textSize * 4 + 20);
+    text("Scheduled Arrival:           " + flight.scheduledArrival, iPos + width / 2, jPos - textSize * 4 + 10);
+    
+    if(flight.departureDelay==0) text("Delayed:    N/A", iPos + width / 2, jPos + textSize * 4 + 20);
+    else text("Delayed:    " + flight.departureDelay + " mins", iPos + width / 2, jPos + textSize * 4 + 20);
     text("Flight Distance:  " + flight.flightDistance + " km", iPos, jPos + textSize * 4 + 30);
     
     text("Flight Number:  " + flight.airlineCode + " " + flight.flightNumber, iPos, jPos);
     text("Carrier:  " + getCarrier(flight.airlineCode), iPos, jPos + textSize * 2 + 20);
     text("Date:  " + flight.date, iPos, jPos + textSize + 10);     
     text("Cancelled:  " + (flight.cancelled ? "Yes" : "No"), iPos + width / 2, jPos + textSize * 9);
-    text("Diverted:  " + (flight.diverted ? "Yes" : "No"), iPos + width / 2, jPos + textSize * 10 + 20);
+    
+    if(flight.cancelled){
+      text("Actual Departure:             N/A", iPos + width / 2, jPos - textSize * 2 + 30);
+      text("Actual Arrival:                    N/A", iPos + width / 2, jPos - textSize + 40);
+      text("Diverted:  N/A", iPos + width / 2, jPos + textSize * 10 + 20);
+    }
+    else{
+      text("Actual Departure:             " + cropData(flight.actualDeparture), iPos + width / 2, jPos - textSize * 2 + 30);
+      text("Actual Arrival:                    " + cropData(flight.actualArrival) + (nextDay ? " +1":""), iPos + width / 2, jPos - textSize + 40);
+      text("Diverted:  " + (flight.diverted ? "Yes" : "No"), iPos + width / 2, jPos + textSize * 10 + 20);
+    }
     
     noStroke();
     fill(255);

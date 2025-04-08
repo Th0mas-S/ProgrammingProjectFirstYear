@@ -61,7 +61,8 @@ class Header{
   
   
   void sortByDate(){
-      arrayIndex.sort(Comparator.comparing(index -> flights.get(index).date));
+      DateTimeFormatter sortFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+      arrayIndex.sort(Comparator.comparing(index -> LocalDate.parse(flights.get(index).date, sortFormatter)));
       if(!direction) Collections.reverse(arrayIndex); 
   }
 

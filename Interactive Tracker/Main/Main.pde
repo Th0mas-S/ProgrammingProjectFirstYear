@@ -275,8 +275,8 @@ void loadAllAssets() {
   initializeFlights(flightRows);
   println("Initialising flights took " +  (millis() - start) + "ms");
 
-  
   clearIndex();
+
   
   // graph loading
   loadAirportDictionary(rows);
