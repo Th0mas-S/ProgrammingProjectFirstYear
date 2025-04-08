@@ -22,6 +22,9 @@ int keyLastRepeat = 0;
 HashMap<String, String> airportLookup = new HashMap<String, String>();
 
 void insertKeyChar(char c) {
+  if (airportSelector.searchQuery.length() >= SEARCH_CHAR_LIMIT) return;
+
+  
   int selStart = min(airportSelector.selectionStart, airportSelector.selectionEnd);
   int selEnd = max(airportSelector.selectionStart, airportSelector.selectionEnd);
   if (airportSelector.hasSelection()) {

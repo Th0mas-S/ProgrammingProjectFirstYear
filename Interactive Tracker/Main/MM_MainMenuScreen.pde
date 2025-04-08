@@ -200,7 +200,7 @@ class MainMenuScreen extends Screen {
     // Draw the buttons.
     drawHoverButton(startX, startY, buttonWidth, buttonHeight, "Flight Tracker", 40);
     drawHoverButton(startX, secondButtonY, buttonWidth, buttonHeight, "Interactive Heatmap", 40);
-    drawHoverButton(startX, thirdButtonY, buttonWidth, buttonHeight, "Directory", 40);
+    drawHoverButton(startX, thirdButtonY, buttonWidth, buttonHeight, "Information", 40);
     drawHoverButton(startX, fourthButtonY, creditsWidth, buttonHeight - 30, "Credits", 40);
     drawHoverButton(exitX, fourthButtonY, exitWidth, buttonHeight - 30, "Exit", 40);
   }

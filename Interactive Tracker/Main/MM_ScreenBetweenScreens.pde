@@ -64,8 +64,8 @@ class ScreenBetweenScreens extends Screen {
     parent.fill(0, 150);
     parent.rect(0, 0, parent.width, parent.height);
 
-    drawHoverButton(buttonX, flightsBtnY, buttonWidth, buttonHeight, "Flights", 40);
-    drawHoverButton(buttonX, airportBtnY, buttonWidth, buttonHeight, "Airports", 40);
+    drawHoverButton(buttonX, flightsBtnY, buttonWidth, buttonHeight, "Flight Directory", 40);
+    drawHoverButton(buttonX, airportBtnY, buttonWidth, buttonHeight, "Airport Data", 40);
 
     drawHoverButton(menuBtnX, menuBtnY, menuBtnWidth, menuBtnHeight, "Menu", 30);
 

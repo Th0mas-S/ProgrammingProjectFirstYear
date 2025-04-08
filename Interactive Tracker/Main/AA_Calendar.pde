@@ -249,13 +249,13 @@ class CalendarDisplay {
           mouseX >= x + 10 && mouseX <= x + 10 + arrowSize &&
           mouseY >= headerCenterY - arrowSize / 2 && mouseY <= headerCenterY + arrowSize / 2) {
         previousMonth();
-        return true;
+        return false;
       }
       if (month < 11 &&
           mouseX >= x + w - 10 - arrowSize && mouseX <= x + w - 10 &&
           mouseY >= headerCenterY - arrowSize / 2 && mouseY <= headerCenterY + arrowSize / 2) {
         nextMonth();
-        return true;
+        return false;
       }
 
       int startDay = getStartDay(month, year);
