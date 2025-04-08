@@ -387,10 +387,10 @@ void drawSortMenu() {
   
   fill(0);
   textSize(20);
-  textAlign(LEFT, CENTER);
-  text("Sort by:", sortMenuX + 10, sortMenuY + sortMenuH / 2);
+  textAlign(CENTER, CENTER);
+  text("Sort by:", sortMenuX + sortMenuW / 2, sortMenuY + sortMenuH / 2);
   
-  // Draw sort options.
+  // Draw sort options.z
   float totalOptionsHeight = sortOptions.length * optionHeight;
   for (int i = 0; i < sortOptions.length; i++) {
     float optionY = sortMenuY + sortMenuH + i * optionHeight;
@@ -679,15 +679,27 @@ void drawSortMenu() {
     
   }
   
-  void mouseWheel(MouseEvent event) {
-    float e = event.getCount();
-    String[] filtered = airportSelector.getFilteredAirports();
-    int maxTopIndex = max(0, filtered.length - airportSelector.itemsToShow);
-    airportSelector.topIndex += (int)e;
-    airportSelector.topIndex = constrain(airportSelector.topIndex, 0, maxTopIndex);
-    airportSelector.sliderPos = (maxTopIndex == 0) ? 0 : airportSelector.topIndex / (float)maxTopIndex;
-  
+void mouseWheel(MouseEvent event) {
+  // Check if mouse is over the airport list area.
+  boolean overList = (mouseX > listX && mouseX < listX + listWidth &&
+                      mouseY > listY && mouseY < listY + itemsToShow * itemHeight);
+  // Check if mouse is over the slider area.
+  boolean overSlider = (mouseX > sliderX && mouseX < sliderX + sliderWidth &&
+                        mouseY > sliderY && mouseY < sliderY + sliderHeight);
+
+  // Only scroll if the mouse is over one of these areas.
+  if (!(overList || overSlider)) {
+    return; // Do not handle scrolling if not hovering over the list or slider.
   }
+  
+  float e = event.getCount();
+  String[] filtered = getFilteredAirports();
+  int maxTopIndex = max(0, filtered.length - itemsToShow);
+  
+  topIndex += (int)e;
+  topIndex = constrain(topIndex, 0, maxTopIndex);
+  sliderPos = (maxTopIndex == 0) ? 0 : topIndex / (float)maxTopIndex;
+}
   
   void handleSliderMouseDragged(float mx, float my) {
     if (dragging) {

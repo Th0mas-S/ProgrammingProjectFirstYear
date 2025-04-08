@@ -1,5 +1,38 @@
-
 // :)
+// Standard repeat variables for letters:
+boolean backspaceHeld = false;
+int backspaceHoldStart = 0;
+int backspaceLastDelete = 0;
+int initialDelay = 300;
+int repeatRate = 50;
+
+// CTRL-BACKSPACE variables:
+boolean ctrlBackspaceHeld = false;
+int ctrlBackspaceHoldStart = 0;
+int ctrlBackspaceLastRepeat = 0;
+int ctrlBackspaceInitialDelay = 300; // ms before repeat starts
+int ctrlBackspaceRepeatRate = 50;    // ms between repeats
+
+// Other key (letters, etc.) repeat variables:
+char heldKey = 0;
+boolean keyBeingHeld = false;
+int keyHoldStart = 0;
+int keyLastRepeat = 0;
+
+// Arrow key repeat variables:
+boolean arrowLeftHeld = false;
+boolean arrowRightHeld = false;
+int arrowHoldStart = 0;
+int arrowLastRepeat = 0;
+int arrowInitialDelay = 300; // ms before arrow repeat starts
+int arrowRepeatRate = 50;    // ms between arrow repeats
+
+// Screen modes:
+int SCREEN_SELECTION = 0;
+int SCREEN_OVERVIEW = 1;
+int screenMode = SCREEN_SELECTION;
+
+// Other globals:
 Utility util;
 AirportSelectorMenu airportSelector;
 GraphSelectorMenu graphScreen;
@@ -7,23 +40,10 @@ ProcessData processData;
 String[] uniqueAirports;
 PFont unicodeFont;
 PImage flighthubLogo;
-
-boolean backspaceHeld = false;
-int backspaceHoldStart = 0;
-int backspaceLastDelete = 0;
-int initialDelay = 300;
-int repeatRate = 50;
-
-char heldKey = 0;
-boolean keyBeingHeld = false;
-int keyHoldStart = 0;
-int keyLastRepeat = 0;
-
 HashMap<String, String> airportLookup = new HashMap<String, String>();
 
 void insertKeyChar(char c) {
   if (airportSelector.searchQuery.length() >= SEARCH_CHAR_LIMIT) return;
-
   
   int selStart = min(airportSelector.selectionStart, airportSelector.selectionEnd);
   int selEnd = max(airportSelector.selectionStart, airportSelector.selectionEnd);
@@ -63,40 +83,51 @@ void handleBackspace() {
 }
 
 void handleCtrlBackspace() {
+  // If searchQuery is empty, disable CTRL-backspace.
+  if (airportSelector.searchQuery.length() == 0) {
+    ctrlBackspaceHeld = false;
+    return;
+  }
+  
   int selStart = min(airportSelector.selectionStart, airportSelector.selectionEnd);
   int selEnd = max(airportSelector.selectionStart, airportSelector.selectionEnd);
-  if (airportSelector.hasSelection()) {
-    airportSelector.searchQuery = airportSelector.searchQuery.substring(0, selStart) +
-                                    airportSelector.searchQuery.substring(selEnd);
-    airportSelector.caretIndex = selStart;
-    airportSelector.clearSelection();
+  
+  // If a selection exists, delete it.
+  if (selStart != selEnd) {
+    airportSelector.searchQuery = 
+      airportSelector.searchQuery.substring(0, selStart) +
+      airportSelector.searchQuery.substring(selEnd);
+    airportSelector.setCaretIndex(selStart);
+    airportSelector.selectionStart = airportSelector.selectionEnd = airportSelector.caretIndex;
     airportSelector.resetScroll();
     return;
   }
+  
   String text = airportSelector.searchQuery;
   int caret = airportSelector.caretIndex;
-  if (caret == 0) return;
+  if (caret == 0) return; // Nothing to delete if at beginning
+  
   int left = caret;
+  // Remove trailing spaces.
   while (left > 0 && text.charAt(left - 1) == ' ') {
     left--;
   }
+  // Remove any special (non-alphanumeric) characters.
   while (left > 0 && isSpecialChar(text.charAt(left - 1))) {
     left--;
   }
+  // Remove word characters (letters/digits).
   while (left > 0 && isWordChar(text.charAt(left - 1))) {
     left--;
   }
-  int right = caret;
-  while (right < text.length() && text.charAt(right) == ' ') {
-    right++;
+  // Remove any additional whitespace.
+  while (left > 0 && text.charAt(left - 1) == ' ') {
+    left--;
   }
-  airportSelector.searchQuery = text.substring(0, left) + text.substring(right);
-  airportSelector.caretIndex = left;
-  while (airportSelector.caretIndex > 0 &&
-         airportSelector.searchQuery.charAt(airportSelector.caretIndex - 1) == ' ') {
-    airportSelector.caretIndex--;
-  }
-  airportSelector.clearSelection();
+  
+  airportSelector.searchQuery = text.substring(0, left) + text.substring(caret);
+  airportSelector.setCaretIndex(left);
+  airportSelector.selectionStart = airportSelector.selectionEnd = airportSelector.caretIndex;
   airportSelector.resetScroll();
 }
 
@@ -139,33 +170,24 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.Collections;
 
-
-
 import java.util.ArrayList;
 
-class ProcessData 
-{
+class ProcessData {
   Table table;
   int totalFlights, onTimeFlights, delayedFlights, cancelledFlights;
   String filterDate = null;
   
-  ProcessData()
-  {
-    try 
-    {
+  ProcessData() {
+    try {
       table = loadTable(currentDataset, "header,csv");
       println("Loaded " + table.getRowCount() + " rows from " + currentDataset);
-    }
-    catch(Exception e) 
-    {
+    } catch(Exception e) {
       println("Error loading CSV: " + e.getMessage());
     }
   }
   
-  void process(String airport) 
-  {
-    if (table == null) 
-    {
+  void process(String airport) {
+    if (table == null) {
       println("No table loaded, cannot process data.");
       return;
     }
@@ -174,33 +196,23 @@ class ProcessData
     delayedFlights = 0;
     cancelledFlights = 0;
     
-    for (TableRow row : table.rows()) 
-    {
+    for (TableRow row : table.rows()) {
       if (!rowMatchesFilter(row, airport)) continue;
       
       totalFlights++;
       String cancelledStr = row.getString("cancelled").trim().toLowerCase();
       
-      if (cancelledStr.equals("true")) 
-      {
+      if (cancelledStr.equals("true")) {
         cancelledFlights++;
-      } 
-      else 
-      {
-        try 
-        {
+      } else {
+        try {
           int delay = row.getInt("minutes_late");
-          
-          if (delay > 0) 
-          {
+          if (delay > 0) {
             delayedFlights++;
-          }
-          else
-          {
+          } else {
             onTimeFlights++;
           }
-        }
-      catch(Exception e) { }
+        } catch(Exception e) { }
       }
     }
     println("Processed data for airport: " + airport + " on " + (filterDate != null ? filterDate : "all dates"));
@@ -211,30 +223,21 @@ class ProcessData
     println("---------------------------------------");
   }
   
-  boolean rowMatchesFilter(TableRow row, String airport)
-  {
+  boolean rowMatchesFilter(TableRow row, String airport) {
     if (!row.getString("origin").equalsIgnoreCase(airport)) return false;
-    
-    if (filterDate != null)
-    {
+    if (filterDate != null) {
       String sched = row.getString("scheduled_departure");
-      
       if (sched == null || !sched.substring(0, 10).equals(filterDate)) return false;
     }
     return true;
   }
   
-  String[] getUniqueAirports() 
-  {
+  String[] getUniqueAirports() {
     if (table == null) return new String[0];
     ArrayList<String> unique = new ArrayList<String>();
-    
-    for (TableRow row : table.rows())
-    {
+    for (TableRow row : table.rows()) {
       String orig = row.getString("origin").trim();
-      
-      if (!unique.contains(orig))
-      {
+      if (!unique.contains(orig)) {
         unique.add(orig);
       }
     }
@@ -244,11 +247,7 @@ class ProcessData
 }
 
 // Utility.pde
-// Contains helper methods used throughout the sketch.
-
 class Utility {
-
-  // Returns a fitted text size for a single line of text.
   float getFittedTextSize(String text, float maxWidth, float defaultSize) {
     float ts = defaultSize;
     textSize(ts);
@@ -259,13 +258,11 @@ class Utility {
     return ts;
   }
   
-  // Returns a fitted text size for multiple lines by joining them.
   float getFittedTextSize(String[] lines, float maxWidth, float defaultSize) {
     String joined = join(lines, " ");
     return getFittedTextSize(joined, maxWidth, defaultSize);
   }
   
-  // Formats a date string ("YYYY-MM-DD") into a more descriptive form.
   String formatDate(String date) {
     String[] parts = split(date, "-");
     if (parts.length != 3) return date;
@@ -275,7 +272,6 @@ class Utility {
     return getOrdinal(day) + " of " + getMonthNameFull(month) + " " + year;
   }
   
-  // Returns the ordinal (st, nd, rd, th) for a day.
   String getOrdinal(int day) {
     if (day >= 11 && day <= 13) return nf(day, 0) + "th";
     int lastDigit = day % 10;
@@ -285,7 +281,6 @@ class Utility {
     return nf(day, 0) + "th";
   }
   
-  // Returns the full month name given a month number (1-12).
   String getMonthNameFull(int m) {
     String[] months = {"January", "February", "March", "April", "May", "June",
                        "July", "August", "September", "October", "November", "December"};
@@ -293,7 +288,6 @@ class Utility {
     return months[m-1];
   }
   
-  // Extracts the airport name from a full origin string.
   String extractAirportName(String fullOrigin) {
     int openParen = fullOrigin.indexOf("(");
     if (openParen != -1) {
@@ -302,7 +296,6 @@ class Utility {
     return fullOrigin;
   }
   
-  // Extracts the location (inside the parenthesis) from a full origin string.
   String extractLocation(String fullOrigin) {
     int openParen  = fullOrigin.indexOf("(");
     int closeParen = fullOrigin.indexOf(")");
@@ -316,14 +309,11 @@ class Utility {
 // --------------------------------------------------------------------------
 // GraphSelectorMenu Class
 // --------------------------------------------------------------------------
-
 class GraphSelectorMenu extends Screen {
   String airport;
   ProcessData data;
   CalendarDisplay calendar;
   
-  // inMenu == true means the graph selection menu is visible;
-  // inMenu == false means a graph is being displayed.
   boolean inMenu = true;
   int selectedGraph = 0;
   
@@ -357,10 +347,6 @@ class GraphSelectorMenu extends Screen {
     iconHistogram = createHistogramIcon();
     iconBubble  = createBubbleIcon();
   }
-  
-  // --------------------------------------------------------------------------
-  // Icon creation methods
-  // --------------------------------------------------------------------------
   
   PImage createPieIcon() {
     PGraphics pg = createGraphics(64, 64);
@@ -525,26 +511,64 @@ class GraphSelectorMenu extends Screen {
   // --------------------------------------------------------------------------
   
   void draw() {
+    // Process held-key events (if in SCREEN_SELECTION and searchFocused).
+    if (screenMode == SCREEN_SELECTION && airportSelector.searchFocused) {
+      int now = millis();
+      
+      // BACKSPACE custom repeat:
+      if (backspaceHeld && now - backspaceHoldStart > initialDelay && now - backspaceLastDelete > repeatRate) {
+        handleBackspace();
+        backspaceLastDelete = now;
+      }
+      
+      // CTRL-BACKSPACE custom repeat:
+      if (ctrlBackspaceHeld && now - ctrlBackspaceHoldStart > ctrlBackspaceInitialDelay &&
+           now - ctrlBackspaceLastRepeat > ctrlBackspaceRepeatRate) {
+        handleCtrlBackspace();
+        ctrlBackspaceLastRepeat = now;
+      }
+      
+      // Arrow key custom repeat:
+      if (arrowLeftHeld && now - arrowHoldStart > arrowInitialDelay && now - arrowLastRepeat > arrowRepeatRate) {
+        airportSelector.setCaretIndex(airportSelector.caretIndex - 1);
+        arrowLastRepeat = now;
+      }
+      if (arrowRightHeld && now - arrowHoldStart > arrowInitialDelay && now - arrowLastRepeat > arrowRepeatRate) {
+        airportSelector.setCaretIndex(airportSelector.caretIndex + 1);
+        arrowLastRepeat = now;
+      }
+      
+      // Other letter keys custom repeat:
+      if (keyBeingHeld && heldKey != 0 && heldKey != BACKSPACE) {
+        if (now - keyHoldStart > initialDelay && now - keyLastRepeat > repeatRate) {
+          insertKeyChar(heldKey);
+          keyLastRepeat = now;
+        }
+      }
+    }
+    
+    // --- Rendering code (unchanged from your original draw()) ---
     if (inMenu) {
       background(0);
-    } 
-    else {
+    } else {
       background(255);
     }
-      Star[][] starArrays = { stars, moreStars, evenMoreStars };
-  for (Star[] starArray : starArrays) {
-    for (Star star : starArray) {
-      star.update();
-      star.display();
+    
+    Star[][] starArrays = { stars, moreStars, evenMoreStars };
+    for (Star[] starArray : starArrays) {
+      for (Star star : starArray) {
+        star.update();
+        star.display();
+      }
     }
-  }
+    
     drawBackButton();
     
     // Retrieve airport info.
     String fullOrigin = airportLookup.get(airport);
     if (fullOrigin == null) fullOrigin = airport;
     String airportName = util.extractAirportName(fullOrigin);
-    String location    = util.extractLocation(fullOrigin);
+    String location = util.extractLocation(fullOrigin);
     
     if (inMenu) {
       float btnWidth = 380, btnHeight = 260, btnGapX = 25, btnGapY = 40;
@@ -561,7 +585,6 @@ class GraphSelectorMenu extends Screen {
       String subHeader = "Select a Graph for " + airportName + " (" + airport + ")";
       
       fill(255);
-      
       textSize(28);
       textAlign(CENTER, TOP);
       text(mainHeading, width / 2, headingBaseY);
@@ -632,7 +655,7 @@ class GraphSelectorMenu extends Screen {
               radar.setSelectedDate(data.filterDate);
             }
             radar.display(gx, gy, gw, gh);
-            break;         
+            break;
           case 5: new ScatterPlotScreen(airport, data, animationProgress).display(gx, gy, gw, gh); break;
           case 6: new HistogramScreen(airport, data, animationProgress).display(gx, gy, gw, gh); break;
           case 7: new BubbleChartScreen(airport, data, animationProgress).display(gx, gy, gw, gh); break;
@@ -833,6 +856,10 @@ class GraphSelectorMenu extends Screen {
     text("Calendar", bx + bw / 2, by + bh / 2);
   }
   
+  // --------------------------------------------------------------------------
+  // Key event handling for searchbar input with key-hold functionality.
+  // --------------------------------------------------------------------------
+  
   void keyPressed() {
      if (key == BACKSPACE) {
       // If a graph is being displayed, go back to the graph selection menu.
@@ -847,11 +874,91 @@ class GraphSelectorMenu extends Screen {
         return;
       }
     }
+    
+    if (screenMode == SCREEN_SELECTION && airportSelector.searchFocused) {
+      // Ignore repeated keyPressed events for the same key.
+      if (keyBeingHeld && key == heldKey) return;
+      
+      int selStart = min(airportSelector.selectionStart, airportSelector.selectionEnd);
+      int selEnd = max(airportSelector.selectionStart, airportSelector.selectionEnd);
+      
+      if (key == BACKSPACE) {
+        if (keyEvent.isControlDown() || keyEvent.isMetaDown()) {
+          ctrlBackspaceHeld = true;
+          ctrlBackspaceHoldStart = millis();
+          ctrlBackspaceLastRepeat = millis();
+          handleCtrlBackspace();
+        } else {
+          backspaceHeld = true;
+          backspaceHoldStart = millis();
+          backspaceLastDelete = millis();
+          handleBackspace();
+        }
+      }
+      else if (key == DELETE) {
+        if (airportSelector.hasSelection()) {
+          airportSelector.searchQuery = airportSelector.searchQuery.substring(0, selStart) +
+                                          airportSelector.searchQuery.substring(selEnd);
+          airportSelector.setCaretIndex(selStart);
+          airportSelector.clearSelection();
+          airportSelector.resetScroll();
+        } else if (airportSelector.caretIndex < airportSelector.searchQuery.length()) {
+          airportSelector.searchQuery = airportSelector.searchQuery.substring(0, airportSelector.caretIndex) +
+                                          airportSelector.searchQuery.substring(airportSelector.caretIndex + 1);
+          airportSelector.clearSelection();
+          airportSelector.resetScroll();
+        }
+      }
+      else if (key == CODED) {
+        if (keyCode == LEFT) {
+          arrowLeftHeld = true;
+          arrowHoldStart = millis();
+          arrowLastRepeat = millis();
+          airportSelector.setCaretIndex(airportSelector.caretIndex - 1);
+          airportSelector.clearSelection();
+        } else if (keyCode == RIGHT) {
+          arrowRightHeld = true;
+          arrowHoldStart = millis();
+          arrowLastRepeat = millis();
+          airportSelector.setCaretIndex(airportSelector.caretIndex + 1);
+          airportSelector.clearSelection();
+        }
+      }
+      else if (key == ENTER || key == RETURN) {
+        String[] filteredAirports = airportSelector.getFilteredAirports();
+        if (filteredAirports.length == 1) {
+          String selected = filteredAirports[0];
+          processData.filterDate = null;
+          if (graphScreen != null) graphScreen.lastSelectedDate = null;
+          processData.process(selected);
+          graphScreen = new GraphSelectorMenu(selected, processData);
+          screenMode = SCREEN_OVERVIEW;
+        }
+      }
+      else {
+        // Insert the key and set the custom repeat flags.
+        char c = key;
+        insertKeyChar(c);
+        heldKey = key;
+        keyBeingHeld = true;
+        keyHoldStart = millis();
+        keyLastRepeat = millis();
+      }
+    }
+  }
+  
+  void keyReleased() {
+    // Reset all key-hold flags on release.
+    backspaceHeld = false;
+    ctrlBackspaceHeld = false;
+    arrowLeftHeld = false;
+    arrowRightHeld = false;
+    keyBeingHeld = false;
+    heldKey = 0;
   }
 }
 
 void loadAirportDictionary(String[] rows) {
- 
   for (int i = 1; i < rows.length; i++) {
     String[] cols = split(rows[i], ',');
     if (cols.length >= 5) {
@@ -876,20 +983,3 @@ enum SortOrder {
   ASC,
   DESC
 }
-
-
-
-
-// HistogramScreen.pde
-// A class for drawing the histogram (Delay Distribution) screen.
-
-
-
-
-
-// BarChartScreen.pde
-// A class for drawing the bar chart (Top Destinations) screen.
-
-
-// ScatterPlotScreen.pde
-// A class for drawing the scatter plot (Hour vs. Delay) screen.
