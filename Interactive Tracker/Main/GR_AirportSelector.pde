@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
+
 // --------------------------------------------------------------------------
 // AirportSelectorMenu Class
 // --------------------------------------------------------------------------
@@ -15,7 +16,6 @@ class AirportSelectorMenu extends Screen {
   String[] airports;
   int topIndex = 0;
   int itemsToShow = 6;
-  
   float listWidth = 0.5 * width;
   float itemHeight = 80;
   float listSliderGap = 30;
@@ -153,6 +153,15 @@ class AirportSelectorMenu extends Screen {
 void draw() {
   background(0);
   display();
+
+    // Draw stars from the various star arrays.
+  Star[][] starArrays = { stars, moreStars, evenMoreStars };
+  for (Star[] starArray : starArrays) {
+    for (Star star : starArray) {
+      star.update();
+      star.display();
+    }
+  }
 }
 
 void display() {

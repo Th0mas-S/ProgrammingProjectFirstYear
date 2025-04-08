@@ -531,7 +531,13 @@ class GraphSelectorMenu extends Screen {
     else {
       background(255);
     }
-    
+      Star[][] starArrays = { stars, moreStars, evenMoreStars };
+  for (Star[] starArray : starArrays) {
+    for (Star star : starArray) {
+      star.update();
+      star.display();
+    }
+  }
     drawBackButton();
     
     // Retrieve airport info.
