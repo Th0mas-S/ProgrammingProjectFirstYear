@@ -21,6 +21,7 @@ void clearIndex() {                        // sets index array to all ints 0-(ma
   for (int i = 0; i < flights.size(); i++) {
     arrayIndex.add(i);
   }
+  arrayIndex.sort(Comparator.comparing(index -> flights.get(index).date));
 }
 
 String convertDate(String dateIn) {        // used for initializing flights
@@ -134,15 +135,15 @@ class DirectoryScreen extends Screen {
       logo.resize(int(360 * 1.9), int(240 * 1.9));
       
       headers = new ArrayList<Header>();
-      headers.add(new Header(int(85 + (textSize * 2.5)), 305, "Date", int(textSize / 1.1), 1));
-      headers.add(new Header(int(85 + (textSize * 8.7)), 305, "Flight", int(textSize / 1.1), 2));
-      headers.add(new Header(int(85 + (textSize * 15)), 305, "Route", int(textSize / 1.1), 3));
-      headers.add(new Header(int(85 + (textSize * 22)), 305, "Scheduled", int(textSize / 1.1), 4));
-      headers.add(new Header(int(85 + (textSize * 31)), 305, "Actual", int(textSize / 1.1), 5));
-      headers.add(new Header(int(85 + (textSize * 40)), 305, "Delay", int(textSize / 1.1), 6));
-      headers.add(new Header(int(85 + (textSize * 47)), 305, "Diverted", int(textSize / 1.1), 7));
-      headers.add(new Header(int(85 + (textSize * 55)), 305, "Cancelled", int(textSize / 1.1), 8));
-      headers.add(new Header(int(85 + (textSize * 65)), 305, "Distance", int(textSize / 1.1), 9));
+      headers.add(new Header(int(55 + (textSize * 4.36)), 308, "Date", int(textSize / 1.1), 1));
+      headers.add(new Header(int(55 + (textSize * 12.38)), 308, "Flight", int(textSize / 1.1), 2));
+      headers.add(new Header(int(55 + (textSize * 21.04)), 308, "Route", int(textSize / 1.1), 3));
+      headers.add(new Header(int(55 + (textSize * 30.42)), 308, "Scheduled", int(textSize / 1.1), 4));
+      headers.add(new Header(int(55 + (textSize * 39.88)), 308, "Actual", int(textSize / 1.1), 5));
+      headers.add(new Header(int(55 + (textSize * 47.66)), 308, "Delay", int(textSize / 1.1), 6));
+      headers.add(new Header(int(55 + (textSize * 54.3)), 308, "Diverted", int(textSize / 1.1), 7));
+      headers.add(new Header(int(55 + (textSize * 59.82)), 308, "Cancelled", int(textSize / 1.1), 8));
+      headers.add(new Header(int(55 + (textSize * 67.5)), 308, "Distance", int(textSize / 1.1), 9));
   }
   
   void drawHeaders() {
@@ -203,14 +204,16 @@ class DirectoryScreen extends Screen {
         // Draw vertical separator lines.
         stroke(135, 206, 235, 150);
         strokeWeight(5);
-        line(90 + (textSize * 5.6), 280, 90 + (textSize * 5.6), height - 55);
-        line(90 + (textSize * 11.1), 280, 90 + (textSize * 11.1), height - 55);
-        line(90 + (textSize * 18), 280, 90 + (textSize * 18), height - 55);
-        line(90 + (textSize * 26.25), 280, 90 + (textSize * 26.25), height - 55);
-        line(90 + (textSize * 35.833), 280, 90 + (textSize * 35.833), height - 55);
-        line(90 + (textSize * 43.333), 280, 90 + (textSize * 43.333), height - 55);
-        line(90 + (textSize * 50.833), 280, 90 + (textSize * 50.833), height - 55);
-        line(90 + (textSize * 58.75), 280, 90 + (textSize * 58.75), height - 55);
+        line(55 + (textSize * 8.78), 280, 55 + (textSize * 8.78), height - 55);
+        line(55 + (textSize * 16.16), 280, 55 + (textSize * 16.16), height - 55);
+        line(55 + (textSize * 25.5), 280, 55 + (textSize * 25.5), height - 55);
+        line(55 + (textSize * 35.08), 280, 55 + (textSize * 35.08), height - 55);
+        line(55 + (textSize * 44.16), 280, 55 + (textSize * 44.16), height - 55);
+        line(55 + (textSize * 51.2), 280, 55 + (textSize * 51.2), height - 55);
+        line(55 + (textSize * 57.04), 280, 55 + (textSize * 57.04), height - 55);
+        line(55 + (textSize * 62.84), 280, 55 + (textSize * 62.84), height - 55);
+        
+        line(57, 295+textSize, width-57, 295+textSize);
         
         drawHeaders();
       popStyle();
@@ -235,6 +238,7 @@ class DirectoryScreen extends Screen {
   }
   
   void mousePressed() {
+    println(mouseX+" / "+((mouseX-55)/textSize));
      if (!sortQuery && !dateQuery && !airportQuery) {
       slider.sliderPressed();
       searchbar.searchPressed();
@@ -316,7 +320,7 @@ class DirectoryScreen extends Screen {
     for (int i = int((arrayIndex.size() * (slider.getPercent()))); 
          (i < arrayIndex.size() && counter < (height - 335 - 55) / (textSize + 3)); 
          i++) {
-      flights.get(arrayIndex.get(i)).drawData(85, 310 + ((textSize + 3) * counter) + int(height * 0.02), textSize);
+      flights.get(arrayIndex.get(i)).drawData(55, 335 + ((textSize + 3) * counter) + int(height * 0.02), textSize);
       counter++;
     }
     popStyle();

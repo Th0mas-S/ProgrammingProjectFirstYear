@@ -101,6 +101,7 @@ class HeatMapScreen extends Screen {
       hideUI = false;  // Turn UI back on
     };
     showUIButton = bsShowUI.build();
+    calendar.visible = true;
   }
   
   void draw() {
@@ -211,15 +212,15 @@ class HeatMapScreen extends Screen {
     fill(0, 0, 255);
     rect(legendXpos + 10, legendYpos + 10, 20, 20, 8);
     fill(255);
-    text("Low intensity: " + medianIntensity / 4, legendXpos + 50, legendYpos + 25);
+    text("Low intensity: " + ceil((float)medianIntensity / 4.0 * 9.0), legendXpos + 50, legendYpos + 25);
     fill(255, 255, 0);
     rect(legendXpos + 10, legendYpos + 40, 20, 20, 8);
     fill(255);
-    text("Median intensity: " + medianIntensity, legendXpos + 50, legendYpos + 55); 
+    text("Median intensity: " + medianIntensity * 9, legendXpos + 50, legendYpos + 55); 
     fill(255, 0, 0);
     rect(legendXpos + 10, legendYpos + 70, 20, 20, 8);
     fill(255);
-    text("High intensity: " + medianIntensity * 7, legendXpos + 50, legendYpos + 85); 
+    text("High intensity: " + medianIntensity * 7 * 9, legendXpos + 50, legendYpos + 85); 
   }
   
   void generateHeatMap() {
@@ -325,7 +326,7 @@ class HeatMapScreen extends Screen {
   
   color getIntensityColor(float intensity) {
     if (intensity < medianIntensity / 4)
-      return lerpColor(color(0, 0, 0, 0), color(0, 0, 255, heatMapOpacity), map(intensity, 1, medianIntensity / 4, 0, 1));
+      return lerpColor(color(0, 0, 0, 0), color(0, 0, 255, heatMapOpacity), map(intensity, 0, medianIntensity / 4, 0, 1));
     else if (intensity < medianIntensity)
       return lerpColor(color(0, 0, 255, heatMapOpacity), color(255, 255, 0, heatMapOpacity), map(intensity, medianIntensity / 4, medianIntensity, 0, 1));
     else if (intensity < medianIntensity * 2)

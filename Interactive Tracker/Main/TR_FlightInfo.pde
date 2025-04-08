@@ -61,7 +61,8 @@ class ActiveFlightInfo {
     String line7 = "More Info...";
     
     pushStyle();
-    noStroke();
+    stroke(135, 206, 235, 150);
+    strokeWeight(2);
     fill(50, 230);
     rect(x, y, boxW, boxH, 8);
 
@@ -69,6 +70,7 @@ class ActiveFlightInfo {
     boolean overClose = mouseX >= closeX && mouseX <= closeX + closeSize &&
                           mouseY >= closeY && mouseY <= closeY + closeSize;
     fill(overClose ? color(100, 150, 255) : color(100));
+    noStroke();
     rect(closeX, closeY, closeSize, closeSize, 4);
 
     fill(255);

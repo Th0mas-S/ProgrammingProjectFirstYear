@@ -61,8 +61,8 @@ class Header{
   
   
   void sortByDate(){
-    arrayIndex.sort(Integer::compareTo);                              //ascending order
-    if(!direction) arrayIndex.sort(Collections.reverseOrder());        //descending order
+      arrayIndex.sort(Comparator.comparing(index -> flights.get(index).date));
+      if(!direction) Collections.reverse(arrayIndex); 
   }
 
   void sortFlightsInUse(ArrayList<Flight> flights, ArrayList<Integer> arrayIndex) {
