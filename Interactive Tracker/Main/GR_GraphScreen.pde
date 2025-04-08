@@ -728,7 +728,7 @@ class GraphSelectorMenu extends Screen {
   }
   
   void mousePressed() {
-    if (mouseX >= 10 && mouseX <= 90 && mouseY >= 10 && mouseY <= 40) {
+    if (mouseX >= 10 && mouseX <= 110 && mouseY >= 10 && mouseY <= 50) {
       if (inMenu) {
         screenManager.switchScreen(airportSelector);
       } else {
@@ -810,7 +810,7 @@ class GraphSelectorMenu extends Screen {
   }
   
   void drawBackButton() {
-    int bx = 10, by = 10, bw = 80, bh = 30;
+    int bx = 10, by = 10, bw = 100, bh = 40;
     stroke(0);
     strokeWeight(1);
     if (mouseX >= bx && mouseX <= bx + bw && mouseY >= by && mouseY <= by + bh) fill(150);

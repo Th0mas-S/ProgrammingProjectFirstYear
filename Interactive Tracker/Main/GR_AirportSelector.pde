@@ -153,6 +153,8 @@ class AirportSelectorMenu extends Screen {
 void draw() {
   background(0);
   display();
+  menu.draw();
+  back.draw();
 
     // Draw stars from the various star arrays.
   Star[][] starArrays = { stars, moreStars, evenMoreStars };
@@ -418,6 +420,8 @@ void drawSortMenu() {
   void mousePressed() {
     String selected = airportSelector.handleMousePressed(mouseX, mouseY);
     airportSelector.handleSliderMousePressed(mouseX, mouseY);
+    menu.returnPressed();
+    back.backPressed();
     
     if (selected != null) {
       processData.filterDate = null;

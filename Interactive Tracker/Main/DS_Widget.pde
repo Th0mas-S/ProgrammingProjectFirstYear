@@ -279,7 +279,6 @@ class BackButton {
     } else {
       stroke(0);
     }
-    // Use the same blue background as the Menu button.
     fill(color(135, 206, 235, 150));
     rect(x, y, w, h, 4);
     stroke(0);
