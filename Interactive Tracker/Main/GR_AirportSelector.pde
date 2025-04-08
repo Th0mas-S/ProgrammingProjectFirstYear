@@ -1,6 +1,15 @@
+
+import java.text.Normalizer;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
+
 // --------------------------------------------------------------------------
 // AirportSelectorMenu Class
 // --------------------------------------------------------------------------
+
+final int SEARCH_CHAR_LIMIT = 70;  
 
 class AirportSelectorMenu extends Screen {
   String[] airports;
@@ -11,7 +20,7 @@ class AirportSelectorMenu extends Screen {
   float itemHeight = 80;
   float listSliderGap = 30;
   float sliderWidth = 30;
-  float sliderKnobHeight = 60;
+  float sliderKnobHeight = 60;  // Slider knob height
   float listX, listY;
   float sliderX, sliderY, sliderHeight;
   
@@ -27,16 +36,27 @@ class AirportSelectorMenu extends Screen {
   int selectionEnd = 0;
   boolean selectingText = false;
   
+  int displayStart = 0;
+  
   StringLookup airportLookup;
   
   PImage logo;  // The FlightHub logo
   
   SortField sortField = SortField.CODE;  
   SortOrder sortOrder = SortOrder.ASC;
-  float sortMenuW = 280, sortMenuH = 55, sortMenuX, sortMenuY;
+  
+  // Sort menu dimensions (the dropdown will appear below the sort button)
+  float sortMenuW, sortMenuH = 55, sortMenuX, sortMenuY;
   boolean sortMenuOpen = false;
   Option[] sortOptions;
   float optionHeight = 40;
+  
+  // Fields for the combined control (sort button + search bar)
+  float sortButtonX, sortButtonWidth;
+  float searchBarX, searchBarWidth;
+  
+  // Field to store the Y position of the combined control.
+  float controlYPos;
   
   class Option {
     SortField field;
@@ -55,36 +75,66 @@ class AirportSelectorMenu extends Screen {
     this.airportLookup = lookup;
     this.logo = logo;
     
+    // Initialize sort options.
     sortOptions = new Option[6];
-    sortOptions[0] = new Option(SortField.CODE,    SortOrder.ASC,  "Airport Code (A–Z)");
-    sortOptions[1] = new Option(SortField.CODE,    SortOrder.DESC, "Airport Code (Z–A)");
-    sortOptions[2] = new Option(SortField.NAME,    SortOrder.ASC,  "Airport Name (A–Z)");
-    sortOptions[3] = new Option(SortField.NAME,    SortOrder.DESC, "Airport Name (Z–A)");
-    sortOptions[4] = new Option(SortField.COUNTRY, SortOrder.ASC,  "Country Name (A–Z)");
-    sortOptions[5] = new Option(SortField.COUNTRY, SortOrder.DESC, "Country Name (Z–A)");
+    sortOptions[0] = new Option(SortField.CODE,    SortOrder.ASC,  "Code (A–Z)");
+    sortOptions[1] = new Option(SortField.CODE,    SortOrder.DESC, "Code (Z–A)");
+    sortOptions[2] = new Option(SortField.NAME,    SortOrder.ASC,  "Airport (A–Z)");
+    sortOptions[3] = new Option(SortField.NAME,    SortOrder.DESC, "Airport (Z–A)");
+    sortOptions[4] = new Option(SortField.COUNTRY, SortOrder.ASC,  "Country (A–Z)");
+    sortOptions[5] = new Option(SortField.COUNTRY, SortOrder.DESC, "Country (Z–A)");
+  }
+  
+  void setCaretIndex(int newIndex) {
+    caretIndex = constrain(newIndex, 0, searchQuery.length());
+  
+    float textPaddingLeft = 16;
+    float textPaddingRight = 60; 
+    float textAreaWidth = searchBarWidth - textPaddingLeft - textPaddingRight;
+    
+    String fullText = searchQuery;
+    int desiredStart = caretIndex;
+    
+    while (desiredStart > 0 && textWidth(fullText.substring(desiredStart - 1, caretIndex)) < textAreaWidth) {
+      desiredStart--;
+    }
+    displayStart = desiredStart;
   }
   
   void recalcLayout() {
-    // Offset to shift the entire UI down
+    // Offset to shift the entire UI down.
     float yOffset = 100;
     
     listWidth = 0.5 * width;  
     itemHeight = 80;
     float totalElementWidth = listWidth + listSliderGap + sliderWidth;
     listX = (width - totalElementWidth) / 2;
-    
-    // Move the entire UI down by yOffset
     listY = (height / 2 - (itemsToShow * itemHeight) / 2) + yOffset;
     
     sliderX = listX + listWidth + listSliderGap;
     sliderY = listY;
     sliderHeight = itemsToShow * itemHeight;
     
-    float searchBarHeight = 55;
-    // The search bar sits above the list; its y-position is now relative to the shifted listY.
-    float searchBarY = listY - searchBarHeight - 20;
-    sortMenuX = listX - sortMenuW - 10;
-    sortMenuY = searchBarY;
+    // The combined control (sort button + search bar) sits above the list.
+    float controlHeight = 55;
+    float controlY = listY - controlHeight - 20;
+    
+    // Set a 10:1 ratio: sort button takes 1/11 of listWidth and search bar the remaining 10/11.
+    sortButtonWidth = 1.5 * listWidth / 11.0f;
+    searchBarWidth = listWidth - sortButtonWidth;
+    
+    // Position the sort button at the left edge of the list.
+    sortButtonX = listX;
+    // Place the search bar immediately to the right of the sort button.
+    searchBarX = sortButtonX + sortButtonWidth;
+    
+    // Set the sort menu to align with the sort button.
+    sortMenuW = sortButtonWidth;
+    sortMenuX = sortButtonX;
+    sortMenuY = controlY;
+    
+    // Save the control Y position for drawing the combined control.
+    controlYPos = controlY;
   }
   
   void resetScroll() {
@@ -99,99 +149,163 @@ class AirportSelectorMenu extends Screen {
   void clearSelection() {
     selectionStart = selectionEnd = caretIndex;
   }
+
+void draw() {
+  background(0);
+  display();
+}
+
+void display() {
+  recalcLayout();
   
-  void draw() {
-    background(0);
-    recalcLayout();
-    
-    // Blink caret every 500ms.
-    if (millis() - lastBlinkTime > 500) {
-      showCaret = !showCaret;
-      lastBlinkTime = millis();
-    }
-    
-    float searchBarHeight = 55;
-    float searchBarY = listY - searchBarHeight - 20;
-    
-    // --- Draw the FlightHub logo above the search bar ---
-    if (logo != null) {
-      float desiredLogoWidth = listWidth * 0.75; 
-      float aspect = (float) logo.height / logo.width;
-      float desiredLogoHeight = desiredLogoWidth * aspect;
-      float marginAboveSearchBar = -140;
-      float centerX = width / 2;
-      float centerY = searchBarY - marginAboveSearchBar - (desiredLogoHeight / 2);
-      imageMode(CENTER);
-      image(logo, centerX, centerY, desiredLogoWidth, desiredLogoHeight);
-    }
-    
-    // Draw search bar.
-    float clearButtonSize = 28;
-    float clearButtonX = listX + listWidth - clearButtonSize - 10;
-    float clearButtonY = searchBarY + (searchBarHeight - clearButtonSize) / 2;
-    
-    fill(255);
-    stroke(searchFocused ? color(0, 120, 255) : 150);
-    strokeWeight(2);
-    rect(listX, searchBarY, listWidth, searchBarHeight, 10);
-    
-    fill(0);
-    textAlign(LEFT, CENTER);
-    textSize(24);
-    
-    // If the search bar is focused, even an empty query is shown with full opacity.
-    String displayText;
-    int textAlpha;
-    if (searchQuery.isEmpty() && !searchFocused) {
-      displayText = "Search airports...";
-      textAlpha = 120;
-    } else {
-      displayText = searchQuery;
-      textAlpha = 255;
-    }
-    
-    fill(0, textAlpha);
-    text(displayText, listX + 16, searchBarY + searchBarHeight / 2);
-    
-    // Draw text selection highlight.
-    if (searchFocused && hasSelection() && textAlpha == 255) {
-      int selStart = min(selectionStart, selectionEnd);
-      int selEnd = max(selectionStart, selectionEnd);
-      String before = searchQuery.substring(0, selStart);
-      String selected = searchQuery.substring(selStart, selEnd);
-      float highlightX = listX + 16 + textWidth(before);
-      float highlightW = textWidth(selected);
-      fill(180, 220, 255, 180);
-      noStroke();
-      rect(highlightX, searchBarY + 8, highlightW, searchBarHeight - 16, 4);
-    }
-    
-    // Draw caret.
-    if (searchFocused && textAlpha == 255 && showCaret) {
-      String beforeCaret = searchQuery.substring(0, caretIndex);
-      float caretX = listX + 16 + textWidth(beforeCaret);
-      stroke(0);
-      strokeWeight(2);
-      line(caretX, searchBarY + 10, caretX, searchBarY + searchBarHeight - 10);
-    }
-    
-    // Draw clear button if query is not empty.
-    if (!searchQuery.isEmpty()) {
-      fill(200);
-      noStroke();
-      ellipse(clearButtonX + clearButtonSize / 2, clearButtonY + clearButtonSize / 2, clearButtonSize, clearButtonSize);
-      fill(0);
-      textAlign(CENTER, CENTER);
-      textSize(16);
-      text("X", clearButtonX + clearButtonSize / 2, clearButtonY + clearButtonSize / 2);
-    }
-    
-    drawAirportList();
-    drawSortMenu();
-   
-    
+  // Blink caret every 500ms.
+  if (millis() - lastBlinkTime > 500) {
+    showCaret = !showCaret;
+    lastBlinkTime = millis();
   }
   
+  float controlHeight = 55;
+  float controlY = controlYPos; // top Y for both sort button and search bar
+
+  // Determine hover status for the sort button and search bar.
+  boolean hoverSort = (mouseX > sortButtonX && mouseX < sortButtonX + sortButtonWidth &&
+                       mouseY > controlY && mouseY < controlY + controlHeight);
+  boolean hoverSearch = (mouseX > searchBarX && mouseX < searchBarX + searchBarWidth &&
+                         mouseY > controlY && mouseY < controlY + controlHeight);
+
+  // Draw the FlightHub logo above the combined control.
+  if (logo != null) {
+    float desiredLogoWidth = listWidth * 0.75; 
+    float aspect = (float) logo.height / logo.width;
+    float desiredLogoHeight = desiredLogoWidth * aspect;
+    float marginAboveControl = -140;
+    float centerX = width / 2;
+    float centerY = controlY - marginAboveControl - (desiredLogoHeight / 2);
+    imageMode(CENTER);
+    image(logo, centerX, centerY, desiredLogoWidth, desiredLogoHeight);
+  }
+  
+  // --- Draw the sort button ---
+  fill(255);
+  // Change stroke color if hovered or if the sort menu is open.
+  if (sortMenuOpen || hoverSort) {
+    stroke(color(0, 120, 255));
+  } else {
+    stroke(150);
+  }
+  strokeWeight(2);
+  rect(sortButtonX, controlY, sortButtonWidth, controlHeight, 10);
+  
+  fill(0);
+  textSize(20);
+  textAlign(CENTER, CENTER);
+  String currentOption = "";
+  if (sortField == SortField.CODE) {
+    currentOption = (sortOrder == SortOrder.ASC) ? "Code A–Z" : "Code Z–A";
+  } else if (sortField == SortField.NAME) {
+    currentOption = (sortOrder == SortOrder.ASC) ? "Name A–Z" : "Name Z–A";
+  } else if (sortField == SortField.COUNTRY) {
+    currentOption = (sortOrder == SortOrder.ASC) ? "Country A–Z" : "Country Z–A";
+  }
+  text(currentOption, sortButtonX + sortButtonWidth / 2, controlY + controlHeight / 2);
+  
+  // --- Draw the search bar (to the right of the sort button) ---
+  float clearButtonSize = 28;
+  float clearButtonX = searchBarX + searchBarWidth - clearButtonSize - 10;
+  float clearButtonY = controlY + (controlHeight - clearButtonSize) / 2;
+  
+  fill(255);
+  // Use a highlighted stroke if the search bar is focused or hovered.
+  if (searchFocused || hoverSearch) {
+    stroke(color(0, 120, 255));
+  } else {
+    stroke(150);
+  }
+  strokeWeight(2);
+  rect(searchBarX, controlY, searchBarWidth, controlHeight, 10);
+  
+  textAlign(LEFT, CENTER);
+  textSize(24);
+  
+  String fullText;
+  int textAlpha;
+  if (searchQuery.isEmpty() && !searchFocused) {
+    fullText = "Search airports...";
+    textAlpha = 120;
+  } else {
+    fullText = searchQuery;
+    textAlpha = 255;
+  }
+  
+  fill(0, textAlpha);
+  
+  float availableWidth = searchBarWidth - 60;
+  
+  String visibleText = fullText.substring(displayStart);
+  while (visibleText.length() > 0 && textWidth(visibleText) > searchBarWidth - 60) {
+    visibleText = visibleText.substring(1);
+    displayStart++;
+  }
+  
+  float textPadding = 16;
+  float textX = searchBarX + textPadding;
+  float textY = controlY + controlHeight / 2;
+  text(visibleText, textX, textY);
+  
+  // Draw text selection highlight.
+  if (searchFocused && selectionStart != selectionEnd) {
+    int selStart = min(selectionStart, selectionEnd);
+    int selEnd = max(selectionStart, selectionEnd);
+    
+    int highlightStart = max(selStart, displayStart);
+    int highlightEnd = min(selEnd, fullText.length());
+    
+    if (highlightEnd > highlightStart) {
+      String beforeSelection = fullText.substring(displayStart, highlightStart);
+      float highlightX = textX + textWidth(beforeSelection);
+      
+      String selectionString = fullText.substring(highlightStart, highlightEnd);
+      float selectionWidth = textWidth(selectionString);
+      
+      float highlightY = controlY + 10;
+      float highlightH = controlHeight - 20;
+      
+      noStroke();
+      fill(200, 220, 255, 150);
+      rect(highlightX, highlightY, selectionWidth, highlightH, 8);
+    }
+  }
+  
+  // Draw caret.
+  if (searchFocused && textAlpha == 255 && showCaret) {
+    float caretOffset = 0;
+    if (caretIndex > displayStart) {
+      String caretSub = fullText.substring(displayStart, caretIndex);
+      caretOffset = textWidth(caretSub);
+    }
+    float caretX = searchBarX + textPadding + caretOffset;
+    stroke(0);
+    strokeWeight(2);
+    line(caretX, controlY + 10, caretX, controlY + controlHeight - 10);
+  }
+  
+  // Draw the clear ("X") button if there is text.
+  if (!searchQuery.isEmpty()) {
+    fill(200);
+    noStroke();
+    ellipse(clearButtonX + clearButtonSize / 2, clearButtonY + clearButtonSize / 2, clearButtonSize, clearButtonSize);
+    fill(0);
+    textAlign(CENTER, CENTER);
+    textSize(16);
+    text("X", clearButtonX + clearButtonSize / 2, clearButtonY + clearButtonSize / 2);
+  }
+  
+  // Draw the airport list.
+  drawAirportList();
+  // Then draw the sort menu on top.
+  drawSortMenu();
+}
+
   void drawAirportList() {
     String[] filteredAirports = getFilteredAirports();
     topIndex = constrain(topIndex, 0, max(0, filteredAirports.length - itemsToShow));
@@ -200,25 +314,11 @@ class AirportSelectorMenu extends Screen {
     for (int i = 0; i < itemsToShow; i++) {
       int index = topIndex + i;
       float currentItemY = listY + i * itemHeight;
-      boolean overMenu = false;
       
-      if (mouseX > sortMenuX && mouseX < sortMenuX + sortMenuW &&
-          mouseY > sortMenuY && mouseY < sortMenuY + sortMenuH) {
-        overMenu = true;
-      }
-      
-      if (sortMenuOpen) {
-        float totalOptionsHeight = sortOptions.length * optionHeight;
-        float menuBottom = sortMenuY + sortMenuH + totalOptionsHeight;
-        if (mouseX > sortMenuX && mouseX < sortMenuX + sortMenuW &&
-            mouseY > sortMenuY && mouseY < menuBottom) {
-          overMenu = true;
-        }
-      }
-      
-      boolean overTile = (!overMenu &&
-                          mouseX > listX && mouseX < listX + listWidth &&
-                          mouseY > currentItemY && mouseY < currentItemY + itemHeight);
+      // Allow hover effect except for the area of the sort drop-down.
+      boolean overTile = (mouseX > listX && mouseX < listX + listWidth &&
+                          mouseY > currentItemY && mouseY < currentItemY + itemHeight &&
+                          !(sortMenuOpen && mouseX < sortMenuX + sortMenuW));
       
       if (index < filteredAirports.length) {
         if (overTile) {
@@ -264,51 +364,47 @@ class AirportSelectorMenu extends Screen {
     }
   }
   
-  void drawSortMenu() {
-    fill(255);
+void drawSortMenu() {
+  // Only draw the sort menu if it is open.
+  if (!sortMenuOpen) return;
+  
+  // Disable depth test to ensure the sort menu draws over everything.
+  hint(DISABLE_DEPTH_TEST);
+  
+  fill(255);
+  stroke(150);
+  strokeWeight(2);
+  rect(sortMenuX, sortMenuY, sortMenuW, sortMenuH, 10);
+  
+  fill(0);
+  textSize(20);
+  textAlign(LEFT, CENTER);
+  text("Sort by:", sortMenuX + 10, sortMenuY + sortMenuH / 2);
+  
+  // Draw sort options.
+  float totalOptionsHeight = sortOptions.length * optionHeight;
+  for (int i = 0; i < sortOptions.length; i++) {
+    float optionY = sortMenuY + sortMenuH + i * optionHeight;
+    boolean hovered = (mouseX > sortMenuX && mouseX < sortMenuX + sortMenuW &&
+                         mouseY > optionY && mouseY < optionY + optionHeight);
+    if (hovered) {
+      fill(200);
+    } else {
+      fill(255);
+    }
     stroke(150);
     strokeWeight(2);
-    rect(sortMenuX, sortMenuY, sortMenuW, sortMenuH, 10);
+    rect(sortMenuX, optionY, sortMenuW, optionHeight, 10);
     
     fill(0);
-    textSize(20);
+    textSize(18);
     textAlign(LEFT, CENTER);
-    text("Sort by:", sortMenuX + 10, sortMenuY + sortMenuH / 2);
-    
-    String currentOption = "";
-    if (sortField == SortField.CODE) {
-      currentOption = (sortOrder == SortOrder.ASC) ? "Airport Code (A–Z)" : "Airport Code (Z–A)";
-    } else if (sortField == SortField.NAME) {
-      currentOption = (sortOrder == SortOrder.ASC) ? "Airport Name (A–Z)" : "Airport Name (Z–A)";
-    } else if (sortField == SortField.COUNTRY) {
-      currentOption = (sortOrder == SortOrder.ASC) ? "Country Name (A–Z)" : "Country Name (Z–A)";
-    }
-    
-    textAlign(RIGHT, CENTER);
-    text(currentOption, sortMenuX + sortMenuW - 10, sortMenuY + sortMenuH / 2);
-    
-    if (sortMenuOpen) {
-      float totalOptionsHeight = sortOptions.length * optionHeight;
-      for (int i = 0; i < sortOptions.length; i++) {
-        float optionY = sortMenuY + sortMenuH + i * optionHeight;
-        boolean hovered = (mouseX > sortMenuX && mouseX < sortMenuX + sortMenuW &&
-                           mouseY > optionY && mouseY < optionY + optionHeight);
-        if (hovered) {
-          fill(200);
-        } else {
-          fill(255);
-        }
-        stroke(150);
-        strokeWeight(2);
-        rect(sortMenuX, optionY, sortMenuW, optionHeight, 10);
-        
-        fill(0);
-        textSize(18);
-        textAlign(LEFT, CENTER);
-        text(sortOptions[i].label, sortMenuX + 10, optionY + optionHeight / 2);
-      }
-    }
+    text(sortOptions[i].label, sortMenuX + 10, optionY + optionHeight / 2);
   }
+  // Re-enable depth test after drawing the sort menu.
+  hint(ENABLE_DEPTH_TEST);
+}
+  
   
   void mousePressed() {
     String selected = airportSelector.handleMousePressed(mouseX, mouseY);
@@ -324,93 +420,181 @@ class AirportSelectorMenu extends Screen {
     }
   }
   
-  String handleMousePressed(float mx, float my) {
-    float searchBarHeight = 55;
-    float searchBarY = listY - searchBarHeight - 20;
-    float clearX = listX + listWidth - 28 - 10;
-    float clearY = searchBarY + (searchBarHeight - 28) / 2;
+  //String handleMousePressed(float mx, float my) {
+  //  float searchBarHeight = 55;
+  //  float searchBarY = listY - searchBarHeight - 20;
+  //  float clearX = listX + listWidth - 28 - 10;
+  //  float clearY = searchBarY + (searchBarHeight - 28) / 2;
     
-    if (!searchQuery.isEmpty()) {
-      if (mx > clearX && mx < clearX + 28 && my > clearY && my < clearY + 28) {
-        searchQuery = "";
-        caretIndex = 0;
-        clearSelection();
-        resetScroll();
-        return null;
-      }
-    }
+  //  if (!searchQuery.isEmpty()) {
+  //    if (mx > clearX && mx < clearX + 28 && my > clearY && my < clearY + 28) {
+  //      searchQuery = "";
+  //      caretIndex = 0;
+  //      clearSelection();
+  //      resetScroll();
+  //      return null;
+  //    }
+  //  }
     
-    if (mx > listX && mx < listX + listWidth && my > searchBarY && my < searchBarY + searchBarHeight) {
-      searchFocused = true;
-      float relativeX = mx - (listX + 16);
-      caretIndex = getCaretFromX(relativeX);
-      selectionStart = selectionEnd = caretIndex;
-      selectingText = true;
-      sortMenuOpen = false;
+  //  if (mx > listX && mx < listX + listWidth && my > searchBarY && my < searchBarY + searchBarHeight) {
+  //    searchFocused = true;
+  //    float relativeX = mx - (listX + 16);
+  //    caretIndex = getCaretFromX(relativeX);
+  //    selectionStart = selectionEnd = caretIndex;
+  //    selectingText = true;
+  //    sortMenuOpen = false;
+  //    return null;
+  //  } else {
+  //    searchFocused = false;
+  //  }
+    
+  //  if (mx > sortMenuX && mx < sortMenuX + sortMenuW &&
+  //      my > sortMenuY && my < sortMenuY + sortMenuH) {
+  //    sortMenuOpen = !sortMenuOpen;
+  //    return null;
+  //  }
+    
+  //  if (sortMenuOpen) {
+  //    for (int i = 0; i < sortOptions.length; i++) {
+  //      float optionY = sortMenuY + sortMenuH + i * optionHeight;
+  //      if (mx > sortMenuX && mx < sortMenuX + sortMenuW &&
+  //          my > optionY && my < optionY + optionHeight) {
+  //        sortField = sortOptions[i].field;
+  //        sortOrder = sortOptions[i].order;
+  //        sortMenuOpen = false;
+  //        return null;
+  //      }
+  //    }
+
+ String handleMousePressed(float mx, float my) {
+  float controlHeight = 55;
+  float controlY = controlYPos;
+  
+  // First check the clear button in the search bar.
+  float clearX = searchBarX + searchBarWidth - 28 - 10;
+  float clearY = controlY + (controlHeight - 28) / 2;
+  
+  if (!searchQuery.isEmpty()) {
+    if (mx > clearX && mx < clearX + 28 && my > clearY && my < clearY + 28) {
+      searchQuery = "";
+      setCaretIndex(0);
+      clearSelection();
+      resetScroll();
+      heldKey = 0;
+      keyBeingHeld = false;
       return null;
-    } else {
-      searchFocused = false;
     }
-    
-    if (mx > sortMenuX && mx < sortMenuX + sortMenuW &&
-        my > sortMenuY && my < sortMenuY + sortMenuH) {
-      sortMenuOpen = !sortMenuOpen;
-      return null;
-    }
-    
-    if (sortMenuOpen) {
-      for (int i = 0; i < sortOptions.length; i++) {
-        float optionY = sortMenuY + sortMenuH + i * optionHeight;
-        if (mx > sortMenuX && mx < sortMenuX + sortMenuW &&
-            my > optionY && my < optionY + optionHeight) {
-          sortField = sortOptions[i].field;
-          sortOrder = sortOptions[i].order;
-          sortMenuOpen = false;
-          return null;
-        }
+  }
+  
+  // If clicking within the search bar.
+  if (mx > searchBarX && mx < searchBarX + searchBarWidth && my > controlY && my < controlY + controlHeight) {
+    searchFocused = true;
+    textAlign(LEFT, CENTER);
+    textSize(24);
+  
+    float textStartX = searchBarX + 16;
+    float offsetX = mx - textStartX;
+  
+    String fullText = (searchQuery.isEmpty() && !searchFocused) ? "Search airports..." : searchQuery;
+  
+    int effectiveDisplayStart = displayStart;
+    String visibleText = fullText.substring(effectiveDisplayStart);
+  
+    int pos = effectiveDisplayStart;
+    float cumulativeWidth = 0;
+    for (int i = effectiveDisplayStart; i < fullText.length(); i++) {
+      float cw = textWidth(fullText.charAt(i) + "");
+      if (cumulativeWidth + cw / 2 >= offsetX) {
+        pos = i;
+        break;
       }
-      return null;
+      cumulativeWidth += cw;
+      pos = i + 1;
     }
     
-    String[] filteredAirports = getFilteredAirports();
-    if (mx > listX && mx < listX + listWidth && my > listY && my < listY + itemsToShow * itemHeight) {
-      int itemIndex = floor((my - listY) / itemHeight);
-      int index = topIndex + itemIndex;
-      if (index >= 0 && index < filteredAirports.length) {
-        println("Selected: " + filteredAirports[index]);
-        return filteredAirports[index];
-      }
-    }
-    
+    setCaretIndex(pos);
+    selectionStart = caretIndex;
+    selectionEnd = caretIndex;
+    selectingText = false;
+    // Close sort menu if it was open.
     sortMenuOpen = false;
+    return null;
+  } else {
+    searchFocused = false;
+  }
+  
+  // If clicking the sort button.
+  if (mx > sortButtonX && mx < sortButtonX + sortButtonWidth &&
+      my > controlY && my < controlY + controlHeight) {
+    sortMenuOpen = !sortMenuOpen;
     return null;
   }
   
-  void handleMouseDraggedInSearch(float mx) {
-    if (!selectingText) return;
-    float relativeX = mx - (listX + 16);
-    int newCaret = getCaretFromX(relativeX);
-    caretIndex = newCaret;
-    selectionEnd = newCaret;
-  }
-  
-  int getCaretFromX(float relativeX) {
-    for (int i = 0; i <= searchQuery.length(); i++) {
-      String sub = searchQuery.substring(0, i);
-      float w = textWidth(sub);
-      if (w - 5 > relativeX) {
-        return max(0, i - 1);
+  // If sort menu is open, handle option selection.
+  if (sortMenuOpen) {
+    for (int i = 0; i < sortOptions.length; i++) {
+      float optionY = sortMenuY + sortMenuH + i * optionHeight;
+      if (mx > sortMenuX && mx < sortMenuX + sortMenuW &&
+          my > optionY && my < optionY + optionHeight) {
+        sortField = sortOptions[i].field;
+        sortOrder = sortOptions[i].order;
+        sortMenuOpen = false;
+        return null;
       }
     }
-    return searchQuery.length();
+  }
+  
+  // Handle airport tile selection.
+  String[] filteredAirports = getFilteredAirports();
+  if (mx > listX && mx < listX + listWidth && my > listY && my < listY + itemsToShow * itemHeight) {
+    int itemIndex = floor((my - listY) / itemHeight);
+    int index = topIndex + itemIndex;
+    if (index >= 0 && index < filteredAirports.length) {
+      println("Selected: " + filteredAirports[index]);
+      // Previously, the sort menu selection was reset here.
+      // Removing the reset so that the current sort option remains.
+      sortMenuOpen = false;
+      return filteredAirports[index];
+    }
+  }
+  
+  sortMenuOpen = false;
+  return null;
+}
+  
+  // Mouse dragging in the search bar for text selection.
+  void handleMouseDraggedInSearch(float mx) {
+    if (searchFocused) {
+      selectingText = true;
+      textAlign(LEFT, CENTER);
+      textSize(24);
+      float textStartX = searchBarX + 16;
+      float offsetX = mx - textStartX;
+      int effectiveDisplayStart = displayStart;
+      String fullText = searchQuery;
+      int newPos = effectiveDisplayStart;
+      float cumulativeWidth = 0;
+      for (int i = effectiveDisplayStart; i < fullText.length(); i++) {
+        float cw = textWidth(fullText.charAt(i) + "");
+        if (cumulativeWidth + cw / 2 >= offsetX) {
+          newPos = i;
+          break;
+        }
+        cumulativeWidth += cw;
+        newPos = i + 1;
+      }
+      setCaretIndex(newPos);
+      selectionEnd = caretIndex;
+    }
   }
   
   void handleSliderMousePressed(float mx, float my) {
     String[] filteredAirports = getFilteredAirports();
     if (filteredAirports.length <= itemsToShow) return;
-    if (mx > sliderX && mx < sliderX + sliderWidth && my > sliderY && my < sliderY + sliderHeight) {
+    float availableTrackHeight = sliderHeight - sliderKnobHeight;
+    float knobY = sliderY + sliderPos * availableTrackHeight;
+    if (mx > sliderX && mx < sliderX + sliderWidth && my > knobY && my < knobY + sliderKnobHeight) {
       dragging = true;
-      updateSlider(my);
     }
   }
   
