@@ -7,7 +7,7 @@ class Slider {
   boolean mouseDown, hover;
 
   Slider(int xIn, int yIn, int length) {
-    x = xIn - 20;
+    x = xIn - 10;
     y = yIn;
     sliderLength = length;
     knobWidth = 30;
