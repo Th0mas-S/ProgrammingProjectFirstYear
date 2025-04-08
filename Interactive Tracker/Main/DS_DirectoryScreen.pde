@@ -257,7 +257,7 @@ class DirectoryScreen extends Screen {
   
   void mousePressed() {
     //println(mouseX+" / "+((mouseX-55)/textSize));
-     if (!sortQuery && !dateQuery && !airportQuery) {
+    if (!sortQuery && !dateQuery && !airportQuery) {
       slider.sliderPressed();
       searchbar.searchPressed();
       clear.widgetPressed();

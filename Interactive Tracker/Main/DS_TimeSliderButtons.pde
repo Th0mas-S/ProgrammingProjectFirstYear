@@ -85,27 +85,6 @@ class SliderButtonsDirectory {
     float f6y = ffY + buttonSize / 2;
     triangle(f4x, f4y, f5x, f5y, f6x, f6y);
     
-    // Back Button.
-    boolean backHover = (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
-                          mouseY >= backY && mouseY <= backY + buttonSize);
-    if (backHover) {
-      stroke(255);
-      strokeWeight(2);
-      fill(100, 150, 255);
-    } else {
-      noStroke();
-      fill(150);
-    }
-    rect(buttonsX, backY, buttonSize, buttonSize, 5);
-    stroke(255);
-    strokeWeight(3);
-    float arrowTailX = buttonsX + buttonSize - 15;
-    float arrowHeadX = buttonsX + 15;
-    float centerY = backY + buttonSize / 2;
-    line(arrowTailX, centerY, arrowHeadX, centerY);
-    line(arrowHeadX, centerY, arrowHeadX + 10, centerY - 10);
-    line(arrowHeadX, centerY, arrowHeadX + 10, centerY + 10);
-    
     // Display speed multiplier on the fast-forward button.
     String speedText = "x" + nf(speedMultiplier, 0, 1);
     pushStyle();

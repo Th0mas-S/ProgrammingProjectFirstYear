@@ -10,6 +10,24 @@ class EarthScreenDirectory extends Screen {
   
   Screen previousScreen;
 
+  // Constants for the info screen and buttons
+  final int infoX = 10;
+  final int infoY = 10;
+  final int infoW = 350;
+  final int infoH = 165;
+  
+  // Back Button Constants
+  final int backButtonX = infoX; 
+  final int backButtonY = infoY + infoH + 10;  // 10 pixels below the info screen
+  final int backButtonW = 100;
+  final int backButtonH = 40;
+  
+  // Menu Button Constants (positioned to the right of the back button)
+  final int menuButtonX = backButtonX + backButtonW + 10;
+  final int menuButtonY = backButtonY;
+  final int menuButtonW = 100;
+  final int menuButtonH = 40;
+
   EarthScreenDirectory(Earth earth, Flight directoryFlight, Screen previousScreen) {
     this.earth = earth;
     this.directoryFlight = directoryFlight;
@@ -88,9 +106,7 @@ class EarthScreenDirectory extends Screen {
       star.update(earth);
       star.display();
     }
-    // ---------------------------------------------------
-
-    // Update Earth's momentum (rotation/inertia) just like in the tracker screen.
+    
     earth.update();
     
     pushMatrix();
@@ -195,6 +211,7 @@ class EarthScreenDirectory extends Screen {
     hint(ENABLE_DEPTH_TEST);
     popMatrix();
 
+    // Slider display
     hint(DISABLE_DEPTH_TEST);
     sliderDirectory.display();
     hint(ENABLE_DEPTH_TEST);
@@ -203,14 +220,10 @@ class EarthScreenDirectory extends Screen {
     pushStyle();
     hint(DISABLE_DEPTH_TEST);
     rectMode(CORNER);
-    fill(128, 128, 128, 50);               // Transparent gray fill
-    stroke(135, 206, 235, 150);            // Light blue stroke
+    fill(128, 128, 128, 50);               
+    stroke(135, 206, 235, 150);            
     strokeWeight(2);
-    float infoX = 10;
-    float infoY = 10;
-    float infoW = 350;
-    float infoH = 165;
-    rect(infoX, infoY, infoW, infoH, 10);   // Rounded corners with radius 10
+    rect(infoX, infoY, infoW, infoH, 10);   
 
     // Prepare the text to display.
     String fromText, toText, departedText, arrivedText, flightNumberText;
@@ -230,7 +243,7 @@ class EarthScreenDirectory extends Screen {
     
     // Define base text size and maximum allowed width.
     float baseTextSize = 24;
-    float maxTextWidth = infoW - 20;  // leave a 10px margin on each side
+    float maxTextWidth = infoW - 20;
     float textX = infoX + 10;
     float textY = infoY + 10;
     float lineSpacing = 30;
@@ -238,7 +251,6 @@ class EarthScreenDirectory extends Screen {
     fill(255);
     textAlign(LEFT, TOP);
     
-    // Adjust text size for each string if needed.
     float fittedSize = getFittedTextSize(fromText, baseTextSize, maxTextWidth);
     textSize(fittedSize);
     text(fromText, textX, textY);
@@ -259,8 +271,48 @@ class EarthScreenDirectory extends Screen {
     textSize(fittedSize);
     text(flightNumberText, textX, textY + 4 * lineSpacing);
     
+    // Draw the Back and Menu buttons
+    drawBackButton();
+    drawMenuButton();
+    
     hint(ENABLE_DEPTH_TEST);
     popStyle();
+  }
+
+  // Draws the Back button with hover effects.
+  void drawBackButton() {
+    if (mouseX >= backButtonX && mouseX <= backButtonX + backButtonW &&
+        mouseY >= backButtonY && mouseY <= backButtonY + backButtonH) {
+      stroke(color(255));
+      strokeWeight(2);
+    } else {
+      stroke(color(135, 206, 235, 150));
+      strokeWeight(2);
+    }
+    fill(color(50, 50, 50, 230));
+    rect(backButtonX, backButtonY, backButtonW, backButtonH, 8);  
+    fill(255);
+    textSize(24);
+    textAlign(CENTER, CENTER);
+    text("Back", backButtonX + backButtonW / 2, backButtonY + backButtonH / 2);
+  }
+  
+  // Draws the Menu button with the same hover effects.
+  void drawMenuButton() {
+    if (mouseX >= menuButtonX && mouseX <= menuButtonX + menuButtonW &&
+        mouseY >= menuButtonY && mouseY <= menuButtonY + menuButtonH) {
+      stroke(color(255));
+      strokeWeight(2);
+    } else {
+      stroke(color(135, 206, 235, 150));
+      strokeWeight(2);
+    }
+    fill(color(50, 50, 50, 230));
+    rect(menuButtonX, menuButtonY, menuButtonW, menuButtonH, 8);
+    fill(255);
+    textSize(24);
+    textAlign(CENTER, CENTER);
+    text("Menu", menuButtonX + menuButtonW / 2, menuButtonY + menuButtonH / 2);
   }
 
   boolean isOverSliderArea() {
@@ -271,6 +323,21 @@ class EarthScreenDirectory extends Screen {
   void mousePressed() {
     if (mouseButton == RIGHT) {
       panStart = new PVector(mouseX, mouseY);
+      return;
+    }
+    
+    // Check if the click is within the Menu button area.
+    if (mouseX >= menuButtonX && mouseX <= menuButtonX + menuButtonW &&
+        mouseY >= menuButtonY && mouseY <= menuButtonY + menuButtonH) {
+      screenManager.switchScreen(mainMenuScreen);
+      return;
+    }
+    
+    // Check if the click is within the Back button area.
+    if (mouseX >= backButtonX && mouseX <= backButtonX + backButtonW &&
+        mouseY >= backButtonY && mouseY <= backButtonY + backButtonH) {
+      EarthScreenDirectory screen = (EarthScreenDirectory) screenManager.currentScreen;
+      screenManager.switchScreen(screen.previousScreen);
       return;
     }
 

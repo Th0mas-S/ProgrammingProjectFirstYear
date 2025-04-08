@@ -212,7 +212,7 @@ class Widget {
     else if (mode == 17) {
       textSize(40);
       textAlign(CENTER, CENTER);
-      text("Visualize flight... ", x + (w / 2), y + (h / 2));
+      text("Visualise flight... ", x + (w / 2), y + (h / 2));
       textAlign(CORNER, CORNER);
     }
   }

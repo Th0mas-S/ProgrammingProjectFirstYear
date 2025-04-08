@@ -148,15 +148,6 @@ class SliderDirectory {
       speedMultiplier = sliderButtons.speedMultiplier;
       return;
     }
-    float backButtonY = sliderButtons.backY;
-    if (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize && mouseY >= backButtonY && mouseY <= backButtonY + buttonSize) {
-      
-      // 
-      EarthScreenDirectory screen = (EarthScreenDirectory) screenManager.currentScreen;
-      
-      screenManager.switchScreen(screen.previousScreen);
-      return;
-    }
   }
 
   void mouseReleased() {
