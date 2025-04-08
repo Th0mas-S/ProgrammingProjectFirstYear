@@ -90,31 +90,7 @@ class SliderButtons {
     float f6x = buttonsX + buttonSize - 10;
     float f6y = ffY + buttonSize / 2;
     triangle(f4x, f4y, f5x, f5y, f6x, f6y);
-    
-    //// Back Button (unchanged)
-    //boolean backHover = (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
-    //                      mouseY >= backY && mouseY <= backY + buttonSize);
-    //if (backHover) {
-    //  stroke(255);
-    //  strokeWeight(2);
-    //  fill(100, 150, 255); // blue when hovered
-    //} else {
-    //  noStroke();
-    //  fill(150); // grey when not hovered
-    //}
-    //rect(buttonsX, backY, buttonSize, buttonSize, 5);
-    
-    //// Draw a left-pointing arrow that resembles "<-"
-    //stroke(255);
-    //strokeWeight(3);
-    //float arrowTailX = buttonsX + buttonSize - 15;  // right end of the line
-    //float arrowHeadX = buttonsX + 15;               // left end where arrow head begins
-    //float centerY = backY + buttonSize / 2;
-    //line(arrowTailX, centerY, arrowHeadX, centerY); // horizontal line
-    //line(arrowHeadX, centerY, arrowHeadX + 10, centerY - 10);
-    //line(arrowHeadX, centerY, arrowHeadX + 10, centerY + 10);
-    
-    // Display speed multiplier on the fast-forward button.
+ 
     String speedText = "x" + nf(speedMultiplier, 0, 1);
     pushStyle();
       textAlign(RIGHT, BOTTOM);

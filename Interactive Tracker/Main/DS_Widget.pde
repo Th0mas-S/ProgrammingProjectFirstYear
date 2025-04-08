@@ -252,3 +252,40 @@ class Return {
     text("Menu", x + 20, y + 28);
   }
 }
+
+class BackButton {
+  int x, y, w, h;
+  
+  BackButton() {
+    x = width - 275;
+    y = 15;
+    w = 100;
+    h = 40;
+  }
+  
+  boolean mouseOver() {
+    return (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h);
+  }
+  
+  void backPressed() {
+    if (mouseOver()) {
+      screenManager.switchScreen(screenBetweenScreens);
+    }
+  }
+  
+  void draw() {
+    if (mouseOver()) {
+      stroke(255);
+    } else {
+      stroke(0);
+    }
+    // Use the same blue background as the Menu button.
+    fill(color(135, 206, 235, 150));
+    rect(x, y, w, h, 4);
+    stroke(0);
+    fill(230);
+    textSize(26);
+    textAlign(CORNER, CORNER);
+    text("Back", x + 24, y + 28);
+  }
+}

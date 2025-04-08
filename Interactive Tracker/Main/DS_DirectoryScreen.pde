@@ -15,6 +15,7 @@ String inputText;
 boolean entered;
 int currentScreen;                         // determines the screen to display
 Return menu;
+BackButton back;
 
 void clearIndex() {                        // sets index array to all ints 0-(max number of flights)
   arrayIndex = new ArrayList<Integer>();   // essentially resets the index to hold all Flight classes
@@ -110,6 +111,7 @@ void initGlobalVariables() {
     arrayIndex = new ArrayList<Integer>();
     currentScreen = 0;                // default to start screen
     menu = new Return();
+    back = new BackButton();
     // initializeFlights();
     // initializeDictionary();
 }
@@ -249,6 +251,7 @@ class DirectoryScreen extends Screen {
       hint(ENABLE_DEPTH_TEST);
       
       menu.draw();
+      back.draw();
       strokeWeight(1);
   }
   
@@ -260,6 +263,7 @@ class DirectoryScreen extends Screen {
       clear.widgetPressed();
       checkFlights();
       menu.returnPressed();
+      back.backPressed();
       sort.widgetPressed();
       headersPressed();
     } else {

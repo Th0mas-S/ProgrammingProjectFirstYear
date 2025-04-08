@@ -150,15 +150,25 @@ class EarthScreenTracker extends Screen {
   }
   
   void drawMenuButton() {
-    // Draw the standalone MENU button.
-    stroke(color(135, 206, 235, 150));
-    strokeWeight(2);  // Set stroke weight to 2.
-    fill(color(50, 50, 50, 230));
-    rect(menuButtonX, menuButtonY, menuButtonW, menuButtonH, 8);
-    fill(255);
-    textAlign(CENTER, CENTER);
-    textSize(24);
-    text("Menu", menuButtonX + menuButtonW / 2, menuButtonY + menuButtonH / 2);
+    if (isOverMenuButton()) {
+      stroke(color(255));
+      strokeWeight(2);
+      fill(color(50, 50, 50, 230));
+      rect(menuButtonX, menuButtonY, menuButtonW, menuButtonH, 8);
+      fill(255);
+      textAlign(CENTER, CENTER);
+      textSize(24);
+      text("Menu", menuButtonX + menuButtonW / 2, menuButtonY + menuButtonH / 2);
+    } else {
+      stroke(color(135, 206, 235, 150));
+      strokeWeight(2);
+      fill(color(50, 50, 50, 230));
+      rect(menuButtonX, menuButtonY, menuButtonW, menuButtonH, 8);
+      fill(255);
+      textAlign(CENTER, CENTER);
+      textSize(24);
+      text("Menu", menuButtonX + menuButtonW / 2, menuButtonY + menuButtonH / 2);
+    }
   }
   
   boolean isOverSliderButtons() {
@@ -178,6 +188,11 @@ class EarthScreenTracker extends Screen {
   boolean isOverSliderTrack() {
     return (mouseX >= timeSlider.x && mouseX <= timeSlider.x + timeSlider.w &&
             mouseY >= timeSlider.y && mouseY <= timeSlider.y + timeSlider.h);
+  }
+  
+  boolean isOverMenuButton() {
+   return (mouseX >= menuButtonX && mouseX <= menuButtonX + menuButtonW &&
+           mouseY >= menuButtonY && mouseY <= menuButtonY + menuButtonH);
   }
   
   void mousePressed() {
@@ -200,9 +215,7 @@ class EarthScreenTracker extends Screen {
     
     timeSlider.mousePressed();
     
-    // Check if MENU button is pressed.
-    if (mouseX >= menuButtonX && mouseX <= menuButtonX + menuButtonW &&
-        mouseY >= menuButtonY && mouseY <= menuButtonY + menuButtonH) {
+    if(isOverMenuButton()) {
       screenManager.switchScreen(mainMenuScreen);
       return;
     }

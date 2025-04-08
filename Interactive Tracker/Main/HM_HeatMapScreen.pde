@@ -7,7 +7,7 @@ class HeatMapScreen extends Screen {
 
   PImage earthImage;
   final float SCALE = 1; // square size
-  final int heatMapOpacity = 150;
+  final int heatMapOpacity = 115;
   int heatMapWidth = (int)(width / SCALE);
   int heatMapHeight = (int)(height / SCALE);
 

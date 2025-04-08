@@ -146,14 +146,6 @@ class TimeSlider {
       speedMultiplier = sliderButtons.speedMultiplier;
       return;
     }
-    
-    // Back button hitbox (located just beneath the fast-forward button).
-    //float backButtonY = sliderButtons.backY;
-    //if (mouseX >= buttonsX && mouseX <= buttonsX + buttonSize &&
-    //    mouseY >= backButtonY && mouseY <= backButtonY + buttonSize) {
-    //  screenManager.switchScreen(mainMenuScreen);
-    //  return;
-    //}
   }
   
   void mouseReleased() {
