@@ -158,6 +158,8 @@ class Search{
     
     if(entered && mode==1 && search){                                      //when the user enters (from keyPressed() in main) it calls the search method
       directoryScreen.search(inputText);                      //with the user input and resets the search bar
+      directoryScreen.slider.yS=328;
+      directoryScreen.slider.y=328;
       entered=false;
       search=false;
     }
