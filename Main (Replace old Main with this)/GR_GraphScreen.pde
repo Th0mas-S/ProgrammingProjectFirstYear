@@ -234,49 +234,61 @@ class GraphSelectorMenu extends Screen {
     PGraphics pg = createGraphics(64, 64);
     pg.beginDraw();
     pg.background(0, 0);
+    pg.stroke(100);
+    pg.strokeWeight(2);
+    pg.line(10, 54, 54, 54); // X axis
+    pg.line(10, 54, 10, 10); // Y axis
     pg.stroke(0, 0, 255);
     pg.strokeWeight(3);
     pg.noFill();
     pg.beginShape();
-    pg.vertex(8, 50);
+    pg.vertex(12, 50);
     pg.vertex(20, 30);
     pg.vertex(32, 35);
     pg.vertex(44, 20);
-    pg.vertex(56, 25);
+    pg.vertex(52, 25);
     pg.endShape();
     pg.endDraw();
     return pg.get();
-  }
+}
   
   PImage createBarIcon() {
-    PGraphics pg = createGraphics(64, 64);
-    pg.beginDraw();
-    pg.background(0, 0);
-    pg.fill(255, 140, 0);
-    pg.noStroke();
-    pg.rect(12, 30, 10, 22);
-    pg.rect(26, 20, 10, 32);
-    pg.rect(40, 10, 10, 42);
-    pg.endDraw();
-    return pg.get();
-  }
+  PGraphics pg = createGraphics(64, 64);
+  pg.beginDraw();
+  pg.background(0, 0);
+  pg.stroke(100);
+  pg.strokeWeight(2);
+  pg.line(10, 54, 54, 54); // X axis
+  pg.line(10, 54, 10, 10); // Y axis
+  pg.noStroke();
+  pg.fill(255, 140, 0);
+  pg.rect(14, 32, 8, 20);
+  pg.rect(28, 20, 8, 32);
+  pg.rect(42, 10, 8, 42);
+  pg.endDraw();
+  return pg.get();
+}
   
   PImage createGroupedIcon() {
-    PGraphics pg = createGraphics(64, 64);
-    pg.beginDraw();
-    pg.background(0, 0);
-    pg.noStroke();
-    pg.fill(0, 0, 200);
-    pg.rect(10, 30, 6, 24);
-    pg.fill(200, 0, 0);
-    pg.rect(18, 35, 6, 19);
-    pg.fill(0, 0, 200);
-    pg.rect(30, 20, 6, 34);
-    pg.fill(200, 0, 0);
-    pg.rect(38, 25, 6, 29);
-    pg.endDraw();
-    return pg.get();
-  }
+  PGraphics pg = createGraphics(64, 64);
+  pg.beginDraw();
+  pg.background(0, 0);
+  pg.stroke(100);
+  pg.strokeWeight(2);
+  pg.line(10, 54, 54, 54); // X axis
+  pg.line(10, 54, 10, 10); // Y axis
+  pg.noStroke();
+  pg.fill(0, 0, 200);
+  pg.rect(14, 30, 5, 24);
+  pg.fill(200, 0, 0);
+  pg.rect(20, 35, 5, 19);
+  pg.fill(0, 0, 200);
+  pg.rect(32, 20, 5, 34);
+  pg.fill(200, 0, 0);
+  pg.rect(38, 25, 5, 29);
+  pg.endDraw();
+  return pg.get();
+}
   
   PImage createRadarIcon() {
     PGraphics pg = createGraphics(64, 64);
