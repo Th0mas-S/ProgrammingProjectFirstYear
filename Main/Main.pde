@@ -143,7 +143,7 @@ void setup() {
       evenMoreStars[i] = new Star(2000, 3500);
     }
     
-    earth = new Earth("Earth.obj", "Surface2k.png", this, assets);
+    earth = new Earth("Earth.obj", "Surface4k.png", this, assets);
     airportOrigin = new Airport(origin, sphereRadius, 5);
     airportDest = new Airport(destination, sphereRadius, 5);
     

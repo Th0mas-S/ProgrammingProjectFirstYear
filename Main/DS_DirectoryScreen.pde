@@ -357,6 +357,7 @@ class DirectoryScreen extends Screen {
       }
     }
     println("sorted: " + query);
+    slider.yS = slider.y;
   }
   
   void sortByDate(String date1In, String date2In) {
