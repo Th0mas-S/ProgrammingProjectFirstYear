@@ -1,5 +1,7 @@
 
-void initializeFlights(String[] rows){
+void initializeFlights(){
+  String[] rows = loadStrings(currentDataset);
+  
   int skippedBadDuration = 0;
   int skippedMalformedTime = 0;
   float startLoadingPercent = loadingScreen.loadingDone;

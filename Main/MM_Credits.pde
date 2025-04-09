@@ -71,6 +71,15 @@ class CreditsScreen extends Screen {
   }
   
   void draw() {
+    // Reinitialize stars if there are fewer than 500 stars.
+    if (stars.size() < 1000) {
+      float maxDimension = max(parent.width, parent.height);
+      // Add extra stars until we have 500.
+      for (int i = stars.size(); i < 500; i++) {
+        stars.add(new Star(0, maxDimension * 1.2));
+      }
+    }
+
     // Reset the screen state before drawing on the first frame.
     if (firstFrame) {
       resetScreen();
