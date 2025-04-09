@@ -69,6 +69,7 @@ class HeatMapScreen extends Screen {
     bsMenu.textColor = color(255);
     bsMenu.text = "Menu";
     bsMenu.onClick = () -> {
+      cursor(MOVE);
       screenManager.switchScreen(mainMenuScreen);
     };
     menuButton = bsMenu.build();
@@ -360,6 +361,7 @@ class HeatMapScreen extends Screen {
     startX = mouseX - offsetX;
     startY = mouseY - offsetY;
     isDragging = true;
+    cursor(MOVE);
     if (!hideUI) {
       menuButton.handleOnClick();
       boolean dateChanged = calendar.mousePressed();
@@ -384,6 +386,7 @@ class HeatMapScreen extends Screen {
   
   void mouseReleased() {
     isDragging = false;
+    cursor(ARROW);
   }
 }
 
