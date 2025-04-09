@@ -266,7 +266,7 @@ void drawSearchBarBubble() {
   // Use a highlighted stroke if the search bar is focused or hovered.
   if (searchFocused || (mouseX > searchBarX && mouseX < searchBarX + searchBarWidth &&
       mouseY > controlY && mouseY < controlY + controlHeight)) {
-    strokeWeight(5);
+    strokeWeight(2);
     stroke(color(255));
   } else {
     strokeWeight(1);
@@ -385,7 +385,7 @@ void drawTiles() {
                           mouseY > currentItemY && mouseY < currentItemY + itemHeight);
       
       // Use a more opaque grey when hovered, otherwise use a more transparent grey.
-      if (overTile) {
+      if (overTile && !sortMenuOpen) {
         fill(color(128, 128, 128, 50));  // More opaque when hovered.
       } else {
         fill(color(128, 128, 128, 20));  // Default transparent grey.
@@ -463,8 +463,8 @@ void drawSortMenu() {
   // Disable depth test to ensure the sort menu draws over everything.
   hint(DISABLE_DEPTH_TEST);
     
-  fill(color(128,128,128)); // Opaque grey for the menu background.
-  stroke(color(135,206,235,150)); // Blue stroke.
+  fill(color(200)); // Opaque grey for the menu background.
+  stroke(color(255));
   strokeWeight(2);
   rect(sortMenuX, sortMenuY, sortMenuW, sortMenuH, 10);
   
@@ -482,7 +482,7 @@ void drawSortMenu() {
     if (hovered) {
       fill(200);
     } else {
-      fill(255);
+      fill(200);
     }
     stroke(150);
     strokeWeight(2);
@@ -513,52 +513,6 @@ void drawSortMenu() {
       screenManager.switchScreen(graphScreen);
     }
   }
-  
-  //String handleMousePressed(float mx, float my) {
-  //  float searchBarHeight = 55;
-  //  float searchBarY = listY - searchBarHeight - 20;
-  //  float clearX = listX + listWidth - 28 - 10;
-  //  float clearY = searchBarY + (searchBarHeight - 28) / 2;
-    
-  //  if (!searchQuery.isEmpty()) {
-  //    if (mx > clearX && mx < clearX + 28 && my > clearY && my < clearY + 28) {
-  //      searchQuery = "";
-  //      caretIndex = 0;
-  //      clearSelection();
-  //      resetScroll();
-  //      return null;
-  //    }
-  //  }
-    
-  //  if (mx > listX && mx < listX + listWidth && my > searchBarY && my < searchBarY + searchBarHeight) {
-  //    searchFocused = true;
-  //    float relativeX = mx - (listX + 16);
-  //    caretIndex = getCaretFromX(relativeX);
-  //    selectionStart = selectionEnd = caretIndex;
-  //    selectingText = true;
-  //    sortMenuOpen = false;
-  //    return null;
-  //  } else {
-  //    searchFocused = false;
-  //  }
-    
-  //  if (mx > sortMenuX && mx < sortMenuX + sortMenuW &&
-  //      my > sortMenuY && my < sortMenuY + sortMenuH) {
-  //    sortMenuOpen = !sortMenuOpen;
-  //    return null;
-  //  }
-    
-  //  if (sortMenuOpen) {
-  //    for (int i = 0; i < sortOptions.length; i++) {
-  //      float optionY = sortMenuY + sortMenuH + i * optionHeight;
-  //      if (mx > sortMenuX && mx < sortMenuX + sortMenuW &&
-  //          my > optionY && my < optionY + optionHeight) {
-  //        sortField = sortOptions[i].field;
-  //        sortOrder = sortOptions[i].order;
-  //        sortMenuOpen = false;
-  //        return null;
-  //      }
-  //    }
 
  String handleMousePressed(float mx, float my) {
   float controlHeight = 55;

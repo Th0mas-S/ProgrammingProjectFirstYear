@@ -104,7 +104,6 @@ void setup() {
 
   assets = new Assets();
   
-  
   calendar = new CalendarDisplay();
   
   timeSlider = new TimeSlider(width / 4, 60, width / 2, 30);
@@ -146,7 +145,7 @@ void setup() {
       evenMoreStars[i] = new Star(2000, 3500);
     }
     
-    earth = new Earth("Earth.obj", "Surface16k.png", this, assets);
+    earth = new Earth("Earth.obj", "Surface2k.png", this, assets);
     airportOrigin = new Airport(origin, sphereRadius, 5);
     airportDest = new Airport(destination, sphereRadius, 5);
     
