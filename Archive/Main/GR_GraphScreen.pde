@@ -1,3 +1,143 @@
+// :)
+// Standard repeat variables for letters:
+boolean backspaceHeld = false;
+int backspaceHoldStart = 0;
+int backspaceLastDelete = 0;
+int initialDelay = 300;
+int repeatRate = 50;
+
+// CTRL-BACKSPACE variables:
+boolean ctrlBackspaceHeld = false;
+int ctrlBackspaceHoldStart = 0;
+int ctrlBackspaceLastRepeat = 0;
+int ctrlBackspaceInitialDelay = 300; // ms before repeat starts
+int ctrlBackspaceRepeatRate = 50;    // ms between repeats
+
+// Other key (letters, etc.) repeat variables:
+char heldKey = 0;
+boolean keyBeingHeld = false;
+int keyHoldStart = 0;
+int keyLastRepeat = 0;
+
+// Arrow key repeat variables:
+boolean arrowLeftHeld = false;
+boolean arrowRightHeld = false;
+int arrowHoldStart = 0;
+int arrowLastRepeat = 0;
+int arrowInitialDelay = 300; // ms before arrow repeat starts
+int arrowRepeatRate = 50;    // ms between arrow repeats
+
+// Screen modes:
+int SCREEN_SELECTION = 0;
+int SCREEN_OVERVIEW = 1;
+int screenMode = SCREEN_SELECTION;
+
+// Other globals:
+Utility util;
+AirportSelectorMenu airportSelector;
+GraphSelectorMenu graphScreen;
+ProcessData processData;
+String[] uniqueAirports;
+PFont unicodeFont;
+PImage flighthubLogo;
+HashMap<String, String> airportLookup = new HashMap<String, String>();
+
+void insertKeyChar(char c) {
+  if (airportSelector.searchQuery.length() >= SEARCH_CHAR_LIMIT) return;
+  
+  int selStart = min(airportSelector.selectionStart, airportSelector.selectionEnd);
+  int selEnd = max(airportSelector.selectionStart, airportSelector.selectionEnd);
+  if (airportSelector.hasSelection()) {
+    airportSelector.searchQuery = airportSelector.searchQuery.substring(0, selStart) +
+                                    c +
+                                    airportSelector.searchQuery.substring(selEnd);
+    airportSelector.caretIndex = selStart + 1;
+    airportSelector.clearSelection();
+  } else {
+    airportSelector.searchQuery = airportSelector.searchQuery.substring(0, airportSelector.caretIndex) +
+                                    c +
+                                    airportSelector.searchQuery.substring(airportSelector.caretIndex);
+    airportSelector.caretIndex++;
+    airportSelector.clearSelection();
+  }
+  airportSelector.resetScroll();
+}
+
+void handleBackspace() {
+  int selStart = min(airportSelector.selectionStart, airportSelector.selectionEnd);
+  int selEnd = max(airportSelector.selectionStart, airportSelector.selectionEnd);
+  if (airportSelector.hasSelection()) {
+    airportSelector.searchQuery = airportSelector.searchQuery.substring(0, selStart) +
+                                    airportSelector.searchQuery.substring(selEnd);
+    airportSelector.caretIndex = selStart;
+    airportSelector.clearSelection();
+    airportSelector.resetScroll();
+  } 
+  else if (airportSelector.caretIndex > 0) {
+    airportSelector.searchQuery = airportSelector.searchQuery.substring(0, airportSelector.caretIndex - 1) +
+                                    airportSelector.searchQuery.substring(airportSelector.caretIndex);
+    airportSelector.caretIndex--;
+    airportSelector.clearSelection();
+    airportSelector.resetScroll();
+  }
+}
+
+void handleCtrlBackspace() {
+  // If searchQuery is empty, disable CTRL-backspace.
+  if (airportSelector.searchQuery.length() == 0) {
+    ctrlBackspaceHeld = false;
+    return;
+  }
+  
+  int selStart = min(airportSelector.selectionStart, airportSelector.selectionEnd);
+  int selEnd = max(airportSelector.selectionStart, airportSelector.selectionEnd);
+  
+  // If a selection exists, delete it.
+  if (selStart != selEnd) {
+    airportSelector.searchQuery = 
+      airportSelector.searchQuery.substring(0, selStart) +
+      airportSelector.searchQuery.substring(selEnd);
+    airportSelector.setCaretIndex(selStart);
+    airportSelector.selectionStart = airportSelector.selectionEnd = airportSelector.caretIndex;
+    airportSelector.resetScroll();
+    return;
+  }
+  
+  String text = airportSelector.searchQuery;
+  int caret = airportSelector.caretIndex;
+  if (caret == 0) return; // Nothing to delete if at beginning
+  
+  int left = caret;
+  // Remove trailing spaces.
+  while (left > 0 && text.charAt(left - 1) == ' ') {
+    left--;
+  }
+  // Remove any special (non-alphanumeric) characters.
+  while (left > 0 && isSpecialChar(text.charAt(left - 1))) {
+    left--;
+  }
+  // Remove word characters (letters/digits).
+  while (left > 0 && isWordChar(text.charAt(left - 1))) {
+    left--;
+  }
+  // Remove any additional whitespace.
+  while (left > 0 && text.charAt(left - 1) == ' ') {
+    left--;
+  }
+  
+  airportSelector.searchQuery = text.substring(0, left) + text.substring(caret);
+  airportSelector.setCaretIndex(left);
+  airportSelector.selectionStart = airportSelector.selectionEnd = airportSelector.caretIndex;
+  airportSelector.resetScroll();
+}
+
+boolean isWordChar(char c) {
+  return Character.isLetterOrDigit(c);
+}
+
+boolean isSpecialChar(char c) {
+  return !Character.isLetterOrDigit(c) && c != ' ';
+}
 
 interface StringLookup {
   String get(String code);
@@ -234,61 +374,49 @@ class GraphSelectorMenu extends Screen {
     PGraphics pg = createGraphics(64, 64);
     pg.beginDraw();
     pg.background(0, 0);
-    pg.stroke(100);
-    pg.strokeWeight(2);
-    pg.line(10, 54, 54, 54); // X axis
-    pg.line(10, 54, 10, 10); // Y axis
     pg.stroke(0, 0, 255);
     pg.strokeWeight(3);
     pg.noFill();
     pg.beginShape();
-    pg.vertex(12, 50);
+    pg.vertex(8, 50);
     pg.vertex(20, 30);
     pg.vertex(32, 35);
     pg.vertex(44, 20);
-    pg.vertex(52, 25);
+    pg.vertex(56, 25);
     pg.endShape();
     pg.endDraw();
     return pg.get();
-}
+  }
   
   PImage createBarIcon() {
-  PGraphics pg = createGraphics(64, 64);
-  pg.beginDraw();
-  pg.background(0, 0);
-  pg.stroke(100);
-  pg.strokeWeight(2);
-  pg.line(10, 54, 54, 54); // X axis
-  pg.line(10, 54, 10, 10); // Y axis
-  pg.noStroke();
-  pg.fill(255, 140, 0);
-  pg.rect(14, 32, 8, 20);
-  pg.rect(28, 20, 8, 32);
-  pg.rect(42, 10, 8, 42);
-  pg.endDraw();
-  return pg.get();
-}
+    PGraphics pg = createGraphics(64, 64);
+    pg.beginDraw();
+    pg.background(0, 0);
+    pg.fill(255, 140, 0);
+    pg.noStroke();
+    pg.rect(12, 30, 10, 22);
+    pg.rect(26, 20, 10, 32);
+    pg.rect(40, 10, 10, 42);
+    pg.endDraw();
+    return pg.get();
+  }
   
   PImage createGroupedIcon() {
-  PGraphics pg = createGraphics(64, 64);
-  pg.beginDraw();
-  pg.background(0, 0);
-  pg.stroke(100);
-  pg.strokeWeight(2);
-  pg.line(10, 54, 54, 54); // X axis
-  pg.line(10, 54, 10, 10); // Y axis
-  pg.noStroke();
-  pg.fill(0, 0, 200);
-  pg.rect(14, 30, 5, 24);
-  pg.fill(200, 0, 0);
-  pg.rect(20, 35, 5, 19);
-  pg.fill(0, 0, 200);
-  pg.rect(32, 20, 5, 34);
-  pg.fill(200, 0, 0);
-  pg.rect(38, 25, 5, 29);
-  pg.endDraw();
-  return pg.get();
-}
+    PGraphics pg = createGraphics(64, 64);
+    pg.beginDraw();
+    pg.background(0, 0);
+    pg.noStroke();
+    pg.fill(0, 0, 200);
+    pg.rect(10, 30, 6, 24);
+    pg.fill(200, 0, 0);
+    pg.rect(18, 35, 6, 19);
+    pg.fill(0, 0, 200);
+    pg.rect(30, 20, 6, 34);
+    pg.fill(200, 0, 0);
+    pg.rect(38, 25, 6, 29);
+    pg.endDraw();
+    return pg.get();
+  }
   
   PImage createRadarIcon() {
     PGraphics pg = createGraphics(64, 64);
@@ -324,7 +452,7 @@ class GraphSelectorMenu extends Screen {
     PGraphics pg = createGraphics(64, 64);
     pg.beginDraw();
     pg.background(0, 0);
-    pg.stroke(100);
+    pg.stroke(0);
     pg.strokeWeight(2);
     pg.noFill();
     pg.line(10, 54, 54, 54);
@@ -344,7 +472,7 @@ class GraphSelectorMenu extends Screen {
     PGraphics pg = createGraphics(64, 64);
     pg.beginDraw();
     pg.background(0, 0);
-    pg.stroke(100);
+    pg.stroke(0);
     pg.strokeWeight(2);
     pg.noFill();
     pg.line(10, 54, 54, 54);
@@ -364,7 +492,7 @@ class GraphSelectorMenu extends Screen {
     PGraphics pg = createGraphics(64, 64);
     pg.beginDraw();
     pg.background(0, 0);
-    pg.stroke(100);
+    pg.stroke(0);
     pg.strokeWeight(2);
     pg.noFill();
     pg.line(10, 54, 54, 54);
@@ -546,64 +674,58 @@ class GraphSelectorMenu extends Screen {
   }
   
   void drawMenu() {
-  float btnWidth = 380, btnHeight = 260, btnGapX = 25, btnGapY = 40;
-  
-  String[] labels = {
-    "Pie Chart\n(Flight Status)",
-    "Line Graph\n(Hourly Counts)",
-    "Bar Chart\n(Top Destinations)",
-    "Grouped Bar\n(Airline Performance)",
-    "Radar Chart\n(Monthly Flights)",
-    "Scatter Plot\n(Hour vs. Delay)",
-    "Histogram\n(Delay Distribution)",
-    "Bubble Chart\n(Hour & Count)"
-  };
-  
-  PImage[] icons = {
-    iconPie, iconLine, iconBar, iconGrouped,
-    iconRadar, iconScatter, iconHistogram, iconBubble
-  };
-  
-  int cols = 4, rows = 2;
-  float totalWidth  = cols * btnWidth + (cols - 1) * btnGapX;
-  float totalHeight = rows * btnHeight + (rows - 1) * btnGapY;
-  float startX = width / 2 - totalWidth / 2;
-  float startY = height / 2 - totalHeight / 2;
-  
-  // Disable depth testing so transparency is rendered correctly.
-  hint(DISABLE_DEPTH_TEST);
-  
-  for (int i = 0; i < labels.length; i++) {
-    int col = i % cols;
-    int row = i / cols;
-    float bx = startX + col * (btnWidth + btnGapX);
-    float by = startY + row * (btnHeight + btnGapY);
+    float btnWidth = 380;
+    float btnHeight = 260;
+    float btnGapX = 25;
+    float btnGapY = 40;
     
-    // If the mouse is over the button, use a less transparent grey.
-    if (mouseX > bx && mouseX < bx + btnWidth && mouseY > by && mouseY < by + btnHeight) {
-      fill(color(128, 128, 128, 50));  // More opaque when hovered.
-    } else {
-      fill(color(128, 128, 128, 20));  // Default transparent grey.
+    String[] labels = {
+      "Pie Chart\n(Flight Status)",
+      "Line Graph\n(Hourly Counts)",
+      "Bar Chart\n(Top Destinations)",
+      "Grouped Bar\n(Airline Performance)",
+      "Radar Chart\n(Monthly Flights)",
+      "Scatter Plot\n(Hour vs. Delay)",
+      "Histogram\n(Delay Distribution)",
+      "Bubble Chart\n(Hour & Count)"
+    };
+    
+    PImage[] icons = {
+      iconPie, iconLine, iconBar, iconGrouped,
+      iconRadar, iconScatter, iconHistogram, iconBubble
+    };
+    
+    int cols = 4;
+    int rows = 2;
+    float totalWidth  = cols * btnWidth + (cols - 1) * btnGapX;
+    float totalHeight = rows * btnHeight + (rows - 1) * btnGapY;
+    float startX = width / 2 - totalWidth / 2;
+    float startY = height / 2 - totalHeight / 2;
+    
+    for (int i = 0; i < labels.length; i++) {
+      int col = i % cols;
+      int row = i / cols;
+      float bx = startX + col * (btnWidth + btnGapX);
+      float by = startY + row * (btnHeight + btnGapY);
+      
+      if (mouseX > bx && mouseX < bx + btnWidth && mouseY > by && mouseY < by + btnHeight) {
+        fill(120, 170, 255);
+      } else {
+        fill(100, 150, 255);
+      }
+      rect(bx, by, btnWidth, btnHeight, 16);
+      
+      if (icons[i] != null) {
+        imageMode(CENTER);
+        image(icons[i], bx + btnWidth / 2, by + 100, 72, 72);
+      }
+      
+      fill(255);
+      textAlign(CENTER, TOP);
+      textSize(20);
+      text(labels[i], bx + btnWidth / 2, by + 160);
     }
-    
-    stroke(color(135, 206, 235, 150)); // Blue stroke.
-    strokeWeight(2);                   // Stroke weight 2.
-    rect(bx, by, btnWidth, btnHeight, 16);
-    
-    if (icons[i] != null) {
-      imageMode(CENTER);
-      image(icons[i], bx + btnWidth / 2, by + 100, 72, 72);
-    }
-    
-    fill(255);
-    textAlign(CENTER, TOP);
-    textSize(20);
-    text(labels[i], bx + btnWidth / 2, by + 160);
   }
-  
-  hint(ENABLE_DEPTH_TEST);
-}
-
   
   void mousePressed() {
     if (mouseX >= 10 && mouseX <= 110 && mouseY >= 10 && mouseY <= 50) {
@@ -690,7 +812,7 @@ class GraphSelectorMenu extends Screen {
   void drawBackButton() {
     int bx = 10, by = 10, bw = 100, bh = 40;
     stroke(0);
-    strokeWeight(2);
+    strokeWeight(1);
     if (mouseX >= bx && mouseX <= bx + bw && mouseY >= by && mouseY <= by + bh) fill(150);
     else fill(180);
     rect(bx, by, bw, bh, 5);
@@ -732,6 +854,107 @@ class GraphSelectorMenu extends Screen {
     textSize(18);
     textAlign(CENTER, CENTER);
     text("Calendar", bx + bw / 2, by + bh / 2);
+  }
+  
+  // --------------------------------------------------------------------------
+  // Key event handling for searchbar input with key-hold functionality.
+  // --------------------------------------------------------------------------
+  
+  void keyPressed() {
+     if (key == BACKSPACE) {
+      // If a graph is being displayed, go back to the graph selection menu.
+      if (!graphScreen.inMenu) {
+        graphScreen.inMenu = true;
+        return;
+      }
+      // If already in graph selection, go back to airport search.
+      else {
+        screenManager.switchScreen(airportSelector);
+        graphScreen = null;
+        return;
+      }
+    }
+    
+    if (screenMode == SCREEN_SELECTION && airportSelector.searchFocused) {
+      // Ignore repeated keyPressed events for the same key.
+      if (keyBeingHeld && key == heldKey) return;
+      
+      int selStart = min(airportSelector.selectionStart, airportSelector.selectionEnd);
+      int selEnd = max(airportSelector.selectionStart, airportSelector.selectionEnd);
+      
+      if (key == BACKSPACE) {
+        if (keyEvent.isControlDown() || keyEvent.isMetaDown()) {
+          ctrlBackspaceHeld = true;
+          ctrlBackspaceHoldStart = millis();
+          ctrlBackspaceLastRepeat = millis();
+          handleCtrlBackspace();
+        } else {
+          backspaceHeld = true;
+          backspaceHoldStart = millis();
+          backspaceLastDelete = millis();
+          handleBackspace();
+        }
+      }
+      else if (key == DELETE) {
+        if (airportSelector.hasSelection()) {
+          airportSelector.searchQuery = airportSelector.searchQuery.substring(0, selStart) +
+                                          airportSelector.searchQuery.substring(selEnd);
+          airportSelector.setCaretIndex(selStart);
+          airportSelector.clearSelection();
+          airportSelector.resetScroll();
+        } else if (airportSelector.caretIndex < airportSelector.searchQuery.length()) {
+          airportSelector.searchQuery = airportSelector.searchQuery.substring(0, airportSelector.caretIndex) +
+                                          airportSelector.searchQuery.substring(airportSelector.caretIndex + 1);
+          airportSelector.clearSelection();
+          airportSelector.resetScroll();
+        }
+      }
+      else if (key == CODED) {
+        if (keyCode == LEFT) {
+          arrowLeftHeld = true;
+          arrowHoldStart = millis();
+          arrowLastRepeat = millis();
+          airportSelector.setCaretIndex(airportSelector.caretIndex - 1);
+          airportSelector.clearSelection();
+        } else if (keyCode == RIGHT) {
+          arrowRightHeld = true;
+          arrowHoldStart = millis();
+          arrowLastRepeat = millis();
+          airportSelector.setCaretIndex(airportSelector.caretIndex + 1);
+          airportSelector.clearSelection();
+        }
+      }
+      else if (key == ENTER || key == RETURN) {
+        String[] filteredAirports = airportSelector.getFilteredAirports();
+        if (filteredAirports.length == 1) {
+          String selected = filteredAirports[0];
+          processData.filterDate = null;
+          if (graphScreen != null) graphScreen.lastSelectedDate = null;
+          processData.process(selected);
+          graphScreen = new GraphSelectorMenu(selected, processData);
+          screenMode = SCREEN_OVERVIEW;
+        }
+      }
+      else {
+        // Insert the key and set the custom repeat flags.
+        char c = key;
+        insertKeyChar(c);
+        heldKey = key;
+        keyBeingHeld = true;
+        keyHoldStart = millis();
+        keyLastRepeat = millis();
+      }
+    }
+  }
+  
+  void keyReleased() {
+    // Reset all key-hold flags on release.
+    backspaceHeld = false;
+    ctrlBackspaceHeld = false;
+    arrowLeftHeld = false;
+    arrowRightHeld = false;
+    keyBeingHeld = false;
+    heldKey = 0;
   }
 }
 

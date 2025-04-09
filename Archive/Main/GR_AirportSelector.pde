@@ -222,17 +222,15 @@ void drawSortButtonBubble() {
   float controlY = controlYPos;
   
   // --- Draw the sort button ---
-  fill(200);
+  fill(255);
   // Change stroke color if the sort menu is open or if the sort button is hovered.
   if (sortMenuOpen || (mouseX > sortButtonX && mouseX < sortButtonX + sortButtonWidth &&
       mouseY > controlY && mouseY < controlY + controlHeight)) {
-    strokeWeight(2);
-    stroke(color(255));
+    stroke(color(0, 120, 255));
   } else {
-    strokeWeight(1);
-    stroke(0);
+    stroke(150);
   }
-
+  strokeWeight(2);
   // Fully rounded bubble: all sides with radius 10.
   rect(sortButtonX, controlY, sortButtonWidth, controlHeight, 10);
   
@@ -262,16 +260,15 @@ void drawSearchBarBubble() {
   float clearButtonY = controlY + (controlHeight - clearButtonSize) / 2;
   
   // --- Draw the search bar background ---
-  fill(200);
+  fill(255);
   // Use a highlighted stroke if the search bar is focused or hovered.
   if (searchFocused || (mouseX > searchBarX && mouseX < searchBarX + searchBarWidth &&
       mouseY > controlY && mouseY < controlY + controlHeight)) {
-    strokeWeight(5);
-    stroke(color(255));
+    stroke(color(0, 120, 255));
   } else {
-    strokeWeight(1);
-    stroke(0);
+    stroke(150);
   }
+  strokeWeight(2);
   // Fully rounded bubble: all sides with radius 10.
   rect(searchBarX, controlY, searchBarWidth, controlHeight, 10);
   
@@ -361,43 +358,23 @@ void drawTiles() {
   for (int i = 0; i < itemsToShow; i++) {
     int index = topIndex + i;
     float currentItemY = listY + i * itemHeight;
-
-    // Check if mouse is over the tile
-    boolean tileHovered = mouseX > listX && mouseX < listX + listWidth &&
-                          mouseY > currentItemY && mouseY < currentItemY + itemHeight;
-
-    // Check if the sort menu is open and overlaps this tile area
-    boolean isOverSortMenu = sortMenuOpen &&
-                             mouseX > sortMenuX && mouseX < sortMenuX + sortMenuW &&
-                             mouseY > sortMenuY && mouseY < sortMenuY + sortMenuH + sortOptions.length * optionHeight;
-
-    // If the sort menu is covering the tile, cancel the hover
-    if (isOverSortMenu) {
-      tileHovered = false;
-    }
-
+    
+    boolean tileHovered = (mouseX > listX && mouseX < listX + listWidth &&
+                           mouseY > currentItemY && mouseY < currentItemY + itemHeight);
+    
     if (index < filteredAirports.length) {
-      // Disable depth testing so that transparency is rendered correctly.
-      hint(DISABLE_DEPTH_TEST);
-      
-      // Determine if the mouse is hovering this tile.
-      boolean overTile = (mouseX > listX && mouseX < listX + listWidth &&
-                          mouseY > currentItemY && mouseY < currentItemY + itemHeight);
-      
-      // Use a more opaque grey when hovered, otherwise use a more transparent grey.
-      if (overTile) {
-        fill(color(128, 128, 128, 50));  // More opaque when hovered.
+      if (tileHovered) {
+        fill(120, 170, 255);  // Hover fill.
+        stroke(50, 80, 150);  // Hover stroke.
+        strokeWeight(1.5);
       } else {
-        fill(color(128, 128, 128, 20));  // Default transparent grey.
+        fill(100, 150, 255);  // Normal fill.
+        noStroke();
       }
       
-      // Draw the tile with the blue stroke.
-      stroke(color(135, 206, 235, 150));  // Blue stroke.
-      strokeWeight(2);
       rect(listX, currentItemY, listWidth, itemHeight, 12);
       
-      // Draw the airport text.
-      fill(255);
+      // Prepare and draw the text label.
       String code = filteredAirports[index];
       String fullName = airportLookup.get(code);
       if (fullName == null) fullName = code;
@@ -409,10 +386,8 @@ void drawTiles() {
         fontSize--;
         textSize(fontSize);
       }
-      textAlign(CENTER, CENTER);
+      fill(255);
       text(label, listX + listWidth / 2, currentItemY + itemHeight / 2);
-      
-      hint(ENABLE_DEPTH_TEST);
     }
   }
 }
@@ -462,9 +437,9 @@ void drawSortMenu() {
   
   // Disable depth test to ensure the sort menu draws over everything.
   hint(DISABLE_DEPTH_TEST);
-    
-  fill(color(128,128,128)); // Opaque grey for the menu background.
-  stroke(color(135,206,235,150)); // Blue stroke.
+  
+  fill(255);
+  stroke(150);
   strokeWeight(2);
   rect(sortMenuX, sortMenuY, sortMenuW, sortMenuH, 10);
   
