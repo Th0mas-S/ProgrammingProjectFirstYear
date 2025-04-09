@@ -2,7 +2,7 @@ import processing.sound.*;
 
 float altitudeOffset = 500;
 float earthRadius = 200;
-int numAirplanes = 2;
+int numAirplanes = 1;
 
 // Global constant for Y-axis
 final PVector Y_AXIS = new PVector(0, 1, 0);
