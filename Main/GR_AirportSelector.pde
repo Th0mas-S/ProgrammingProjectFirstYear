@@ -480,7 +480,7 @@ void drawSortMenu() {
     boolean hovered = (mouseX > sortMenuX && mouseX < sortMenuX + sortMenuW &&
                          mouseY > optionY && mouseY < optionY + optionHeight);
     if (hovered) {
-      fill(200);
+      fill(255);
     } else {
       fill(200);
     }

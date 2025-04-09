@@ -27,8 +27,6 @@ Location destination = new Location(-51.2, 90.2);
 boolean showFlightInfo = false;
 float sphereRadius = 650;
 
-String[] flightRows;
-
 ArrayList<Airport> airports = new ArrayList<Airport>();
 HashMap<String, Airport> airportMap = new HashMap<String, Airport>();
 ArrayList<Flight> todaysFlights = new ArrayList<Flight>();
@@ -504,9 +502,8 @@ void loadAllAssets() {
   println("Initialising dictionary took" +  (millis() - start) + "ms");
   
   start = millis();
-  flightRows = loadStrings(currentDataset);
 
-  initializeFlights(flightRows);
+  initializeFlights();
   println("Initialising flights took " +  (millis() - start) + "ms");
 
   clearIndex();
