@@ -424,17 +424,17 @@ class GraphSelectorMenu extends Screen {
     pg.background(0, 0);
     pg.translate(32, 32);
     pg.noFill();
-    pg.stroke(0, 255, 0, 100);
+    pg.stroke(0, 255, 0, 255);
     pg.strokeWeight(1);
     for (int r = 8; r <= 28; r += 8) {
       pg.ellipse(0, 0, r * 2, r * 2);
     }
     pg.noStroke();
-    pg.fill(0, 255, 0, 50);
+    pg.fill(0, 255, 0, 180);
     float wedgeStart = -HALF_PI;
     float wedgeExtent = radians(30);
     pg.arc(0, 0, 56, 56, wedgeStart, wedgeStart + wedgeExtent, PIE);
-    pg.fill(0, 255, 0, 180);
+    pg.fill(0, 255, 0, 255);
     int blips = 5;
     float maxR = 28;
     for (int i = 0; i < blips; i++) {

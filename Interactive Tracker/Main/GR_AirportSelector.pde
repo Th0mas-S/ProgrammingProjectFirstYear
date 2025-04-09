@@ -177,16 +177,16 @@ void display() {
   
   float controlHeight = 55;
   float controlY = controlYPos; // top Y for both sort button and search bar
-
-  // Determine hover status for the sort button and search bar.
+  
+  // Determine hover status for each control.
   boolean hoverSort = (mouseX > sortButtonX && mouseX < sortButtonX + sortButtonWidth &&
-                       mouseY > controlY && mouseY < controlY + controlHeight);
-  boolean hoverSearch = (mouseX > searchBarX && mouseX < searchBarX + searchBarWidth &&
                          mouseY > controlY && mouseY < controlY + controlHeight);
-
+  boolean hoverSearch = (mouseX > searchBarX && mouseX < searchBarX + searchBarWidth &&
+                           mouseY > controlY && mouseY < controlY + controlHeight);
+  
   // Draw the FlightHub logo above the combined control.
   if (logo != null) {
-    float desiredLogoWidth = listWidth * 0.75; 
+    float desiredLogoWidth = listWidth * 0.75;
     float aspect = (float) logo.height / logo.width;
     float desiredLogoHeight = desiredLogoWidth * aspect;
     float marginAboveControl = -140;
@@ -196,17 +196,45 @@ void display() {
     image(logo, centerX, centerY, desiredLogoWidth, desiredLogoHeight);
   }
   
+  // --- Conditional layering: Draw the non-hovered control first so the hovered one is on top.
+  if (hoverSort && !hoverSearch) {
+    drawSearchBarBubble();
+    drawSortButtonBubble();
+  } else if (hoverSearch && !hoverSort) {
+    drawSortButtonBubble();
+    drawSearchBarBubble();
+  } else {
+    drawSortButtonBubble();
+    drawSearchBarBubble();
+  }
+  
+  // Draw the airport list.
+  drawAirportList();
+  
+  // Draw the sort menu on top.
+  drawSortMenu();
+}
+
+// --------------------------------------------------------------------------
+// Helper function to draw the sort button (bubble style).
+void drawSortButtonBubble() {
+  float controlHeight = 55;
+  float controlY = controlYPos;
+  
   // --- Draw the sort button ---
   fill(255);
-  // Change stroke color if hovered or if the sort menu is open.
-  if (sortMenuOpen || hoverSort) {
+  // Change stroke color if the sort menu is open or if the sort button is hovered.
+  if (sortMenuOpen || (mouseX > sortButtonX && mouseX < sortButtonX + sortButtonWidth &&
+      mouseY > controlY && mouseY < controlY + controlHeight)) {
     stroke(color(0, 120, 255));
   } else {
     stroke(150);
   }
   strokeWeight(2);
+  // Fully rounded bubble: all sides with radius 10.
   rect(sortButtonX, controlY, sortButtonWidth, controlHeight, 10);
   
+  // --- Draw the label in the sort button ---
   fill(0);
   textSize(20);
   textAlign(CENTER, CENTER);
@@ -219,22 +247,32 @@ void display() {
     currentOption = (sortOrder == SortOrder.ASC) ? "Country A–Z" : "Country Z–A";
   }
   text(currentOption, sortButtonX + sortButtonWidth / 2, controlY + controlHeight / 2);
-  
-  // --- Draw the search bar (to the right of the sort button) ---
+}
+
+// --------------------------------------------------------------------------
+// Helper function to draw the search bar (bubble style).
+void drawSearchBarBubble() {
+  float controlHeight = 55;
+  float controlY = controlYPos;
+  // Dimensions for the clear button.
   float clearButtonSize = 28;
   float clearButtonX = searchBarX + searchBarWidth - clearButtonSize - 10;
   float clearButtonY = controlY + (controlHeight - clearButtonSize) / 2;
   
+  // --- Draw the search bar background ---
   fill(255);
   // Use a highlighted stroke if the search bar is focused or hovered.
-  if (searchFocused || hoverSearch) {
+  if (searchFocused || (mouseX > searchBarX && mouseX < searchBarX + searchBarWidth &&
+      mouseY > controlY && mouseY < controlY + controlHeight)) {
     stroke(color(0, 120, 255));
   } else {
     stroke(150);
   }
   strokeWeight(2);
+  // Fully rounded bubble: all sides with radius 10.
   rect(searchBarX, controlY, searchBarWidth, controlHeight, 10);
   
+  // --- Draw the search text ---
   textAlign(LEFT, CENTER);
   textSize(24);
   
@@ -247,11 +285,9 @@ void display() {
     fullText = searchQuery;
     textAlpha = 255;
   }
-  
   fill(0, textAlpha);
   
-  float availableWidth = searchBarWidth - 60;
-  
+  // Ensure the visible text fits within the search bar.
   String visibleText = fullText.substring(displayStart);
   while (visibleText.length() > 0 && textWidth(visibleText) > searchBarWidth - 60) {
     visibleText = visibleText.substring(1);
@@ -263,14 +299,13 @@ void display() {
   float textY = controlY + controlHeight / 2;
   text(visibleText, textX, textY);
   
-  // Draw text selection highlight.
+  // --- Draw text selection highlight if any ---
   if (searchFocused && selectionStart != selectionEnd) {
     int selStart = min(selectionStart, selectionEnd);
     int selEnd = max(selectionStart, selectionEnd);
     
     int highlightStart = max(selStart, displayStart);
     int highlightEnd = min(selEnd, fullText.length());
-    
     if (highlightEnd > highlightStart) {
       String beforeSelection = fullText.substring(displayStart, highlightStart);
       float highlightX = textX + textWidth(beforeSelection);
@@ -283,11 +318,11 @@ void display() {
       
       noStroke();
       fill(200, 220, 255, 150);
-      rect(highlightX, highlightY, selectionWidth, highlightH, 8);
+      rect(highlightX, highlightY, selectionWidth, highlightH, 10);
     }
   }
   
-  // Draw caret.
+  // --- Draw the caret if focused ---
   if (searchFocused && textAlpha == 255 && showCaret) {
     float caretOffset = 0;
     if (caretIndex > displayStart) {
@@ -300,80 +335,101 @@ void display() {
     line(caretX, controlY + 10, caretX, controlY + controlHeight - 10);
   }
   
-  // Draw the clear ("X") button if there is text.
+  // --- Draw the clear ("X") button if there is text ---
   if (!searchQuery.isEmpty()) {
     fill(200);
     noStroke();
-    ellipse(clearButtonX + clearButtonSize / 2, clearButtonY + clearButtonSize / 2, clearButtonSize, clearButtonSize);
+    ellipse(clearButtonX + clearButtonSize / 2, clearButtonY + clearButtonSize / 2,
+            clearButtonSize, clearButtonSize);
     fill(0);
     textAlign(CENTER, CENTER);
     textSize(16);
     text("X", clearButtonX + clearButtonSize / 2, clearButtonY + clearButtonSize / 2);
   }
-  
-  // Draw the airport list.
-  drawAirportList();
-  // Then draw the sort menu on top.
-  drawSortMenu();
 }
 
-  void drawAirportList() {
-    String[] filteredAirports = getFilteredAirports();
-    topIndex = constrain(topIndex, 0, max(0, filteredAirports.length - itemsToShow));
+void drawTiles() {
+  String[] filteredAirports = getFilteredAirports();
+  // Ensure topIndex is within a valid range.
+  topIndex = constrain(topIndex, 0, max(0, filteredAirports.length - itemsToShow));
+  
+  textAlign(CENTER, CENTER);
+  
+  for (int i = 0; i < itemsToShow; i++) {
+    int index = topIndex + i;
+    float currentItemY = listY + i * itemHeight;
     
-    textAlign(CENTER, CENTER);
-    for (int i = 0; i < itemsToShow; i++) {
-      int index = topIndex + i;
-      float currentItemY = listY + i * itemHeight;
-      
-      // Allow hover effect except for the area of the sort drop-down.
-      boolean overTile = (mouseX > listX && mouseX < listX + listWidth &&
-                          mouseY > currentItemY && mouseY < currentItemY + itemHeight &&
-                          !(sortMenuOpen && mouseX < sortMenuX + sortMenuW));
-      
-      if (index < filteredAirports.length) {
-        if (overTile) {
-          fill(120, 170, 255);
-          stroke(50, 80, 150);
-          strokeWeight(1.5);
-        } else {
-          fill(100, 150, 255);
-          noStroke();
-        }
-        
-        rect(listX, currentItemY, listWidth, itemHeight, 12);
-        
-        fill(255);
-        String code = filteredAirports[index];
-        String fullName = airportLookup.get(code);
-        if (fullName == null) fullName = code;
-        String label = fullName + " / " + code;
-        
-        float fontSize = 24;
-        textSize(fontSize);
-        while (textWidth(label) > listWidth - 20 && fontSize > 12) {
-          fontSize -= 1;
-          textSize(fontSize);
-        }
-        text(label, listX + listWidth / 2, currentItemY + itemHeight / 2);
-      }
-    }
+    boolean tileHovered = (mouseX > listX && mouseX < listX + listWidth &&
+                           mouseY > currentItemY && mouseY < currentItemY + itemHeight);
     
-    // Draw slider if needed.
-    if (filteredAirports.length > itemsToShow) {
-      fill(210);
-      rect(sliderX, sliderY, sliderWidth, sliderHeight, 6);
-      float availableTrackHeight = sliderHeight - sliderKnobHeight;
-      float knobY = sliderY + sliderPos * availableTrackHeight;
-      if (dragging || (mouseX > sliderX && mouseX < sliderX + sliderWidth &&
-                       mouseY > knobY && mouseY < knobY + sliderKnobHeight)) {
-        fill(80);
+    if (index < filteredAirports.length) {
+      if (tileHovered) {
+        fill(120, 170, 255);  // Hover fill.
+        stroke(50, 80, 150);  // Hover stroke.
+        strokeWeight(1.5);
       } else {
-        fill(120);
+        fill(100, 150, 255);  // Normal fill.
+        noStroke();
       }
-      rect(sliderX, knobY, sliderWidth, sliderKnobHeight, 6);
+      
+      rect(listX, currentItemY, listWidth, itemHeight, 12);
+      
+      // Prepare and draw the text label.
+      String code = filteredAirports[index];
+      String fullName = airportLookup.get(code);
+      if (fullName == null) fullName = code;
+      String label = fullName + " / " + code;
+      
+      float fontSize = 24;
+      textSize(fontSize);
+      while (textWidth(label) > listWidth - 20 && fontSize > 12) {
+        fontSize--;
+        textSize(fontSize);
+      }
+      fill(255);
+      text(label, listX + listWidth / 2, currentItemY + itemHeight / 2);
     }
   }
+}
+
+void drawSliderMask() {
+  noStroke();
+  fill(0);  // Change if your background isn't pure black.
+  rect(sliderX, sliderY, sliderWidth, sliderHeight);
+}
+
+void drawSlider() {
+  String[] filteredAirports = getFilteredAirports();
+  if (filteredAirports.length <= itemsToShow) return;
+  
+  fill(210);
+  rect(sliderX, sliderY, sliderWidth, sliderHeight, 6);
+  
+  float availableTrackHeight = sliderHeight - sliderKnobHeight;
+  float knobY = sliderY + sliderPos * availableTrackHeight;
+  
+  boolean sliderHovered = (mouseX > sliderX && mouseX < sliderX + sliderWidth &&
+                           mouseY > knobY && mouseY < knobY + sliderKnobHeight);
+  
+  if (dragging || sliderHovered) {
+    fill(80);  // Knob hover/drag style.
+  } else {
+    fill(120); // Normal knob style.
+  }
+
+  rect(sliderX, knobY, sliderWidth, sliderKnobHeight, 6);
+}
+
+// Combined drawing function that calls the separate methods.
+void drawAirportList() {
+  recalcLayout();
+  
+  drawTiles();
+  
+  drawSliderMask();
+  
+  drawSlider();
+}
   
 void drawSortMenu() {
   // Only draw the sort menu if it is open.
