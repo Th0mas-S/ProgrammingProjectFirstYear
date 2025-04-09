@@ -60,9 +60,12 @@ class Slider {
   // Adjust the knob's position based on the scroll wheel's direction.
   // A positive scroll value moves the knob down, while a negative value moves it up.
   void scroll(float direction) {
-    float sensitivity = 10.0;  // Adjust this value to fine-tune the scroll speed.
-    yS += direction * sensitivity;
-    yS = constrain(yS, y, y + sliderLength - knobHeight);
+    //float sensitivity = 10.0;  // Adjust this value to fine-tune the scroll speed.
+    //yS += direction * sensitivity;
+    
+    yS += direction / arrayIndex.size() * 1000;
+    yS = constrain(yS, y, y + sliderLength - knobHeight -0.0565);
+    //println("yS: "+yS+" / y: "+y+" / sl-kh:"+(sliderLength - knobHeight));
   }
 
   // Draw the slider on the screen.
