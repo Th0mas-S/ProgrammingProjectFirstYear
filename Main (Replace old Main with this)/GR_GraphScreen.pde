@@ -312,7 +312,7 @@ class GraphSelectorMenu extends Screen {
     PGraphics pg = createGraphics(64, 64);
     pg.beginDraw();
     pg.background(0, 0);
-    pg.stroke(0);
+    pg.stroke(100);
     pg.strokeWeight(2);
     pg.noFill();
     pg.line(10, 54, 54, 54);
@@ -332,7 +332,7 @@ class GraphSelectorMenu extends Screen {
     PGraphics pg = createGraphics(64, 64);
     pg.beginDraw();
     pg.background(0, 0);
-    pg.stroke(0);
+    pg.stroke(100);
     pg.strokeWeight(2);
     pg.noFill();
     pg.line(10, 54, 54, 54);
@@ -352,7 +352,7 @@ class GraphSelectorMenu extends Screen {
     PGraphics pg = createGraphics(64, 64);
     pg.beginDraw();
     pg.background(0, 0);
-    pg.stroke(0);
+    pg.stroke(100);
     pg.strokeWeight(2);
     pg.noFill();
     pg.line(10, 54, 54, 54);
@@ -534,58 +534,64 @@ class GraphSelectorMenu extends Screen {
   }
   
   void drawMenu() {
-    float btnWidth = 380;
-    float btnHeight = 260;
-    float btnGapX = 25;
-    float btnGapY = 40;
+  float btnWidth = 380, btnHeight = 260, btnGapX = 25, btnGapY = 40;
+  
+  String[] labels = {
+    "Pie Chart\n(Flight Status)",
+    "Line Graph\n(Hourly Counts)",
+    "Bar Chart\n(Top Destinations)",
+    "Grouped Bar\n(Airline Performance)",
+    "Radar Chart\n(Monthly Flights)",
+    "Scatter Plot\n(Hour vs. Delay)",
+    "Histogram\n(Delay Distribution)",
+    "Bubble Chart\n(Hour & Count)"
+  };
+  
+  PImage[] icons = {
+    iconPie, iconLine, iconBar, iconGrouped,
+    iconRadar, iconScatter, iconHistogram, iconBubble
+  };
+  
+  int cols = 4, rows = 2;
+  float totalWidth  = cols * btnWidth + (cols - 1) * btnGapX;
+  float totalHeight = rows * btnHeight + (rows - 1) * btnGapY;
+  float startX = width / 2 - totalWidth / 2;
+  float startY = height / 2 - totalHeight / 2;
+  
+  // Disable depth testing so transparency is rendered correctly.
+  hint(DISABLE_DEPTH_TEST);
+  
+  for (int i = 0; i < labels.length; i++) {
+    int col = i % cols;
+    int row = i / cols;
+    float bx = startX + col * (btnWidth + btnGapX);
+    float by = startY + row * (btnHeight + btnGapY);
     
-    String[] labels = {
-      "Pie Chart\n(Flight Status)",
-      "Line Graph\n(Hourly Counts)",
-      "Bar Chart\n(Top Destinations)",
-      "Grouped Bar\n(Airline Performance)",
-      "Radar Chart\n(Monthly Flights)",
-      "Scatter Plot\n(Hour vs. Delay)",
-      "Histogram\n(Delay Distribution)",
-      "Bubble Chart\n(Hour & Count)"
-    };
-    
-    PImage[] icons = {
-      iconPie, iconLine, iconBar, iconGrouped,
-      iconRadar, iconScatter, iconHistogram, iconBubble
-    };
-    
-    int cols = 4;
-    int rows = 2;
-    float totalWidth  = cols * btnWidth + (cols - 1) * btnGapX;
-    float totalHeight = rows * btnHeight + (rows - 1) * btnGapY;
-    float startX = width / 2 - totalWidth / 2;
-    float startY = height / 2 - totalHeight / 2;
-    
-    for (int i = 0; i < labels.length; i++) {
-      int col = i % cols;
-      int row = i / cols;
-      float bx = startX + col * (btnWidth + btnGapX);
-      float by = startY + row * (btnHeight + btnGapY);
-      
-      if (mouseX > bx && mouseX < bx + btnWidth && mouseY > by && mouseY < by + btnHeight) {
-        fill(120, 170, 255);
-      } else {
-        fill(100, 150, 255);
-      }
-      rect(bx, by, btnWidth, btnHeight, 16);
-      
-      if (icons[i] != null) {
-        imageMode(CENTER);
-        image(icons[i], bx + btnWidth / 2, by + 100, 72, 72);
-      }
-      
-      fill(255);
-      textAlign(CENTER, TOP);
-      textSize(20);
-      text(labels[i], bx + btnWidth / 2, by + 160);
+    // If the mouse is over the button, use a less transparent grey.
+    if (mouseX > bx && mouseX < bx + btnWidth && mouseY > by && mouseY < by + btnHeight) {
+      fill(color(128, 128, 128, 50));  // More opaque when hovered.
+    } else {
+      fill(color(128, 128, 128, 20));  // Default transparent grey.
     }
+    
+    stroke(color(135, 206, 235, 150)); // Blue stroke.
+    strokeWeight(2);                   // Stroke weight 2.
+    rect(bx, by, btnWidth, btnHeight, 16);
+    
+    if (icons[i] != null) {
+      imageMode(CENTER);
+      image(icons[i], bx + btnWidth / 2, by + 100, 72, 72);
+    }
+    
+    fill(255);
+    textAlign(CENTER, TOP);
+    textSize(20);
+    text(labels[i], bx + btnWidth / 2, by + 160);
   }
+  
+  hint(ENABLE_DEPTH_TEST);
+}
+
   
   void mousePressed() {
     if (mouseX >= 10 && mouseX <= 110 && mouseY >= 10 && mouseY <= 50) {
@@ -672,7 +678,7 @@ class GraphSelectorMenu extends Screen {
   void drawBackButton() {
     int bx = 10, by = 10, bw = 100, bh = 40;
     stroke(0);
-    strokeWeight(1);
+    strokeWeight(2);
     if (mouseX >= bx && mouseX <= bx + bw && mouseY >= by && mouseY <= by + bh) fill(150);
     else fill(180);
     rect(bx, by, bw, bh, 5);

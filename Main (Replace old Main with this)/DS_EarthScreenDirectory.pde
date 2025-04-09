@@ -226,7 +226,7 @@ class EarthScreenDirectory extends Screen {
     pushStyle();
       hint(DISABLE_DEPTH_TEST);
       rectMode(CORNER);
-      fill(128, 128, 128, 50);
+      fill(50, 50, 50, 230);
       stroke(135, 206, 235, 150);
       strokeWeight(2);
       rect(infoX, infoY, infoW, infoH, 10);

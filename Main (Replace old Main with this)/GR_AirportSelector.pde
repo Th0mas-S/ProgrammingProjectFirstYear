@@ -222,15 +222,17 @@ void drawSortButtonBubble() {
   float controlY = controlYPos;
   
   // --- Draw the sort button ---
-  fill(255);
+  fill(200);
   // Change stroke color if the sort menu is open or if the sort button is hovered.
   if (sortMenuOpen || (mouseX > sortButtonX && mouseX < sortButtonX + sortButtonWidth &&
       mouseY > controlY && mouseY < controlY + controlHeight)) {
-    stroke(color(0, 120, 255));
+    strokeWeight(2);
+    stroke(color(255));
   } else {
-    stroke(150);
+    strokeWeight(1);
+    stroke(0);
   }
-  strokeWeight(2);
+
   // Fully rounded bubble: all sides with radius 10.
   rect(sortButtonX, controlY, sortButtonWidth, controlHeight, 10);
   
@@ -260,15 +262,16 @@ void drawSearchBarBubble() {
   float clearButtonY = controlY + (controlHeight - clearButtonSize) / 2;
   
   // --- Draw the search bar background ---
-  fill(255);
+  fill(200);
   // Use a highlighted stroke if the search bar is focused or hovered.
   if (searchFocused || (mouseX > searchBarX && mouseX < searchBarX + searchBarWidth &&
       mouseY > controlY && mouseY < controlY + controlHeight)) {
-    stroke(color(0, 120, 255));
+    strokeWeight(5);
+    stroke(color(255));
   } else {
-    stroke(150);
+    strokeWeight(1);
+    stroke(0);
   }
-  strokeWeight(2);
   // Fully rounded bubble: all sides with radius 10.
   rect(searchBarX, controlY, searchBarWidth, controlHeight, 10);
   
@@ -374,18 +377,27 @@ void drawTiles() {
     }
 
     if (index < filteredAirports.length) {
-      if (tileHovered) {
-        fill(120, 170, 255);  // Hover fill.
-        stroke(50, 80, 150);  // Hover stroke.
-        strokeWeight(1.5);
+      // Disable depth testing so that transparency is rendered correctly.
+      hint(DISABLE_DEPTH_TEST);
+      
+      // Determine if the mouse is hovering this tile.
+      boolean overTile = (mouseX > listX && mouseX < listX + listWidth &&
+                          mouseY > currentItemY && mouseY < currentItemY + itemHeight);
+      
+      // Use a more opaque grey when hovered, otherwise use a more transparent grey.
+      if (overTile) {
+        fill(color(128, 128, 128, 50));  // More opaque when hovered.
       } else {
-        fill(100, 150, 255);  // Normal fill.
-        noStroke();
+        fill(color(128, 128, 128, 20));  // Default transparent grey.
       }
       
+      // Draw the tile with the blue stroke.
+      stroke(color(135, 206, 235, 150));  // Blue stroke.
+      strokeWeight(2);
       rect(listX, currentItemY, listWidth, itemHeight, 12);
       
-      // Prepare and draw the text label.
+      // Draw the airport text.
+      fill(255);
       String code = filteredAirports[index];
       String fullName = airportLookup.get(code);
       if (fullName == null) fullName = code;
@@ -397,8 +409,10 @@ void drawTiles() {
         fontSize--;
         textSize(fontSize);
       }
-      fill(255);
+      textAlign(CENTER, CENTER);
       text(label, listX + listWidth / 2, currentItemY + itemHeight / 2);
+      
+      hint(ENABLE_DEPTH_TEST);
     }
   }
 }
@@ -448,9 +462,9 @@ void drawSortMenu() {
   
   // Disable depth test to ensure the sort menu draws over everything.
   hint(DISABLE_DEPTH_TEST);
-  
-  fill(255);
-  stroke(150);
+    
+  fill(color(128,128,128)); // Opaque grey for the menu background.
+  stroke(color(135,206,235,150)); // Blue stroke.
   strokeWeight(2);
   rect(sortMenuX, sortMenuY, sortMenuW, sortMenuH, 10);
   

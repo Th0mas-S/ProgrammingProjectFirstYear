@@ -35,20 +35,20 @@ class Search{
     else stroke(0);
     fill(200);
     rect(x, y, sWidth, sHeight, 8);
-    fill(0);
-    textSize(25);
+    fill(50);
+    textSize(24);
     if(mode==1){
       if(!search){                                          //code for showing either "search" or the users currently typed in characters
-        text("Search", x+20, y+33);
+        text("Search flights...", x+20, y+33);
       }
       else{
         if(inputText.equals("")){
           if(animation>35){
-            text("Search_", x+20, y+33);
+            text("Search flights_", x+20, y+33);
             animation++;
           }
           else{
-            text("Search", x+20, y+33);
+            text("Search flights", x+20, y+33);
             animation++;
           }
           if(animation>70) animation=0;
