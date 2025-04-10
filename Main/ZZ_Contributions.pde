@@ -23,6 +23,12 @@ Week 11:
 - Thomas Shanahan
   - Created Credits screen
   - Bug Fixes
+  
+- Jason Conboy
+  - Improved sorting
+  - Fixed slider/scroll
+  - Bug Fixes
+  - UI improvements
 
 Week 10:
 
