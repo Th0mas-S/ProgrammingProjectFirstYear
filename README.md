@@ -1,6 +1,12 @@
 # Flight Tracker
 Flight Tracker allows aviation enthusiasts, data analysts, and hobbyists to visualize and analyze a full year of global flight data. Users can interact with a 3D globe, filter flights, view heatmaps of the busiest routes, and uncover trends in airline performance and delays.
 
+
+
+https://github.com/user-attachments/assets/24969cbc-813a-4823-91e3-6466c01776d6
+
+
+
 # Features
 - **3D Visualization:** Interactive flight path simulation on a 3D globe.
 - **Filtering & Search:** Search flights and filter by airline, month, or delay status.
